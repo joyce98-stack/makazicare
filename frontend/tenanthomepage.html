@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Tenant Home</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css ">
+  <style>
+    
+  </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Tenant navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="#">
+        <span class="brand-mark"><i class="bi bi-house-door" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">TENAPAY</span>
+          <span class="brand-sub d-block">Tenant</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tenantNav"
+              aria-controls="tenantNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="tenantNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#receipts">Receipts</a></li>
+          <li class="nav-item"><a class="nav-link" href="#maintenance">Maintenance</a></li>
+          <li class="nav-item"><a class="nav-link" href="#relocation">Relocation</a></li>
+          <li class="nav-item"><a class="nav-link" href="#Extension">Extension</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">JH</span>
+          <span class="small fw-semibold">Joyce</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page">
+    <div class="container">
+      <div class="row g-5 align-items-start">
+
+        <!-- Property + arched window image -->
+        <div class="col-lg-5">
+          <p class="eyebrow mb-0">Your home</p>
+          <h1 class="property-name">J.Crown<br /><em>Apartments</em></h1>
+          <p class="property-address"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Nairobi, Kenya</p>
+
+          <figure class="window">
+            <div class="window-pane">
+              <img
+                src="https://images.pexels.com/photos/34270526/pexels-photo-34270526.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=960"
+                alt="J.Crown Apartments building facade seen through an arched window" />
+            </div>
+            <figcaption class="window-tag"><i class="bi bi-door-open" aria-hidden="true"></i>Unit: J 10</figcaption>
+          </figure>
+        </div>
+
+        <!-- Tenant info + actions -->
+        <div class="col-lg-7">
+          <section class="panel" aria-labelledby="leaseTitle">
+            <div class="panel-head">
+              <h2 id="leaseTitle">Lease overview</h2>
+              <span class="status">Active lease</span>
+            </div>
+
+            <div class="facts">
+              <div class="fact">
+                <span class="fact-icon tint-sage"><i class="bi bi-person" aria-hidden="true"></i></span>
+                <div>
+                  <p class="fact-label">Tenant</p>
+                  <p class="fact-value">Joyce</p>
+                </div>
+              </div>
+              <div class="fact">
+                <span class="fact-icon tint-brown"><i class="bi bi-door-closed" aria-hidden="true"></i></span>
+                <div>
+                  <p class="fact-label">Unit</p>
+                  <p class="fact-value">J 10</p>
+                </div>
+              </div>
+              <div class="fact">
+                <span class="fact-icon tint-brown"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+                <div>
+                  <p class="fact-label">Rent due</p>
+                  <p class="fact-value">10,000 KES</p>
+                  <p class="fact-note">per month</p>
+                </div>
+              </div>
+              <div class="fact">
+                <span class="fact-icon tint-sage"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+                <div>
+                  <p class="fact-label">Due date</p>
+                  <p class="fact-value">15th of the month</p>
+                  <p class="fact-note">next: 15 December</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <a class="btn btn-sage" href="#receipts" id="receipts"><i class="bi bi-receipt" aria-hidden="true"></i>View Receipts</a>
+              <a class="btn btn-brown" href="#maintenance" id="maintenance"><i class="bi bi-tools" aria-hidden="true"></i>Submit Maintenance Request</a>
+              <a class="btn btn-outline-earth" href="#relocation" id="relocation"><i class="bi bi-box-seam" aria-hidden="true"></i>Request Relocation</a>
+              <a class="btn btn-outline-sage" href="# extension" id="extension"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Request Extension</a>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 TenaPay · Tenant portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:tenapay@jh.com">tenapay@jh.com</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (needed only for the mobile navbar toggle) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
