@@ -631,3 +631,269 @@
     .site-footer { background: var(--brown-950); color: #C9BBA8; padding: 1.4rem 0; font-size: 0.85rem; }
     .site-footer a { color: #E9DECD; text-decoration: none; border-bottom: 1px solid rgba(233, 222, 205, .35); }
     .site-footer a:hover { color: #fff; border-bottom-color: #fff; }
+
+
+    # property manager homepage
+    :root {
+      --cream: #FAF7F1;
+      --paper: #FFFDF8;
+      --line: #E7DFCD;
+      --ink: #2F2720;
+      --muted: #70675B;
+      --sage-pale: #EFF3EB;
+      --sage-light: #DFE8D9;
+      --sage: #60775A;
+      --sage-dark: #354B38;
+      --sage-deep: #2C382B;
+      --brown-pale: #F0E8D9;
+      --brown: #795C3D;
+      --brown-dark: #3E2E22;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { flex: 1; }
+    ::selection { background: var(--sage-dark); color: white; }
+    .serif { font-family: "Fraunces", Georgia, serif; }
+
+    /* Header uses the same quiet visual language as the tenant and landlord pages. */
+    .site-nav {
+      background: rgba(250, 247, 241, .94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: .8rem 0;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: var(--sage-dark);
+      color: var(--cream);
+      font-size: 1.1rem;
+    }
+    .brand-name {
+      display: block;
+      color: var(--ink);
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: .07em;
+    }
+    .brand-role {
+      display: block;
+      margin-top: .22rem;
+      color: var(--brown);
+      font-size: .57rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+    }
+    .site-nav .nav-link {
+      padding: .45rem .95rem !important;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 500;
+    }
+    .site-nav .nav-link:hover { color: var(--sage-dark); }
+    .site-nav .nav-link.active { background: var(--sage-light); color: var(--sage-dark); }
+    .manager-avatar {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--brown-pale);
+      color: var(--brown-dark);
+      font-size: .76rem;
+      font-weight: 700;
+    }
+    .navbar-toggler {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--ink);
+      font-size: 1.2rem;
+    }
+    .navbar-toggler:focus { box-shadow: 0 0 0 4px var(--sage-light); }
+
+    .workspace { padding: 53px 0 76px; }
+    .eyebrow {
+      color: var(--sage);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 1.5px;
+      margin-right: .65rem;
+      background: currentColor;
+      vertical-align: middle;
+    }
+    h1 {
+      margin: .85rem 0 .65rem;
+      color: var(--sage-deep);
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(2.4rem, 4.4vw, 3.7rem);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+    }
+    h1 em { color: var(--brown); font-weight: 400; }
+    .intro { max-width: 49ch; margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .section-kicker {
+      margin: 0 0 1rem;
+      color: var(--brown);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .section-heading {
+      margin: 0;
+      color: var(--sage-deep);
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 550;
+    }
+    .quiet-link {
+      color: var(--sage-dark);
+      font-size: .84rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .quiet-link:hover { color: var(--brown); }
+
+    /* Editorial crop: one image, shaped like an architectural page corner. */
+    .property-visual {
+      position: relative;
+      margin: 1.4rem 0 0;
+      padding: 0 14px 14px 0;
+    }
+    .property-visual::before {
+      content: "";
+      position: absolute;
+      inset: 16px 0 0 16px;
+      border: 1px solid #A7B79F;
+      border-radius: 140px 14px 14px 14px;
+    }
+    .property-visual img {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 355px;
+      border: 5px solid white;
+      border-radius: 140px 14px 14px 14px;
+      object-fit: cover;
+      object-position: center 57%;
+      box-shadow: 0 27px 45px -30px rgba(46, 56, 43, .48);
+    }
+    .property-caption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .9rem 14px 0 0;
+    }
+    .property-caption strong { color: var(--sage-deep); font-size: .93rem; }
+    .property-caption span { color: var(--muted); font-size: .8rem; }
+
+    /* The single container is an actionable work list, not a set of promo cards. */
+    .desk {
+      overflow: hidden;
+      margin-top: 1.4rem;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--paper);
+    }
+    .desk-header { padding: 1.5rem 1.55rem 1.1rem; }
+    .desk-header p { margin: .4rem 0 0; color: var(--muted); font-size: .85rem; }
+    .work-item { border-top: 1px solid var(--line); }
+    .work-item summary {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.08rem 1.55rem;
+      list-style: none;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .work-item summary::-webkit-details-marker { display: none; }
+    .work-item summary:hover, .work-item[open] summary { background: var(--sage-pale); }
+    .work-item summary:focus-visible { outline: 2px solid var(--sage); outline-offset: -4px; }
+    .task-icon {
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      width: 39px;
+      height: 39px;
+      border-radius: 12px;
+      background: var(--sage-light);
+      color: var(--sage-dark);
+      font-size: 1rem;
+    }
+    .task-icon.warm { background: var(--brown-pale); color: var(--brown); }
+    .task-text { min-width: 0; flex: 1; }
+    .task-text strong { display: block; color: var(--ink); font-size: .88rem; font-weight: 600; }
+    .task-text small { display: block; margin-top: .25rem; color: var(--muted); font-size: .76rem; }
+    .task-chevron { color: var(--brown); font-size: .85rem; transition: transform .2s ease; }
+    .work-item[open] .task-chevron { transform: rotate(180deg); }
+    .task-detail {
+      padding: 0 1.55rem 1.2rem 5rem;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.6;
+    }
+    .task-detail a { color: var(--sage-dark); font-weight: 600; }
+
+    /* One restrained financial summary, rather than a dense dashboard. */
+    .payments { margin-top: 2.4rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
+    .payments-heading { color: var(--sage-deep); font-family: "Fraunces", Georgia, serif; font-size: 1.4rem; font-weight: 550; }
+    .payments-copy { color: var(--muted); font-size: .84rem; }
+    .payment-figure { margin: 0; color: var(--sage-deep); font-family: "Fraunces", Georgia, serif; font-size: 1.9rem; line-height: 1.1; }
+    .payment-label { margin: .35rem 0 0; color: var(--muted); font-size: .78rem; }
+    .progress { height: 7px; background: var(--brown-pale); border-radius: 999px; }
+    .progress-bar { width: 83%; background: var(--sage); border-radius: 999px; }
+
+    .site-footer { padding: 1.45rem 0; background: #241B14; color: #C9BBA8; font-size: .82rem; }
+    .site-footer a { color: #E9DECD; text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 991.98px) {
+      .navbar-collapse { margin-top: .8rem; padding: .8rem; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); }
+      .site-nav .nav-link { padding: .7rem 1rem !important; }
+      .property-visual img { height: 340px; }
+    }
+    @media (max-width: 575.98px) {
+      .workspace { padding: 35px 0 54px; }
+      .property-visual img { height: 280px; border-radius: 105px 14px 14px 14px; }
+      .property-visual::before { border-radius: 105px 14px 14px 14px; }
+      .property-caption { display: block; }
+      .property-caption span { display: block; margin-top: .25rem; }
+      .task-detail { padding-left: 1.55rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .work-item summary, .task-chevron { transition: none; }
+    }
