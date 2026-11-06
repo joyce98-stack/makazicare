@@ -633,7 +633,7 @@
     .site-footer a:hover { color: #fff; border-bottom-color: #fff; }
 
 
-    # property manager homepage
+    # >>> Property manager homepage --------
     :root {
       --cream: #FAF7F1;
       --paper: #FFFDF8;
