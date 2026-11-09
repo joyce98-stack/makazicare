@@ -345,7 +345,7 @@
       border-radius: 999px;
       box-shadow: 0 12px 24px -12px rgba(62, 46, 34, 0.7);
     }
-    .window-tag i { color: var(--sage-300); margin-right: 0.35rem; }
+    .window-tag i { color: var(--sage-300); margin-right: 0.35rem font-weight: 700; }
     @media (max-width: 991.98px) { .window { margin: 1.6rem auto 0; } }
 
     /* ---------- Info panel ---------- */
