@@ -112,6 +112,7 @@
     .hero-copy {
       color: var(--muted);
       font-size: 1.03rem;
+      font-style: italic;
       line-height: 1.75;
       max-width: 46ch;
       margin: 0;
@@ -152,7 +153,7 @@
       border-radius: 22px;
       overflow: hidden;
     }
-    .role { padding: 1.5rem 1.6rem; display: flex; gap: 0.9rem; align-items: flex-start; }
+    .role { padding: 1.5rem 1.6rem; display: flex;  flex-direction:column; column-gap: 15cm 0.9rem; align-items: flex-start; }
     .role + .role { border-left: 1px solid var(--line); }
     .role-icon {
       flex: 0 0 auto;
@@ -163,6 +164,18 @@
       border-radius: 12px;
       font-size: 1rem;
     }
+
+    .btn-sage {
+       background: var(--sage-800);
+       border: none; 
+       color: var(--cream); 
+
+    
+    
+    }
+
+
+
     .tint-sage { background: var(--sage-100); color: var(--sage-800); }
     .tint-brown { background: var(--brown-100); color: var(--brown-700); }
     .tint-olive { background: #ECEAD8; color: #5C5A33; }
