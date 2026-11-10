@@ -1,13 +1,377 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>maintenance</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Maintenance</title>
+  <meta name="theme-color" content="#FAF7F1" />
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+   
+  <link rel="stylesheet" href="style.css ">
+  <style>
+    
+  </style>
 </head>
+
 <body>
-    
-    
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Tenant navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="tenanthomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-door" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">TENAPAY</span>
+          <span class="brand-sub d-block">Tenant</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tenantNav"
+              aria-controls="tenantNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="tenantNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="tenanthomepage.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#receipts">Receipts</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Maintenance</a></li>
+          <li class="nav-item"><a class="nav-link" href="#relocation">Relocation</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">JD</span>
+          <span class="small fw-semibold">John Doe</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container">
+
+      <!-- Page head -->
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <p class="eyebrow">________________________________</p>
+          <h1 class="page-title">Let's get it <em>fixed.</em></h1>
+        </div>
+        <div class="manager-chip">
+          <span class="avatar" aria-hidden="true">MC</span>
+          <span>
+            <b>Mira Cruz · your property manager</b>
+            <span>Reads every request · replies within a day</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="row g-4 align-items-start">
+
+        <!-- ===== New request ===== -->
+        <div class="col-lg-7">
+
+          <section class="panel request-form-panel" aria-labelledby="newTitle">
+            <div class="urg-strip" aria-hidden="true"></div>
+            <div class="panel-head">
+              <div>
+                <h2 id="newTitle">New request</h2>
+                <p class="sub">Unit 101 · J.Crown Apartments · goes straight to Mira</p>
+              </div>
+              <span class="status">~3 day avg fix</span>
+            </div>
+
+            <form class="form-body" action="#request-sent" method="get">
+              <!-- Category -->
+              <fieldset class="mb-3">
+                <legend class="form-label">What kind of problem is it?</legend>
+                <div class="cat-grid">
+                  <input class="vh-radio" type="radio" name="category" id="catPlumb" value="plumbing" required checked />
+                  <label class="pill" for="catPlumb"><i class="bi bi-droplet" aria-hidden="true"></i>Plumbing</label>
+                  <input class="vh-radio" type="radio" name="category" id="catElec" value="electrical" />
+                  <label class="pill" for="catElec"><i class="bi bi-lightning-charge" aria-hidden="true"></i>Electrical</label>
+                  <input class="vh-radio" type="radio" name="category" id="catAir" value="aircon" />
+                  <label class="pill" for="catAir"><i class="bi bi-snow2" aria-hidden="true"></i>Aircon</label>
+                  <input class="vh-radio" type="radio" name="category" id="catAppl" value="appliance" />
+                  <label class="pill" for="catAppl"><i class="bi bi-plug" aria-hidden="true"></i>Appliance</label>
+                  <input class="vh-radio" type="radio" name="category" id="catPest" value="pest" />
+                  <label class="pill" for="catPest"><i class="bi bi-bug" aria-hidden="true"></i>Pests</label>
+                  <input class="vh-radio" type="radio" name="category" id="catOther" value="other" />
+                  <label class="pill" for="catOther"><i class="bi bi-three-dots" aria-hidden="true"></i>Other</label>
+                </div>
+              </fieldset>
+
+              <!-- Title -->
+              <div class="mb-3">
+                <label class="form-label" for="issueTitle">Give it a short title</label>
+                <input class="form-control" type="text" id="issueTitle" name="title" maxlength="80"
+                       placeholder="e.g. Kitchen sink leaks under the cabinet" required />
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <label class="form-label" for="issueDesc">What's happening?</label>
+                <textarea class="form-control" id="issueDesc" name="description" maxlength="600" required
+                          placeholder="When did it start, how bad is it, and anything you've already tried…"></textarea>
+                <p class="form-text mt-1 mb-0">The more detail, the faster Mira can bring the right fix.</p>
+              </div>
+
+              <!-- Urgency -->
+              <fieldset class="mb-3">
+                <legend class="form-label">How urgent is it?</legend>
+                <div class="urg-row">
+                  <input class="vh-radio" type="radio" name="urgency" id="urgLow" value="low" />
+                  <label class="pill" for="urgLow"><i class="bi bi-feather" aria-hidden="true"></i>Whenever</label>
+                  <input class="vh-radio" type="radio" name="urgency" id="urgNormal" value="normal" checked />
+                  <label class="pill" for="urgNormal"><i class="bi bi-clock" aria-hidden="true"></i>This week</label>
+                  <input class="vh-radio" type="radio" name="urgency" id="urgHigh" value="urgent" />
+                  <label class="pill pill-clay" for="urgHigh"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Urgent</label>
+                  <span class="urg-hint">Urgent flags Mira right away</span>
+                </div>
+                <p class="urgent-note mb-0">
+                  <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                  <span><b>Urgent issues are flagged to Mira immediately.</b> For emergencies — flooding, sparks, or gas —
+                  skip the form and call the 24/7 line: <a href="tel:+63285550199">+63 2 8555 0199</a>.</span>
+                </p>
+              </fieldset>
+
+              <!-- Visit -->
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                  <label class="form-label" for="visitDate">Preferred visit day <span class="opt">(optional)</span></label>
+                  <input class="form-control" type="date" id="visitDate" name="visit_date" min="2026-11-19" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label" for="visitSlot">Best time</label>
+                  <select class="form-select" id="visitSlot" name="visit_slot">
+                    <option selected>Anytime</option>
+                    <option>Morning · 8 AM – 12 NN</option>
+                    <option>Afternoon · 12 – 4 PM</option>
+                    <option>Evening · 4 – 7 PM</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Photo -->
+              <div class="mb-3">
+                <label class="form-label" for="issuePhoto">Add a photo <span class="opt">(optional)</span></label>
+                <input class="form-control" type="file" id="issuePhoto" name="photo" accept="image/*" />
+                <p class="form-text mt-1 mb-0">A quick snap helps the technician arrive prepared.</p>
+              </div>
+
+              <!-- Access + phone -->
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="accessOk" name="access_ok" value="yes" />
+                <label class="form-check-label" for="accessOk">
+                  The technician may enter with the guard's key if I'm not home
+                </label>
+              </div>
+              <div class="mb-4">
+                <label class="form-label" for="phone">Mobile number <span class="opt">(for visit updates)</span></label>
+                <input class="form-control" type="tel" id="phone" name="phone" value="+63 917 555 0101" autocomplete="tel" />
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-sage flex-grow-1" type="submit">
+                  <i class="bi bi-send" aria-hidden="true"></i>Send request to Mira
+                </button>
+                <a class="btn btn-outline-earth" href="tenanthomepage.html">Cancel</a>
+              </div>
+              <p class="form-text text-center mt-3 mb-0">You'll get a reference number right away — no chasing needed.</p>
+            </form>
+          </section>
+
+          <!-- Success (shown via :target after native form submit) -->
+          <section class="panel" id="request-sent" aria-labelledby="sentTitle">
+            <div class="urg-strip" aria-hidden="true"></div>
+            <div class="success-body">
+              <span class="success-mark"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+              <div><span class="success-ref"><i class="bi bi-hash" aria-hidden="true"></i>Reference M-2432</span></div>
+              <h3 id="sentTitle">Request sent, John.</h3>
+              <p>It's on Mira's desk now. She'll confirm it and book a visit — you'll see the schedule appear under <b>Your requests</b>.</p>
+              <div class="next-steps">
+                <div class="next-step"><i class="bi bi-eye" aria-hidden="true"></i>Mira reviews your request today</div>
+                <div class="next-step"><i class="bi bi-calendar-check" aria-hidden="true"></i>A technician is booked to your time slot</div>
+                <div class="next-step"><i class="bi bi-chat-square-text" aria-hidden="true"></i>Updates land here — no follow-ups needed</div>
+              </div>
+              <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+                <a class="btn btn-sage" href="maintenancepage.html"><i class="bi bi-plus-lg" aria-hidden="true"></i>Submit another request</a>
+                <a class="btn btn-outline-earth" href="tenanthomepage.html">Back to home</a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== Your requests ===== -->
+        <div class="col-lg-5">
+          <div class="d-grid gap-4">
+
+            <section class="panel d1 requests" aria-labelledby="reqTitle">
+              <div class="panel-head">
+                <h2 id="reqTitle">Your requests</h2>
+                <span class="status">Unit 101</span>
+              </div>
+
+              <p class="css-note mb-0">Filters need a recent browser — all requests are shown below.</p>
+
+              <div class="filter-row" role="radiogroup" aria-label="Filter requests">
+                <input class="vh-radio" type="radio" name="tfilter" id="tAll" checked />
+                <label class="pill" for="tAll">All <span class="n">3</span></label>
+                <input class="vh-radio" type="radio" name="tfilter" id="tActive" />
+                <label class="pill" for="tActive">Active <span class="n">1</span></label>
+                <input class="vh-radio" type="radio" name="tfilter" id="tDone" />
+                <label class="pill" for="tDone">Resolved <span class="n">2</span></label>
+              </div>
+
+              <div class="tickets">
+
+                <!-- Active: aircon -->
+                <details class="ticket" data-s="active" open>
+                  <summary>
+                    <span class="t-icon tint-sage"><i class="bi bi-snow2" aria-hidden="true"></i></span>
+                    <span>
+                      <span class="t-title">Aircon not cooling well</span>
+                      <span class="t-meta">M-2426 · Reported Nov 18 · Aircon</span>
+                    </span>
+                    <span class="chip chip-open">Scheduled</span>
+                    <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+                  </summary>
+                  <div class="t-body">
+                    <div class="timeline" aria-label="Progress: received and scheduled; repair pending">
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Received</b><span>Nov 18</span></div>
+                      <div class="tstep current"><span class="dot"></span><b>Scheduled</b><span>Nov 21</span></div>
+                      <div class="tstep future"><span class="dot"></span><b>In progress</b><span>—</span></div>
+                      <div class="tstep future"><span class="dot"></span><b>Resolved</b><span>—</span></div>
+                    </div>
+                    <dl class="t-grid mb-0">
+                      <div><dt>Visit booked</dt><dd>Fri Nov 21 · 9–11 AM</dd></div>
+                      <div><dt>Priority</dt><dd>This week</dd></div>
+                      <p class="t-note mb-0"><i class="bi bi-chat-square-quote" aria-hidden="true"></i><b>Mira:</b> "CoolBreeze technician booked. Please keep the unit accessible 9–11 AM — he'll check the refrigerant and filters."</p>
+                      <div class="t-actions">
+                        <a class="btn btn-sage btn-sm" href="mailto:mira.cruz@tenapay.ph?subject=Ticket%20M-2426%20%E2%80%94%20Aircon%2C%20Unit%20101"><i class="bi bi-chat-dots" aria-hidden="true"></i>Message Mira</a>
+                        <a class="btn btn-outline-earth btn-sm" href="mailto:mira.cruz@tenapay.ph?subject=Reschedule%20visit%20%E2%80%94%20M-2426"><i class="bi bi-calendar-week" aria-hidden="true"></i>Reschedule</a>
+                      </div>
+                    </dl>
+                  </div>
+                </details>
+
+                <!-- Resolved: drain -->
+                <details class="ticket" data-s="resolved">
+                  <summary>
+                    <span class="t-icon tint-brown"><i class="bi bi-droplet" aria-hidden="true"></i></span>
+                    <span>
+                      <span class="t-title">Slow bathroom drain</span>
+                      <span class="t-meta">M-2402 · Reported Nov 3 · Plumbing</span>
+                    </span>
+                    <span class="chip chip-done">Resolved</span>
+                    <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+                  </summary>
+                  <div class="t-body">
+                    <div class="timeline" aria-label="Progress: fully resolved on November 6">
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Received</b><span>Nov 3</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Scheduled</b><span>Nov 4</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>In progress</b><span>Nov 6</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Resolved</b><span>Nov 6</span></div>
+                    </div>
+                    <dl class="t-grid mb-0">
+                      <div><dt>Fixed in</dt><dd>3 days</dd></div>
+                      <div><dt>Handled by</dt><dd>Ben · building plumber</dd></div>
+                      <p class="t-note mb-0"><i class="bi bi-chat-square-quote" aria-hidden="true"></i><b>Mira:</b> "Cleared the trap and flushed the line — it's flowing freely now. Shout if it acts up again."</p>
+                      <div class="t-actions">
+                        <div class="rate">
+                          <span class="rate-label">Rate the fix</span>
+                          <span class="stars" role="radiogroup" aria-label="Rate the drain repair from 1 to 5 stars">
+                            <input class="vh-radio" type="radio" name="rate2402" id="r2402-5" value="5" /><label for="r2402-5" title="5 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2402" id="r2402-4" value="4" /><label for="r2402-4" title="4 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2402" id="r2402-3" value="3" /><label for="r2402-3" title="3 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2402" id="r2402-2" value="2" /><label for="r2402-2" title="2 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2402" id="r2402-1" value="1" /><label for="r2402-1" title="1 star"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                          </span>
+                          <span class="rate-thanks"><i class="bi bi-heart-fill" aria-hidden="true"></i>Thanks!</span>
+                        </div>
+                      </div>
+                    </dl>
+                  </div>
+                </details>
+
+                <!-- Resolved: window latch -->
+                <details class="ticket" data-s="resolved">
+                  <summary>
+                    <span class="t-icon tint-olive"><i class="bi bi-window" aria-hidden="true"></i></span>
+                    <span>
+                      <span class="t-title">Bedroom window latch loose</span>
+                      <span class="t-meta">M-2389 · Reported Oct 26 · Other</span>
+                    </span>
+                    <span class="chip chip-done">Resolved</span>
+                    <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+                  </summary>
+                  <div class="t-body">
+                    <div class="timeline" aria-label="Progress: fully resolved on October 28">
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Received</b><span>Oct 26</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Scheduled</b><span>Oct 27</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>In progress</b><span>Oct 28</span></div>
+                      <div class="tstep done"><span class="dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span><b>Resolved</b><span>Oct 28</span></div>
+                    </div>
+                    <dl class="t-grid mb-0">
+                      <div><dt>Fixed in</dt><dd>2 days</dd></div>
+                      <div><dt>Handled by</dt><dd>Ben · building plumber</dd></div>
+                      <p class="t-note mb-0"><i class="bi bi-chat-square-quote" aria-hidden="true"></i><b>Mira:</b> "Replaced the latch and tightened the frame screws. It should close snugly now."</p>
+                      <div class="t-actions">
+                        <div class="rate">
+                          <span class="rate-label">Rate the fix</span>
+                          <span class="stars" role="radiogroup" aria-label="Rate the window repair from 1 to 5 stars">
+                            <input class="vh-radio" type="radio" name="rate2389" id="r2389-5" value="5" /><label for="r2389-5" title="5 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2389" id="r2389-4" value="4" /><label for="r2389-4" title="4 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2389" id="r2389-3" value="3" /><label for="r2389-3" title="3 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2389" id="r2389-2" value="2" /><label for="r2389-2" title="2 stars"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                            <input class="vh-radio" type="radio" name="rate2389" id="r2389-1" value="1" /><label for="r2389-1" title="1 star"><i class="bi bi-star-fill" aria-hidden="true"></i></label>
+                          </span>
+                          <span class="rate-thanks"><i class="bi bi-heart-fill" aria-hidden="true"></i>Thanks!</span>
+                        </div>
+                      </div>
+                    </dl>
+                  </div>
+                </details>
+
+              </div>
+
+              <div class="panel-foot">
+                <span><i class="bi bi-funnel me-1" aria-hidden="true"></i>Showing <b class="shown-count"></b> of 3 · tap a ticket for its journey</span>
+              </div>
+            </section>
+
+            <!-- Emergency -->
+            <div class="emergency panel d2">
+              <span class="e-icon"><i class="bi bi-telephone-fill" aria-hidden="true"></i></span>
+              <span>
+                <b>Something can't wait?</b>
+                <span>Flooding, sparks, gas — call the 24/7 building line.</span>
+              </span>
+              <a href="tel:+63285550199">+63 2 8555 0199</a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 TenaPay · Tenant portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@tenapay.ph">hello@tenapay.ph</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar toggle only) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

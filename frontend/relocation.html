@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Relocation</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #FAF7F1;
+      --paper: #FFFDF8;
+      --line: #E7DFCD;
+      --ink: #2F2720;
+      --muted: #6E6355;
+      --sage-100: #E3EADF;
+      --sage-300: #A9BFA1;
+      --sage-600: #5A7053;
+      --sage-800: #3A4A38;
+      --sage-900: #2C382B;
+      --brown-100: #EEE5D5;
+      --brown-300: #C5A87E;
+      --brown-600: #77593A;
+      --brown-700: #5F4630;
+      --brown-900: #3E2E22;
+      --brown-950: #241B14;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main { flex: 1; }
+
+    ::selection { background: var(--sage-800); color: var(--cream); }
+
+    /* ---------- Navbar ---------- */
+    .navbar {
+      background: rgba(250, 247, 241, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      padding: 0.8rem 0;
+    }
+    .brand-mark {
+      width: 40px; height: 40px;
+      display: grid; place-items: center;
+      background: var(--sage-800); color: var(--cream);
+      border-radius: 13px; font-size: 1.05rem;
+    }
+    .brand-name {
+      font-family: "Fraunces", serif; font-weight: 600;
+      font-size: 1.2rem; letter-spacing: 0.07em; line-height: 1; color: var(--ink);
+    }
+    .brand-sub {
+      font-size: 0.58rem; font-weight: 600; letter-spacing: 0.32em;
+      color: var(--brown-600); text-transform: uppercase;
+    }
+    .navbar .nav-link {
+      color: var(--muted); font-weight: 500; font-size: 0.93rem;
+      padding: 0.45rem 0.95rem !important; border-radius: 999px;
+    }
+    .navbar .nav-link:hover { color: var(--sage-800); }
+    .navbar .nav-link.active { color: var(--sage-800); background: var(--sage-100); }
+    .navbar-toggler {
+      border: 1px solid var(--line); border-radius: 999px;
+      width: 42px; height: 42px; padding: 0; display: grid; place-items: center;
+      color: var(--ink); background: #fff; font-size: 1.2rem;
+    }
+    .navbar-toggler:focus { box-shadow: 0 0 0 4px var(--sage-100); }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--brown-100); color: var(--brown-700);
+      font-size: 0.78rem; font-weight: 700;
+    }
+    @media (max-width: 991.98px) {
+      .navbar-collapse {
+        background: var(--paper); border: 1px solid var(--line);
+        border-radius: 18px; padding: 0.8rem; margin-top: 0.8rem;
+      }
+      .navbar .nav-link { padding: 0.7rem 1rem !important; }
+    }
+
+    /* ---------- Page ---------- */
+    .page { padding: 56px 0 72px; }
+    @media (max-width: 575.98px) { .page { padding: 32px 0 48px; } }
+    .narrow { max-width: 620px; margin: 0 auto; }
+
+    .page-title {
+      font-family: "Fraunces", serif; font-weight: 540;
+      font-size: clamp(2rem, 4vw, 2.7rem); line-height: 1.08;
+      letter-spacing: -0.015em; color: var(--sage-900); margin: 0;
+    }
+    .page-title em { font-style: italic; font-weight: 420; color: var(--brown-700); }
+    .page-sub { color: var(--muted); font-size: 1rem; line-height: 1.65; margin: 0.8rem 0 0; }
+
+    /* ---------- Card ---------- */
+    .card-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 575.98px) { .card-panel { padding: 1.4rem 1.2rem; border-radius: 22px; } }
+
+    .step + .step { margin-top: 1.9rem; }
+    .step-label {
+      display: flex; align-items: center; gap: 0.7rem;
+      font-size: 1rem; font-weight: 700; color: var(--ink);
+      margin: 0 0 0.85rem; padding: 0;
+    }
+    .step-n {
+      flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--sage-100); color: var(--sage-800);
+      display: grid; place-items: center;
+      font-family: "Fraunces", serif; font-weight: 600; font-size: 0.9rem;
+    }
+    .opt { font-weight: 500; color: var(--muted); font-size: 0.86rem; }
+
+    /* radio cards */
+    .vh-radio { position: absolute; opacity: 0; pointer-events: none; }
+    .choices { display: grid; gap: 0.6rem; }
+    .choice {
+      display: flex; align-items: center; gap: 0.9rem;
+      background: #fff; border: 1.5px solid var(--line);
+      border-radius: 16px; padding: 0.95rem 1.1rem; cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .choice:hover { border-color: var(--sage-300); }
+    .choice-icon {
+      flex: 0 0 auto; width: 42px; height: 42px; border-radius: 12px;
+      background: var(--brown-100); color: var(--brown-700);
+      display: grid; place-items: center; font-size: 1.05rem;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .choice b { display: block; font-size: 0.95rem; font-weight: 700; }
+    .choice small { display: block; font-size: 0.82rem; color: var(--muted); margin-top: 0.1rem; }
+    .choice-tick {
+      margin-left: auto; width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--line); background: #fff; color: transparent;
+      display: grid; place-items: center; font-size: 0.7rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .vh-radio:checked + .choice { border-color: var(--sage-800); background: var(--sage-100); }
+    .vh-radio:checked + .choice .choice-icon { background: var(--sage-800); color: var(--cream); }
+    .vh-radio:checked + .choice .choice-tick { background: var(--sage-800); border-color: var(--sage-800); color: var(--cream); }
+    .vh-radio:focus-visible + .choice { outline: 2px solid var(--sage-800); outline-offset: 3px; }
+
+    /* inputs */
+    .form-control {
+      border-radius: 14px; border: 1.5px solid var(--line);
+      padding: 0.8rem 1rem; font-size: 0.97rem; background: #fff; color: var(--ink);
+    }
+    .form-control:focus { border-color: var(--sage-600); box-shadow: 0 0 0 4px var(--sage-100); }
+    .form-control::placeholder { color: #B4A895; }
+    .form-control:user-invalid { border-color: #8A3B22; }
+    textarea.form-control { min-height: 96px; resize: vertical; }
+    .hint { font-size: 0.84rem; color: var(--muted); margin: 0.55rem 0 0; }
+
+    /* buttons */
+    .btn {
+      border-radius: 999px; font-weight: 600; font-size: 1rem; padding: 0.85rem 1.5rem;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .btn-sage { background: var(--sage-800); border: 1px solid var(--sage-800); color: var(--cream); }
+    .btn-sage:hover, .btn-sage:focus { background: var(--sage-900); border-color: var(--sage-900); color: #fff; box-shadow: 0 12px 24px -14px rgba(44, 56, 43, 0.7); }
+    .btn-outline-earth { background: transparent; border: 1px solid var(--brown-300); color: var(--brown-900); }
+    .btn-outline-earth:hover, .btn-outline-earth:focus { background: #fff; border-color: var(--brown-600); color: var(--brown-900); }
+    .btn:focus-visible { outline: 2px solid var(--sage-800); outline-offset: 3px; }
+    .cancel {
+      display: block; text-align: center; margin-top: 1rem;
+      font-size: 0.9rem; font-weight: 600; color: var(--muted); text-decoration: none;
+    }
+    .cancel:hover { color: var(--sage-800); }
+
+    /* ---------- Confirmation (:target, sibling selector — no JS) ---------- */
+    #relocation-sent { display: none; }
+    #relocation-sent:target { display: block; }
+    #relocation-sent:target ~ .form-panel { display: none; }
+    .sent { text-align: center; padding: 1.2rem 0.4rem; }
+    .sent-mark {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto;
+      background: var(--sage-800); color: var(--cream);
+      display: grid; place-items: center; font-size: 1.6rem;
+    }
+    .sent h2 { font-family: "Fraunces", serif; font-weight: 560; font-size: 1.7rem; color: var(--sage-900); margin: 1.2rem 0 0.5rem; }
+    .sent p { color: var(--muted); font-size: 1rem; line-height: 1.65; max-width: 38ch; margin: 0 auto; }
+    .sent-ref {
+      display: inline-block; margin-top: 1.1rem;
+      background: var(--brown-100); color: var(--brown-700);
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.5rem 1rem; border-radius: 999px;
+    }
+
+    /* ---------- Footer ---------- */
+    .site-footer { background: var(--brown-950); color: #C9BBA8; padding: 1.4rem 0; font-size: 0.85rem; }
+    .site-footer a { color: #E9DECD; text-decoration: none; border-bottom: 1px solid rgba(233, 222, 205, 0.35); }
+    .site-footer a:hover { color: #fff; border-bottom-color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .btn, .choice, .choice-icon, .choice-tick { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Tenant navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="tenanthomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-door" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">MAKAZI CARE</span>
+          <span class="brand-sub d-block">Tenant</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tenantNav"
+              aria-controls="tenantNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="tenantNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="tenanthomepage.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="tenanthomepage.html#receipts">Receipts</a></li>
+          <li class="nav-item"><a class="nav-link" href="maintenancepage.html">Maintenance</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Relocation</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">JD</span>
+          <span class="small fw-semibold">John Doe</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container">
+      <div class="narrow">
+
+        <h1 class="page-title">Request a <em>relocation.</em></h1>
+        <p class="page-sub">Three quick steps. Your property manager, Mira, will take it from there.</p>
+
+        <!-- Confirmation (comes first in the DOM so the sibling selector can hide the form) -->
+        <section class="card-panel" id="relocation-sent" aria-labelledby="sentTitle">
+          <div class="sent">
+            <span class="sent-mark"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+            <h2 id="sentTitle">Request sent.</h2>
+            <p>Mira will reply within one working day. Nothing changes until you both confirm.</p>
+            <span class="sent-ref">Reference R-1187</span>
+            <div class="mt-4">
+              <a class="btn btn-sage w-100" href="tenanthomepage.html">Back to home</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Form -->
+        <section class="card-panel form-panel" aria-label="Relocation request">
+          <form action="#relocation-sent" method="get">
+
+            <!-- Step 1 -->
+            <fieldset class="step">
+              <legend class="step-label"><span class="step-n">1</span>What kind of move?</legend>
+              <div class="choices">
+                <div>
+                  <input class="vh-radio" type="radio" name="move_type" id="moveInternal" value="another-unit" checked />
+                  <label class="choice" for="moveInternal">
+                    <span class="choice-icon"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></span>
+                    <span><b>Another unit here</b><small>Stay at J.Crown Apartments</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+                <div>
+                  <input class="vh-radio" type="radio" name="move_type" id="moveExternal" value="another-property" />
+                  <label class="choice" for="moveExternal">
+                    <span class="choice-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+                    <span><b>Another property</b><small>Move to a different building</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+                <div>
+                  <input class="vh-radio" type="radio" name="move_type" id="moveOut" value="moving-out" />
+                  <label class="choice" for="moveOut">
+                    <span class="choice-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <span><b>Moving out</b><small>Please allow 30 days' notice</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 2 -->
+            <div class="step">
+              <label class="step-label" for="moveDate"><span class="step-n">2</span>When would you like to move?</label>
+              <input class="form-control" type="date" id="moveDate" name="move_date" min="2026-12-01" required />
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step">
+              <label class="step-label" for="moveNotes"><span class="step-n">3</span>Anything Mira should know? <span class="opt">Optional</span></label>
+              <textarea class="form-control" id="moveNotes" name="notes" maxlength="500"
+                        placeholder="e.g. I'd like a higher floor, or a second bedroom."></textarea>
+            </div>
+
+            <button class="btn btn-sage w-100 mt-4" type="submit">Send request</button>
+            <a class="cancel" href="tenanthomepage.html">Cancel</a>
+          </form>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 Makazi Care · Tenant portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@makazicare.ph">hello@makazicare.ph</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar toggle only) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

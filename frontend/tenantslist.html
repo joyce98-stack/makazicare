@@ -1,40 +1,476 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenants List</title>
-</head>
-<body>
-<div class="container">
-    <h1>Tenants List</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Unit</th>
-                <th>Email</th>
-                <th>Phone</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>John Doe</td>
-                <td>J20</td>
-                <td>jhw@gmail.com</td>
-                <td>+254 799 123 456</td>
-            </tr>
-            <tr>
-                <td>Jane Smith</td>
-                <td>J27</td>
-                <td>js@example.com</td>
-                <td>+254 799 789 012</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Tenants List</title>
+  <meta name="theme-color" content="#FAF7F1" />
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+   
+  <link rel="stylesheet" href="style.css">
+  <style>
     
+  </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Portal navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="#top">
+        <span class="brand-mark">
+          <i class="bi bi-house-heart only-landlord" aria-hidden="true"></i>
+          <i class="bi bi-clipboard-check only-manager" aria-hidden="true"></i>
+        </span>
+        <span>
+          <span class="brand-name d-block">TENAPAY</span>
+          <span class="brand-sub d-block only-landlord">Landlord</span>
+          <span class="brand-sub d-block only-manager">Manager</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#listNav"
+              aria-controls="listNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="listNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item only-landlord"><a class="nav-link" href="landlordhomepage.html"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Dashboard</a></li>
+          <li class="nav-item only-manager"><a class="nav-link" href="managerhomepage.html"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Manager desk</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Tenants</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0 only-landlord">
+          <span class="avatar landlord" aria-hidden="true">RA</span>
+          <span class="small fw-semibold">Rosa Aquino</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0 only-manager">
+          <span class="avatar manager" aria-hidden="true">MC</span>
+          <span class="small fw-semibold">Mira Cruz</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container app">
+
+      <!-- Page head + portal switch -->
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <!-- <p class="eyebrow">Shared directory</p> -->
+          <h1 class="page-title">Know Who's Behind <br><em>Every</em> Door.</h1>
+          <p class="page-sub">One record per home — who lives there, what they pay, and since when.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <div class="portal-switch" role="radiogroup" aria-label="View this list as">
+            <input class="vh-radio" type="radio" name="portal" id="pLandlord" checked />
+            <label class="pill" for="pLandlord"><i class="bi bi-house-heart" aria-hidden="true"></i>Landlord</label>
+            <input class="vh-radio" type="radio" name="portal" id="pManager" />
+            <label class="pill pill-manager" for="pManager"><i class="bi bi-clipboard-check" aria-hidden="true"></i>Manager</label>
+          </div>
+          <a class="btn btn-sage" href="mailto:invites@tenapay.ph?subject=Tenant%20invite%20%E2%80%94%20TenaPay">
+            <i class="bi bi-person-plus" aria-hidden="true"></i>Invite tenant
+          </a>
+        </div>
+      </div>
+
+      <!-- Portfolio totals -->
+      <div class="stats mb-4">
+        <div class="stat">
+          <span class="stat-icon tint-sage"><i class="bi bi-people" aria-hidden="true"></i></span>
+          <div><b>13</b><span>Tenants housed</span></div>
+        </div>
+        <div class="stat">
+          <span class="stat-icon tint-brown"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+          <div><b>163,100</b><span>Monthly rent roll</span></div>
+        </div>
+        <div class="stat">
+          <span class="stat-icon tint-clay"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+          <div><b>24,400</b><span>Outstanding · 2 units</span></div>
+        </div>
+      </div>
+
+      <!-- Directory -->
+      <section class="panel" aria-labelledby="dirTitle">
+        <div class="panel-head">
+          <h2 id="dirTitle">All tenants</h2>
+          <span class="status">2 properties · Nov 2026</span>
+        </div>
+
+        <p class="css-note mb-0">Filters and sorting need a recent browser — the full list is shown below.</p>
+
+        <!-- Toolbar: property / status / sort -->
+        <div class="toolbar">
+          <span class="toolbar-label">Property</span>
+          <input class="vh-radio" type="radio" name="fprop" id="fAll" checked />
+          <label class="pill" for="fAll">All <span class="n">13</span></label>
+          <input class="vh-radio" type="radio" name="fprop" id="fJC" />
+          <label class="pill" for="fJC">J.Crown <span class="n">10</span></label>
+          <input class="vh-radio" type="radio" name="fprop" id="fCV" />
+          <label class="pill" for="fCV">Casa Verde <span class="n">3</span></label>
+
+          <span class="sep" aria-hidden="true"></span>
+          <span class="toolbar-label">Status</span>
+          <input class="vh-radio" type="radio" name="fstat" id="sAll" checked />
+          <label class="pill" for="sAll">All</label>
+          <input class="vh-radio" type="radio" name="fstat" id="sPaid" />
+          <label class="pill" for="sPaid">Paid <span class="n">11</span></label>
+          <input class="vh-radio" type="radio" name="fstat" id="sOver" />
+          <label class="pill pill-clay" for="sOver">Overdue <span class="n">2</span></label>
+
+          <span class="sep" aria-hidden="true"></span>
+          <span class="toolbar-label">Sort</span>
+          <input class="vh-radio" type="radio" name="fsort" id="oUnit" checked />
+          <label class="pill" for="oUnit"><i class="bi bi-door-closed" aria-hidden="true"></i>Unit</label>
+          <input class="vh-radio" type="radio" name="fsort" id="oName" />
+          <label class="pill" for="oName">Name A–Z</label>
+          <input class="vh-radio" type="radio" name="fsort" id="oRent" />
+          <label class="pill" for="oRent">Rent ↑</label>
+          <input class="vh-radio" type="radio" name="fsort" id="oDate" />
+          <label class="pill" for="oDate">Newest</label>
+        </div>
+
+        <!-- Column headers -->
+        <div class="rhead" aria-hidden="true">
+          <span>Unit / House</span>
+          <span>Tenant</span>
+          <span>Rent to pay : KES </span>
+          <span>Occupied since</span>
+          <span>Status</span>
+          <span></span>
+        </div>
+
+        <!-- Rows -->
+        <div class="rows">
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:1; --n:6; --r:5; --d:11;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">101</span></span>
+              <span class="who"><span class="who-avatar">JD</span><span class="text-truncate"><b>John Doe</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>12,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Mar 15, 2021</b><span>5 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:john.doe@example.com">john.doe@example.com</a><br /><a href="tel:+639175550101">+63 917 555 0101</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Mar 14, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Auto-pay every 12th — never late. Prefers receipts by email.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:john.doe@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email John</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:2; --n:1; --r:2; --d:1;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">102</span></span>
+              <span class="who"><span class="who-avatar">AS</span><span class="text-truncate"><b>Amara Santos</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>11,500 </b> <span>/mo</span></span>
+                <span class="c-date"><b>Jun 15, 2026</b><span>5 mos</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:amara.santos@example.com">amara.santos@example.com</a><br /><a href="tel:+639175550102">+63 917 555 0102</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Jun 14, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Newest tenant — moved in this June. Settling in well; prefers e-wallet receipts.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:amara.santos@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Amara</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="over" style="--u:3; --n:9; --r:6; --d:13;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">1B</span></span>
+              <span class="who"><span class="who-avatar">MP</span><span class="text-truncate"><b>Marco Pascual</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>12,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Nov 1, 2019</b><span>7 yrs</span></span>
+                <span class="c-status"><span class="chip chip-over">Overdue</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:marco.p@example.com">marco.p@example.com</a><br /><a href="tel:+639175550103">+63 917 555 0103</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Oct 31, 2026 · renewing</dd></div>
+                <div><dt>Balance</dt><dd>1,200 · since Nov 15</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Longest-staying tenant. Friendly reminder already sent — follow-up call planned this week.</p>
+                <div class="tactions">
+                  <a class="btn btn-clay btn-sm" href="mailto:marco.p@example.com?subject=Friendly%20rent%20reminder%20%E2%80%94%20Unit%201B"><i class="bi bi-bell" aria-hidden="true"></i>Send reminder</a>
+                  <a class="btn btn-sage btn-sm" href="mailto:marco.p@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Marco</a>
+                </div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:4; --n:7; --r:9; --d:9;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">2A</span></span>
+              <span class="who"><span class="who-avatar">JL</span><span class="text-truncate"><b>Jonas Lim</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>12,500  </b> <span>/mo</span></span>
+                <span class="c-date"><b>Feb 15, 2023</b><span>3 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:jonas.lim@example.com">jonas.lim@example.com</a><br /><a href="tel:+639175550104">+63 917 555 0104</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Dec 31, 2026</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Lease renewal draft is on Mira's desk — send for signature before December.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:jonas.lim@example.com?subject=Lease%20renewal%20%E2%80%94%20Unit%202A"><i class="bi bi-envelope" aria-hidden="true"></i>Email Jonas</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:5; --n:11; --r:1; --d:7;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">2B</span></span>
+              <span class="who"><span class="who-avatar">PN</span><span class="text-truncate"><b>Priya Nair</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>11,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Oct 1, 2023</b><span>3 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:priya.nair@example.com">priya.nair@example.com</a><br /><a href="tel:+639175550105">+63 917 555 0105</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Nov 30, 2026 · moving out</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Moving out Nov 30 — unit already reserved for Sofia D. (Unit 4C) from Dec 1.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:priya.nair@example.com?subject=Move-out%20checklist%20%E2%80%94%20Unit%202B"><i class="bi bi-envelope" aria-hidden="true"></i>Email Priya</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:6; --n:2; --r:3; --d:5;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">2C</span></span>
+              <span class="who"><span class="who-avatar">DO</span><span class="text-truncate"><b>Daniel Okafor</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>11,500</b> <span>/mo</span></span>
+                <span class="c-date"><b>Jan 15, 2025</b><span>1 yr</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:daniel.okafor@example.com">daniel.okafor@example.com</a><br /><a href="tel:+639175550106">+63 917 555 0106</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Jan 14, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Works night shifts — schedule any visits after 2 PM.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:daniel.okafor@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Daniel</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="over" style="--u:7; --n:4; --r:8; --d:3;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">3A</span></span>
+              <span class="who"><span class="who-avatar">GT</span><span class="text-truncate"><b>Grace Tan</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>12,400</b> <span>/mo</span></span>
+                <span class="c-date"><b>Sep 1, 2025</b><span>1 yr</span></span>
+                <span class="c-status"><span class="chip chip-over">Overdue</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:grace.tan@example.com">grace.tan@example.com</a><br /><a href="tel:+639175550107">+63 917 555 0107</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Aug 31, 2027</dd></div>
+                <div><dt>Balance</dt><dd>12,400 · since Nov 15</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Promised settlement by Nov 22 — log the payment as soon as it lands.</p>
+                <div class="tactions">
+                  <a class="btn btn-clay btn-sm" href="mailto:grace.tan@example.com?subject=Friendly%20rent%20reminder%20%E2%80%94%20Unit%203A"><i class="bi bi-bell" aria-hidden="true"></i>Send reminder</a>
+                  <a class="btn btn-sage btn-sm" href="mailto:grace.tan@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Grace</a>
+                </div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:8; --n:10; --r:10; --d:10;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">3B</span></span>
+              <span class="who"><span class="who-avatar">MR</span><span class="text-truncate"><b>Maya Reyes</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>13,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Jun 1, 2022</b><span>4 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:maya.r@example.com">maya.r@example.com</a><br /><a href="tel:+639175550108">+63 917 555 0108</a></dd></div>
+                <div><dt>Lease ends</dt><dd>May 31, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Open ticket #M-2417 (kitchen faucet) — plumber booked Nov 20, 10 AM.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:maya.r@example.com?subject=Update%20on%20ticket%20%23M-2417"><i class="bi bi-envelope" aria-hidden="true"></i>Email Maya</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:9; --n:8; --r:4; --d:2;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">3C</span></span>
+              <span class="who"><span class="who-avatar">LF</span><span class="text-truncate"><b>Luis Fernandez</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>11,170</b> <span>/mo</span></span>
+                <span class="c-date"><b>Feb 1, 2026</b><span>9 mos</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:luis.fernandez@example.com">luis.fernandez@example.com</a><br /><a href="tel:+639175550109">+63 917 555 0109</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Jan 31, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Asked about renting a parking slot starting December.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:luis.fernandez@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Luis</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="jc" data-s="paid" style="--u:10; --n:13; --r:7; --d:6;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">4C</span></span>
+              <span class="who"><span class="who-avatar">SD</span><span class="text-truncate"><b>Sofia Dela Cruz</b><span>J.Crown Apartments</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>12,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Aug 1, 2024</b><span>2 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:sofia.dc@example.com">sofia.dc@example.com</a><br /><a href="tel:+639175550110">+63 917 555 0110</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Jul 31, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Relocation to Unit 2B requested for Dec 1 — pending manager review.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:sofia.dc@example.com?subject=Relocation%20request%20%E2%80%94%20Unit%202B"><i class="bi bi-envelope" aria-hidden="true"></i>Email Sofia</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="cv" data-s="paid" style="--u:11; --n:3; --r:12; --d:12;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">H1</span></span>
+              <span class="who"><span class="who-avatar">ER</span><span class="text-truncate"><b>Elena Ramos</b><span>Casa Verde Homes</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>14,500</b> <span>/mo</span></span>
+                <span class="c-date"><b>Mar 10, 2020</b><span>6 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:elena.ramos@example.com">elena.ramos@example.com</a><br /><a href="tel:+639175550111">+63 917 555 0111</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Feb 28, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Renewed early for 2027. Happily tends the shared garden.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:elena.ramos@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Elena</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="cv" data-s="paid" style="--u:12; --n:12; --r:13; --d:8;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">H2</span></span>
+              <span class="who"><span class="who-avatar">SA</span><span class="text-truncate"><b>Samuel Adeyemi</b><span>Casa Verde Homes</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>15,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Jul 1, 2023</b><span>3 yrs</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:samuel.adeyemi@example.com">samuel.adeyemi@example.com</a><br /><a href="tel:+639175550112">+63 917 555 0112</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Jun 30, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>Quarterly in advance</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Pays quarterly ahead of schedule — next installment due Jan 2027.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:samuel.adeyemi@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Samuel</a></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="trow" data-p="cv" data-s="paid" style="--u:13; --n:5; --r:11; --d:4;">
+            <summary>
+              <span class="c-unit"><span class="unit-badge">H3</span></span>
+              <span class="who"><span class="who-avatar">HK</span><span class="text-truncate"><b>Hannah Kim</b><span>Casa Verde Homes</span></span></span>
+              <span class="c-meta">
+                <span class="c-rent"><b>14,000</b> <span>/mo</span></span>
+                <span class="c-date"><b>Apr 1, 2025</b><span>1 yr</span></span>
+                <span class="c-status"><span class="chip chip-paid">Paid</span></span>
+              </span>
+              <span class="chev"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="tdetail">
+              <dl class="tdetail-grid mb-0">
+                <div><dt>Contact</dt><dd><a href="mailto:hannah.kim@example.com">hannah.kim@example.com</a><br /><a href="tel:+639175550113">+63 917 555 0113</a></dd></div>
+                <div><dt>Lease ends</dt><dd>Mar 31, 2027</dd></div>
+                <div><dt>Rent due</dt><dd>15th of the month</dd></div>
+                <p class="tnote mb-0"><i class="bi bi-journal-text" aria-hidden="true"></i>Requested a pet addendum for a small dog — pending landlord approval.</p>
+                <div class="tactions"><a class="btn btn-sage btn-sm" href="mailto:hannah.kim@example.com"><i class="bi bi-envelope" aria-hidden="true"></i>Email Hannah</a></div>
+              </dl>
+            </div>
+          </details>
+
+        </div>
+
+        <!-- Empty state (Casa Verde + Overdue) -->
+        <p class="empty mb-0">
+          <i class="bi bi-cup-hot" aria-hidden="true"></i>
+          No overdue tenants at Casa Verde — every house is settled this month.
+        </p>
+
+        <div class="panel-foot">
+          <span><i class="bi bi-funnel me-1" aria-hidden="true"></i>Showing <b class="shown-count"></b> of 13 · tap a row for contact, lease &amp; notes</span>
+          <span><i class="bi bi-door-open me-1" aria-hidden="true"></i>Vacant, not listed: 4A, 4B &amp; House 4 (move-in today)</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 TenaPay · tenants directory</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@tenapay.ph">hello@tenapay.ph</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar toggle only) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
