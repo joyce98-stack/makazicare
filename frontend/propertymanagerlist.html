@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Property Managers</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css ">
+    <style>
+        
+    </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Landlord navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="landlordhomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-heart" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">MAKAZI CARE</span>
+          <span class="brand-sub d-block">Landlord</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landlordNav"
+              aria-controls="landlordNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="landlordNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="landlordhomepage.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="tenantslist.html">Tenants</a></li>
+          <li class="nav-item"><a class="nav-link" href="apartmentspage.html">Apartments</a></li>
+          <li class="nav-item"><a class="nav-link" href="landlordextensions.html">Extensions</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Managers</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">RA</span>
+          <span class="small fw-semibold">Rosa Aquino</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+          <!-- <p class="eyebrow">Landlord Portal</p> -->
+          <h1 class="page-title"> <small>Property <em>managers.</em> </small> </h1>
+          <p class="page-sub"> <small>Onboard trusted managers to run day-to-day operations, assign buildings, and delegate lease and maintenance tracking.</small></p>
+        </div>
+        <div>
+          <button class="btn btn-sage" type="button" data-bs-toggle="modal" data-bs-target="#onboardModal">
+            <i class="bi bi-person-plus-fill" aria-hidden="true"></i>Onboard manager
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="stats-strip">
+        <div class="stat-item">
+          <span class="stat-icon tint-olive"><i class="bi bi-person-check-fill" aria-hidden="true"></i></span>
+          <div>
+            <b>1 Active</b>
+            <span>Primary manager (Mira)</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon tint-brown"><i class="bi bi-envelope-check" aria-hidden="true"></i></span>
+          <div>
+            <b>1 Invite sent</b>
+            <span>Awaiting setup (Carlos)</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon tint-sage"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+          <div>
+            <b>16 Units</b>
+            <span>100% portfolio covered</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Confirmation Banner (:target, pure CSS) -->
+      <div class="action-banner" id="manager-onboarded" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <div>
+          <strong>Manager onboarded successfully!</strong> An invitation link has been dispatched. They can now access their manager desk to coordinate units and tenants.
+        </div>
+        <a class="dismiss" href="#top">Dismiss</a>
+      </div>
+
+      <!-- Managers List -->
+      <div class="manager-list">
+
+        <!-- MANAGER 1: Mira Cruz (Active) -->
+        <article class="card-manager highlight" aria-labelledby="mgr1-name">
+          <div class="mgr-head">
+            <div class="mgr-who">
+              <span class="mgr-avatar">MC</span>
+              <div class="mgr-title">
+                <b id="mgr1-name">Mira Cruz</b>
+                <span>Lead Property Manager · Onboarded Feb 2024</span>
+              </div>
+            </div>
+            <span class="status-badge badge-active">Active</span>
+          </div>
+
+          <div class="mgr-grid">
+            <div class="grid-cell">
+              <small>Assigned Properties</small>
+              <div class="prop-tags">
+                <span class="prop-tag"><i class="bi bi-building" aria-hidden="true"></i>J.Crown Apartments (12)</span>
+                <span class="prop-tag"><i class="bi bi-house" aria-hidden="true"></i>Casa Verde Homes (4)</span>
+              </div>
+            </div>
+            <div class="grid-cell">
+              <small>Contact Details</small>
+              <b>+254 700 000 000</b>
+              <span class="small text-muted">mira.cruz@tenapay.ph</span>
+            </div>
+            <div class="grid-cell">
+              <small>Permissions Scope</small>
+              <b>Full Operational Access</b>
+              <span class="small text-muted">Leases, maintenance, collections</span>
+            </div>
+          </div>
+
+          <div class="mgr-activity">
+            <i class="bi bi-activity" aria-hidden="true"></i>
+            <b>Recent operations:</b> Dispatched plumber for Unit 3B faucet · Collected 83% of November rent · Processed 1 lease renewal.
+          </div>
+
+          <div class="mgr-actions">
+            <span class="small text-muted">Last active: Today at 9:04 AM</span>
+            <div class="d-flex align-items-center gap-2">
+              <a class="btn btn-outline-earth btn-sm" href="managerhomepage.html" title="Preview Mira's desk">
+                <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>View manager desk
+              </a>
+              <a class="btn btn-sage btn-sm" href="mailto:mira.cruz@tenapay.ph?subject=TenaPay%20operations%20update">
+                <i class="bi bi-envelope" aria-hidden="true"></i>Email Mira
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- MANAGER 2: Carlos Mendoza (Pending Invite) -->
+        <article class="card-manager" aria-labelledby="mgr2-name">
+          <div class="mgr-head">
+            <div class="mgr-who">
+              <span class="mgr-avatar pending">CM</span>
+              <div class="mgr-title">
+                <b id="mgr2-name">Carlos Mendoza</b>
+                <span>Assistant Property Manager · Invited Nov 2026</span>
+              </div>
+            </div>
+            <span class="status-badge badge-pending">Invite Sent</span>
+          </div>
+
+          <div class="mgr-grid">
+            <div class="grid-cell">
+              <small>Assigned Properties</small>
+              <div class="prop-tags">
+                <span class="prop-tag"><i class="bi bi-house" aria-hidden="true"></i>Casa Verde Homes (4)</span>
+              </div>
+            </div>
+            <div class="grid-cell">
+              <small>Contact Details</small>
+              <b>+254 700 000 000</b>
+              <span class="small text-muted">carlos.m@example.com</span>
+            </div>
+            <div class="grid-cell">
+              <small>Permissions Scope</small>
+              <b>Maintenance &amp; Key Turnover</b>
+              <span class="small text-muted">Coordinates repairs &amp; inspections</span>
+            </div>
+          </div>
+
+          <div class="mgr-actions">
+            <span class="small text-muted">Invite link expires in 6 days</span>
+            <div class="d-flex align-items-center gap-2">
+              <a class="btn btn-outline-earth btn-sm" href="mailto:carlos.m@example.com?subject=TenaPay%20Manager%20Invitation%20Reminder">
+                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>Resend invite
+              </a>
+              <button class="btn btn-outline-earth btn-sm text-danger border-danger" type="button" title="Revoke access link">
+                Revoke
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Quick Onboard Callout -->
+        <div class="invite-callout">
+          <h3>Need to add another building manager?</h3>
+          <p>Easily delegate properties, units, and maintenance coordination to co-managers without sharing sensitive financial controls.</p>
+          <button class="btn btn-sage" type="button" data-bs-toggle="modal" data-bs-target="#onboardModal">
+            <i class="bi bi-person-plus-fill" aria-hidden="true"></i>Onboard another manager
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Security Reassurance Box -->
+      <div class="security-note">
+        <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+        <div>
+          <b>Security &amp; financial safeguards:</b>
+          Property managers only have operational access (leases, maintenance requests, and due-date nudges). They <em>cannot</em> alter your bank payout accounts or withdraw funds. All tenant rent payments route directly to your verified BDO account.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============ ONBOARDING MODAL ============ -->
+  <div class="modal fade" id="onboardModal" tabindex="-1" aria-labelledby="onboardTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="onboardTitle"><i class="bi bi-person-plus-fill text-success me-2" aria-hidden="true"></i>Onboard Property Manager</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            An invitation link will be sent to the manager. Once they accept, their manager desk will be pre-configured with the assigned buildings.
+          </p>
+
+          <form action="#manager-onboarded" method="get">
+            <div class="mb-3">
+              <label class="form-label" for="mgrName">Full name</label>
+              <input class="form-control" type="text" id="mgrName" name="manager_name" placeholder="e.g. Carlos Mendoza" required />
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-sm-7">
+                <label class="form-label" for="mgrEmail">Email address</label>
+                <input class="form-control" type="email" id="mgrEmail" name="manager_email" placeholder="carlos@example.com" required />
+              </div>
+              <div class="col-sm-5">
+                <label class="form-label" for="mgrPhone">Mobile <span class="opt">Optional</span></label>
+                <input class="form-control" type="tel" id="mgrPhone" name="manager_phone" placeholder="+63 917..." />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Assign properties</label>
+              <div class="prop-select-box">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="propJC" name="assigned_prop" value="j_crown" checked />
+                  <label class="form-check-label" for="propJC">
+                    <strong>J.Crown Apartments</strong> (12 units)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="propCV" name="assigned_prop" value="casa_verde" checked />
+                  <label class="form-check-label" for="propCV">
+                    <strong>Casa Verde Homes</strong> (4 houses)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="mgrRole">Permission scope</label>
+              <select class="form-select" id="mgrRole" name="permission_scope">
+                <option value="full" selected>Full Operational Access (Leases, Maintenance, Nudges)</option>
+                <option value="maintenance">Maintenance &amp; Key Handover Only</option>
+                <option value="inspections">Inspections &amp; Move-in Checklist Only</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="mgrWelcome">Welcome message <span class="opt">Optional</span></label>
+              <textarea class="form-control" id="mgrWelcome" name="welcome_message" rows="2" placeholder="Hi Carlos, welcome to the team! Here is your manager portal access..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-sage flex-grow-1" type="submit" data-bs-dismiss="modal">
+                <i class="bi bi-send" aria-hidden="true"></i>Send Manager Invitation
+              </button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 Makazi Care · Landlord portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@makazicare.com">hello@makazicare.com</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar + modals) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
