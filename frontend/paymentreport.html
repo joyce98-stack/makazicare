@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenaPay — Payment Report</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #FAF7F1;
+      --paper: #FFFDF8;
+      --line: #E7DFCD;
+      --ink: #2F2720;
+      --muted: #6E6355;
+      --sage-100: #E3EADF;
+      --sage-300: #A9BFA1;
+      --sage-600: #5A7053;
+      --sage-800: #3A4A38;
+      --sage-900: #2C382B;
+      --brown-100: #EEE5D5;
+      --brown-300: #C5A87E;
+      --brown-600: #77593A;
+      --brown-700: #5F4630;
+      --brown-900: #3E2E22;
+      --brown-950: #241B14;
+      --clay-100: #F3D9CC;
+      --clay-700: #8A3B22;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { flex: 1; }
+    ::selection { background: var(--sage-800); color: var(--cream); }
+
+    /* Landlord navigation */
+    .navbar {
+      padding: .8rem 0;
+      background: rgba(250, 247, 241, .94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand-mark {
+      display: grid; width: 40px; height: 40px; place-items: center;
+      border-radius: 13px; background: var(--brown-900); color: var(--cream); font-size: 1.05rem;
+    }
+    .brand-name {
+      display: block; color: var(--ink); font-family: "Fraunces", Georgia, serif;
+      font-size: 1.2rem; font-weight: 600; letter-spacing: .07em; line-height: 1;
+    }
+    .brand-sub {
+      display: block; color: var(--brown-600); font-size: .58rem; font-weight: 600;
+      letter-spacing: .32em; text-transform: uppercase;
+    }
+    .navbar .nav-link {
+      padding: .45rem .85rem !important; border-radius: 999px;
+      color: var(--muted); font-size: .88rem; font-weight: 500;
+    }
+    .navbar .nav-link:hover { color: var(--sage-800); }
+    .navbar .nav-link.active { background: var(--brown-100); color: var(--brown-900); }
+    .navbar-toggler {
+      display: grid; width: 42px; height: 42px; place-items: center; padding: 0;
+      border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--ink); font-size: 1.2rem;
+    }
+    .navbar-toggler:focus { box-shadow: 0 0 0 4px var(--sage-100); }
+    .avatar {
+      display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%;
+      background: var(--brown-100); color: var(--brown-700); font-size: .78rem; font-weight: 700;
+    }
+    @media (max-width: 991.98px) {
+      .navbar-collapse { margin-top: .8rem; padding: .8rem; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); }
+      .navbar .nav-link { padding: .7rem 1rem !important; }
+    }
+
+    /* Page heading and content width */
+    .page { padding: 42px 0 64px; }
+    .content-width { max-width: 1080px; margin: 0 auto; }
+    .eyebrow {
+      display: flex; align-items: center; gap: .65rem; margin: 0;
+      color: var(--sage-600); font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 1.5px; background: var(--sage-600); }
+    .page-title {
+      margin: .45rem 0 0; color: var(--sage-900); font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 540; letter-spacing: -.015em; line-height: 1.08;
+    }
+    .page-title em { color: var(--brown-700); font-weight: 420; }
+    .page-sub { max-width: 52ch; margin: .65rem 0 0; color: var(--muted); font-size: .94rem; line-height: 1.6; }
+    .period-controls {
+      display: flex; align-items: end; gap: .6rem;
+      padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 16px; background: var(--paper);
+    }
+    .period-control { display: grid; gap: .2rem; }
+    .period-control label { padding-left: .2rem; color: var(--muted); font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .period-control select {
+      min-width: 136px; padding: .45rem 2rem .45rem .7rem; border: 1px solid var(--line); border-radius: 10px;
+      background-color: #fff; color: var(--ink); font-family: inherit; font-size: .8rem; font-weight: 600;
+    }
+    .period-control select:focus { border-color: var(--sage-600); outline: 3px solid var(--sage-100); }
+    .period-control.year select { min-width: 90px; }
+
+    /* Compact, functional filter controls */
+    .filters {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem;
+      margin-top: 1.65rem; padding: .95rem 1.1rem;
+      border: 1px solid var(--line); border-radius: 18px; background: var(--paper);
+    }
+    .filter-group { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; margin: 0; padding: 0; border: 0; }
+    .filter-group legend {
+      float: none; width: auto; margin: 0 .2rem 0 0; padding: 0;
+      color: var(--muted); font-size: .65rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    }
+    .filter-options { display: inline-flex; gap: .2rem; padding: .22rem; border: 1px solid var(--line); border-radius: 999px; background: var(--cream); }
+    .filter-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .filter-label {
+      display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .75rem; border-radius: 999px;
+      color: var(--muted); font-size: .76rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background-color .2s ease, color .2s ease;
+    }
+    .filter-label:hover { color: var(--sage-800); }
+    .filter-input:checked + .filter-label { background: var(--sage-800); color: var(--cream); }
+    .filter-input:focus-visible + .filter-label { outline: 2px solid var(--sage-800); outline-offset: 2px; }
+    @media (max-width: 575.98px) {
+      .filters { gap: .85rem; }
+      .filter-group { width: 100%; justify-content: space-between; }
+      .filter-options { max-width: 100%; }
+      .filter-label { padding: .4rem .55rem; font-size: .71rem; }
+    }
+
+    /* One connected summary strip */
+    .summary {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      margin-top: 1.5rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, .56);
+    }
+    .summary-item { padding: 1.05rem 1.3rem; }
+    .summary-item + .summary-item { border-left: 1px solid var(--line); }
+    .summary-label { display: block; color: var(--muted); font-size: .66rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    .summary-value { display: block; margin-top: .22rem; color: var(--ink); font-family: "Fraunces", Georgia, serif; font-size: 1.65rem; font-weight: 600; line-height: 1.1; }
+    .summary-note { display: block; margin-top: .15rem; color: var(--muted); font-size: .74rem; }
+    .value-all { display: inline; }
+    .value-jc, .value-cv { display: none; }
+    #report:has(#propertyJc:checked) .value-all,
+    #report:has(#propertyCv:checked) .value-all { display: none; }
+    #report:has(#propertyJc:checked) .value-jc,
+    #report:has(#propertyCv:checked) .value-cv { display: inline; }
+
+    .note-all, .note-jc, .note-cv { display: none; }
+    .note-all { display: inline; }
+    #report:has(#propertyJc:checked) .note-all,
+    #report:has(#propertyCv:checked) .note-all { display: none; }
+    #report:has(#propertyJc:checked) .note-jc,
+    #report:has(#propertyCv:checked) .note-cv { display: inline; }
+
+    @media (max-width: 767.98px) {
+      .summary-item { padding: .9rem .75rem; }
+      .summary-value { font-size: 1.35rem; }
+      .summary-note { font-size: .68rem; }
+    }
+
+    /* Collection graph */
+    .chart-section { padding: 1.7rem 0 1.5rem; border-bottom: 1px solid var(--line); }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .section-heading h2 { margin: 0; color: var(--sage-900); font-family: "Fraunces", Georgia, serif; font-size: 1.4rem; font-weight: 600; }
+    .section-heading p { margin: .25rem 0 0; color: var(--muted); font-size: .82rem; }
+    .chart-range { color: var(--muted); font-size: .75rem; font-weight: 600; }
+    .chart-layout { display: grid; grid-template-columns: minmax(0, 1fr) 180px; align-items: center; gap: 1.6rem; margin-top: 1.15rem; }
+    .chart-wrap { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .65rem; }
+    .axis { display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 24px; color: var(--muted); font-size: .65rem; text-align: right; }
+    .chart-plot {
+      --may: 92%; --jun: 96%; --jul: 94%; --aug: 98%; --sep: 96%; --oct: 97%; --nov: 85%;
+      display: grid; grid-template-columns: repeat(7, minmax(25px, 1fr)); align-items: end; gap: clamp(.35rem, 1.4vw, 1rem);
+      height: 192px; padding: 0 .35rem 0; border-bottom: 1px solid var(--line);
+      background: repeating-linear-gradient(to top, transparent 0, transparent calc(50% - 1px), var(--line) calc(50% - 1px), var(--line) 50%, transparent 50%, transparent calc(100% - 1px), var(--line) calc(100% - 1px), var(--line) 100%);
+    }
+    #report:has(#propertyJc:checked) .chart-plot { --may: 91%; --jun: 95%; --jul: 92%; --aug: 97%; --sep: 94%; --oct: 96%; --nov: 80%; }
+    #report:has(#propertyCv:checked) .chart-plot { --may: 100%; --jun: 100%; --jul: 100%; --aug: 100%; --sep: 100%; --oct: 100%; --nov: 100%; }
+    .bar-column { display: flex; height: 100%; min-width: 0; flex-direction: column; align-items: center; justify-content: flex-end; gap: .42rem; }
+    .bar-track { display: flex; width: min(34px, 75%); height: calc(100% - 23px); align-items: flex-end; overflow: hidden; border-radius: 9px 9px 0 0; background: rgba(238, 229, 213, .7); }
+    .bar-fill { width: 100%; height: var(--bar); border-radius: 8px 8px 0 0; background: linear-gradient(180deg, var(--sage-600), var(--sage-800)); transition: height .35s ease; }
+    .month-may { --bar: var(--may); }
+    .month-jun { --bar: var(--jun); }
+    .month-jul { --bar: var(--jul); }
+    .month-aug { --bar: var(--aug); }
+    .month-sep { --bar: var(--sep); }
+    .month-oct { --bar: var(--oct); }
+    .month-nov { --bar: var(--nov); }
+    .bar-column span { color: var(--muted); font-size: .68rem; font-weight: 600; }
+    .donut-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .donut {
+      --collection: 85%;
+      position: relative; display: grid; width: 132px; height: 132px; place-items: center; border-radius: 50%;
+      background: conic-gradient(var(--sage-800) 0 var(--collection), var(--brown-100) var(--collection) 100%);
+    }
+    #report:has(#propertyJc:checked) .donut { --collection: 80%; }
+    #report:has(#propertyCv:checked) .donut { --collection: 100%; }
+    .donut::before { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: var(--cream); }
+    .donut-inner { position: relative; z-index: 1; }
+    .donut-number { display: block; color: var(--sage-900); font-family: "Fraunces", Georgia, serif; font-size: 1.8rem; font-weight: 600; line-height: 1; }
+    .donut-label { display: block; margin-top: .22rem; color: var(--muted); font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .rate-jc, .rate-cv { display: none; }
+    #report:has(#propertyJc:checked) .rate-all,
+    #report:has(#propertyCv:checked) .rate-all { display: none; }
+    #report:has(#propertyJc:checked) .rate-jc,
+    #report:has(#propertyCv:checked) .rate-cv { display: inline; }
+    #report:has(#propertyCv:checked) .rate-jc { display: none; }
+    .rate-description { max-width: 18ch; margin: .65rem 0 0; color: var(--muted); font-size: .76rem; line-height: 1.45; }
+    .rate-description b { color: var(--ink); }
+    .chart-footnote { margin: .75rem 0 0 44px; color: var(--muted); font-size: .74rem; }
+    .chart-footnote i { color: var(--sage-600); }
+
+    /* This static sample has November 2026 transactions; other periods show a clear empty state. */
+    .period-empty { display: none; align-items: center; gap: .65rem; padding: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .84rem; }
+    .period-empty i { color: var(--sage-600); }
+    #report:has(#reportMonth option:not([value="nov"]):checked) .summary,
+    #report:has(#reportMonth option:not([value="nov"]):checked) .chart-section,
+    #report:has(#reportYear option:not([value="2026"]):checked) .summary,
+    #report:has(#reportYear option:not([value="2026"]):checked) .chart-section { display: none; }
+    #report:has(#reportMonth option:not([value="nov"]):checked) .transaction,
+    #report:has(#reportYear option:not([value="2026"]):checked) .transaction { display: none; }
+    #report:has(#reportMonth option:not([value="nov"]):checked) .period-empty,
+    #report:has(#reportYear option:not([value="2026"]):checked) .period-empty { display: flex; }
+    #report:has(#reportMonth option:not([value="nov"]):checked) .empty-state,
+    #report:has(#reportYear option:not([value="2026"]):checked) .empty-state { display: none; }
+    #report:has(#reportMonth option:not([value="nov"]):checked):has(#propertyCv:checked):has(#statusOverdue:checked) .empty-state,
+    #report:has(#reportYear option:not([value="2026"]):checked):has(#propertyCv:checked):has(#statusOverdue:checked) .empty-state { display: none; }
+    @media (max-width: 767.98px) {
+      .chart-layout { grid-template-columns: 1fr; }
+      .donut-wrap { flex-direction: row; justify-content: center; gap: 1rem; text-align: left; }
+      .donut { width: 92px; height: 92px; flex: 0 0 auto; }
+      .donut::before { inset: 10px; }
+      .donut-number { font-size: 1.4rem; }
+      .rate-description { max-width: 22ch; margin: 0; }
+    }
+
+    /* Transaction ledger */
+    .ledger-section { padding-top: 1.6rem; }
+    .ledger-top { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; flex-wrap: wrap; margin-bottom: .9rem; }
+    .ledger-top h2 { margin: 0; color: var(--sage-900); font-family: "Fraunces", Georgia, serif; font-size: 1.4rem; font-weight: 600; }
+    .ledger-top p { margin: .25rem 0 0; color: var(--muted); font-size: .8rem; }
+    .ledger-head, .transaction {
+      display: grid; grid-template-columns: minmax(220px, 1.7fr) minmax(130px, 1fr) minmax(95px, .65fr) minmax(100px, .75fr);
+      align-items: center; gap: .9rem; padding: .8rem 1rem;
+    }
+    .ledger-head { color: var(--muted); font-size: .64rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .ledger-list { counter-reset: visible; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); }
+    .transaction { counter-increment: visible; border-top: 1px solid var(--line); min-height: 64px; }
+    .transaction:hover { background: rgba(227, 234, 223, .24); }
+    .person { display: flex; min-width: 0; align-items: center; gap: .7rem; }
+    .person-avatar { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--sage-100); color: var(--sage-800); font-size: .66rem; font-weight: 700; }
+    .transaction:nth-of-type(even) .person-avatar { background: var(--brown-100); color: var(--brown-700); }
+    .person-name { display: block; overflow: hidden; color: var(--ink); font-size: .85rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .person-unit { display: block; margin-top: .1rem; color: var(--muted); font-size: .7rem; }
+    .prop-name { color: var(--muted); font-size: .79rem; }
+    .transaction-amount { color: var(--ink); font-family: "Fraunces", Georgia, serif; font-size: 1rem; font-weight: 600; white-space: nowrap; }
+    .payment-date { color: var(--ink); font-size: .8rem; font-weight: 600; }
+    .payment-date small { display: block; margin-top: .1rem; color: var(--muted); font-size: .68rem; font-weight: 400; }
+    .payment-status {
+      display: inline-flex; align-items: center; gap: .35rem; width: fit-content;
+      padding: .35rem .65rem; border-radius: 999px; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+    }
+    .payment-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .is-paid { background: var(--sage-100); color: var(--sage-800); }
+    .is-overdue { background: var(--clay-100); color: var(--clay-700); }
+
+    /* Property and status filters update the chart, totals, and ledger. */
+    #report:has(#propertyJc:checked) .transaction[data-property="cv"],
+    #report:has(#propertyCv:checked) .transaction[data-property="jc"],
+    #report:has(#statusPaid:checked) .transaction[data-status="overdue"],
+    #report:has(#statusOverdue:checked) .transaction[data-status="paid"] { display: none; }
+
+    .ledger-foot {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem;
+      padding: .85rem 1rem; border-top: 1px solid var(--line); background: var(--cream);
+      color: var(--muted); font-size: .77rem;
+    }
+    .visible-count::after { content: counter(visible); color: var(--ink); font-weight: 700; }
+    .ledger-foot a { color: var(--brown-700); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--brown-300); }
+    .ledger-foot a:hover { color: var(--brown-900); }
+    .empty-state {
+      display: none;
+      align-items: center;
+      gap: .65rem;
+      padding: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .empty-state i { color: var(--sage-600); }
+    #report:has(#propertyCv:checked):has(#statusOverdue:checked) .empty-state { display: flex; }
+
+    .report-note { margin: 1rem 0 0; color: var(--muted); font-size: .74rem; line-height: 1.5; }
+    .report-note i { margin-right: .3rem; color: var(--sage-600); }
+
+    @media (max-width: 767.98px) {
+      .ledger-head { display: none; }
+      .transaction { grid-template-columns: minmax(0, 1fr) auto; gap: .35rem .8rem; padding: .85rem .9rem; }
+      .transaction .person { grid-column: 1; }
+      .transaction .prop-name { grid-column: 1; padding-left: 2.7rem; font-size: .71rem; }
+      .transaction .payment-date { grid-column: 1; padding-left: 2.7rem; font-size: .73rem; }
+      .transaction .transaction-amount { grid-column: 2; grid-row: 1; text-align: right; }
+      .transaction .payment-status { grid-column: 2; grid-row: 2 / span 2; justify-self: end; align-self: center; }
+      .person-unit { display: none; }
+    }
+    @media (max-width: 575.98px) {
+      .page { padding: 30px 0 48px; }
+      .summary-item { padding: .85rem .55rem; }
+      .summary-label { font-size: .58rem; letter-spacing: .1em; }
+      .summary-value { font-size: 1.2rem; }
+      .summary-note { font-size: .63rem; }
+      .chart-section { padding-top: 1.35rem; }
+      .chart-plot { height: 160px; gap: .3rem; }
+      .bar-column span { font-size: .6rem; }
+      .axis { font-size: .6rem; }
+      .chart-footnote { margin-left: 0; }
+    }
+
+    /* Footer */
+    .site-footer { padding: 1.3rem 0; background: var(--brown-950); color: #C9BBA8; font-size: .84rem; }
+    .site-footer a { color: #E9DECD; text-decoration: none; border-bottom: 1px solid rgba(233, 222, 205, .35); }
+    .site-footer a:hover { color: #fff; border-bottom-color: #fff; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .filter-label, .bar-fill, .btn { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Landlord navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="landlordhomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-heart" aria-hidden="true"></i></span>
+        <span><span class="brand-name">TENAPAY</span><span class="brand-sub">Landlord</span></span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landlordNav"
+              aria-controls="landlordNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="landlordNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="landlordhomepage.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="tenantslist.html">Tenants</a></li>
+          <li class="nav-item"><a class="nav-link" href="apartmentspage.html">Apartments</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#report">Payment report</a></li>
+          <li class="nav-item"><a class="nav-link" href="extensionrequestspage.html">Extensions</a></li>
+          <li class="nav-item"><a class="nav-link" href="propertymanagerspage.html">Property managers</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">RA</span>
+          <span class="small fw-semibold">Rosa Aquino</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page" id="report">
+    <div class="container content-width">
+      <header class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+          <p class="eyebrow">Owner reports</p>
+          <h1 class="page-title">Payments, <em>in view.</em></h1>
+          <p class="page-sub">Track rent received, outstanding balances, and collection trends across your properties.</p>
+        </div>
+        <div class="period-controls" aria-label="Choose report month and year">
+          <div class="period-control">
+            <label for="reportMonth">Month</label>
+            <select id="reportMonth" aria-label="Report month">
+              <option value="jan">January</option>
+              <option value="feb">February</option>
+              <option value="mar">March</option>
+              <option value="apr">April</option>
+              <option value="may">May</option>
+              <option value="jun">June</option>
+              <option value="jul">July</option>
+              <option value="aug">August</option>
+              <option value="sep">September</option>
+              <option value="oct">October</option>
+              <option value="nov" selected>November</option>
+              <option value="dec">December</option>
+            </select>
+          </div>
+          <div class="period-control year">
+            <label for="reportYear">Year</label>
+            <select id="reportYear" aria-label="Report year">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- These CSS-only filters update the totals, chart, and transaction list. -->
+      <section class="filters" aria-label="Filter payment report">
+        <fieldset class="filter-group">
+          <legend>Property</legend>
+          <div class="filter-options">
+            <input class="filter-input" type="radio" name="property" id="propertyAll" checked />
+            <label class="filter-label" for="propertyAll">All properties</label>
+            <input class="filter-input" type="radio" name="property" id="propertyJc" />
+            <label class="filter-label" for="propertyJc">J.Crown</label>
+            <input class="filter-input" type="radio" name="property" id="propertyCv" />
+            <label class="filter-label" for="propertyCv">Casa Verde</label>
+          </div>
+        </fieldset>
+        <fieldset class="filter-group">
+          <legend>Transactions</legend>
+          <div class="filter-options">
+            <input class="filter-input" type="radio" name="status" id="statusAll" checked />
+            <label class="filter-label" for="statusAll">All</label>
+            <input class="filter-input" type="radio" name="status" id="statusPaid" />
+            <label class="filter-label" for="statusPaid">Paid</label>
+            <input class="filter-input" type="radio" name="status" id="statusOverdue" />
+            <label class="filter-label" for="statusOverdue">Overdue</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Summary figures reflect the selected property. -->
+      <section class="summary" aria-label="November payment summary">
+        <div class="summary-item">
+          <span class="summary-label">Rent billed</span>
+          <span class="summary-value"><span class="value-all">$16,310</span><span class="value-jc">$11,960</span><span class="value-cv">$4,350</span></span>
+          <span class="summary-note">active rental agreements</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Collected</span>
+          <span class="summary-value"><span class="value-all">$13,870</span><span class="value-jc">$9,520</span><span class="value-cv">$4,350</span></span>
+          <span class="summary-note">payments received</span>
+        </div>
+        <div class="summary-item" id="balance">
+          <span class="summary-label">Outstanding</span>
+          <span class="summary-value"><span class="value-all">$2,440</span><span class="value-jc">$2,440</span><span class="value-cv">$0</span></span>
+          <span class="summary-note"><span class="note-all">2 overdue tenants</span><span class="note-jc">2 overdue tenants</span><span class="note-cv">No overdue rent</span></span>
+        </div>
+      </section>
+
+      <!-- CSS bar chart and collection ring -->
+      <section class="chart-section" aria-labelledby="chartTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="chartTitle">Monthly collection rate</h2>
+            <p>Rent received as a share of rent billed</p>
+          </div>
+          <span class="chart-range">May–November 2026</span>
+        </div>
+
+        <div class="chart-layout">
+          <div>
+            <div class="chart-wrap">
+              <div class="axis" aria-hidden="true"><span>100%</span><span>50%</span><span>0</span></div>
+              <div class="chart-plot" role="img" aria-label="Monthly collection rate from May through November. Bars update when a property is selected.">
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-may"></div></div><span>May</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-jun"></div></div><span>Jun</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-jul"></div></div><span>Jul</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-aug"></div></div><span>Aug</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-sep"></div></div><span>Sep</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-oct"></div></div><span>Oct</span></div>
+                <div class="bar-column"><div class="bar-track"><div class="bar-fill month-nov"></div></div><span>Nov</span></div>
+              </div>
+            </div>
+            <p class="chart-footnote"><i class="bi bi-info-circle" aria-hidden="true"></i>Collection rates are based on occupied units; vacant homes are excluded.</p>
+          </div>
+
+          <div class="donut-wrap">
+            <div class="donut" aria-hidden="true">
+              <div class="donut-inner">
+                <span class="donut-number rate-all">85%</span>
+                <span class="donut-number rate-jc">80%</span>
+                <span class="donut-number rate-cv">100%</span>
+                <span class="donut-label">Collected</span>
+              </div>
+            </div>
+            <p class="rate-description">November collection rate: <b><span class="rate-all">85%</span><span class="rate-jc">80%</span><span class="rate-cv">100%</span></b> of rent billed.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed ledger; property and status filters also update this list. -->
+      <section class="ledger-section" id="transactions" aria-labelledby="transactionsTitle">
+        <div class="ledger-top">
+          <div>
+            <h2 id="transactionsTitle">Rent transactions</h2>
+            <p>Payments and overdue balances for the selected period.</p>
+          </div>
+          <a class="btn btn-outline-earth btn-sm" href="mailto:reports@tenapay.ph?subject=November%202026%20payment%20report"><i class="bi bi-envelope" aria-hidden="true"></i>Email report</a>
+        </div>
+
+        <div class="ledger-list">
+          <div class="ledger-head" aria-hidden="true"><span>Tenant / unit</span><span>Property</span><span>Amount</span><span>Status / date</span></div>
+
+          <article class="transaction" data-property="jc" data-status="overdue">
+            <div class="person"><span class="person-avatar">MP</span><span><span class="person-name">Marco Pascual</span><span class="person-unit">Unit 1B</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,200</span>
+            <span><span class="payment-status is-overdue">Overdue</span><span class="payment-date"><small>Due Nov 15</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="overdue">
+            <div class="person"><span class="person-avatar">GT</span><span><span class="person-name">Grace Tan</span><span class="person-unit">Unit 3A</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,240</span>
+            <span><span class="payment-status is-overdue">Overdue</span><span class="payment-date"><small>Due Nov 15</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">JD</span><span><span class="person-name">John Doe</span><span class="person-unit">Unit 101</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,200</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">AS</span><span><span class="person-name">Amara Santos</span><span class="person-unit">Unit 102</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,150</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">JL</span><span><span class="person-name">Jonas Lim</span><span class="person-unit">Unit 2A</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,250</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">PN</span><span><span class="person-name">Priya Nair</span><span class="person-unit">Unit 2B</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,100</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">DO</span><span><span class="person-name">Daniel Okafor</span><span class="person-unit">Unit 2C</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,150</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">MR</span><span><span class="person-name">Maya Reyes</span><span class="person-unit">Unit 3B</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,300</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">LF</span><span><span class="person-name">Luis Fernandez</span><span class="person-unit">Unit 3C</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,170</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="jc" data-status="paid">
+            <div class="person"><span class="person-avatar">SD</span><span><span class="person-name">Sofia Dela Cruz</span><span class="person-unit">Unit 4C</span></span></div>
+            <span class="prop-name">J.Crown Apartments</span>
+            <span class="transaction-amount">$1,200</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="cv" data-status="paid">
+            <div class="person"><span class="person-avatar">ER</span><span><span class="person-name">Elena Ramos</span><span class="person-unit">House 1</span></span></div>
+            <span class="prop-name">Casa Verde Homes</span>
+            <span class="transaction-amount">$1,450</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="cv" data-status="paid">
+            <div class="person"><span class="person-avatar">SA</span><span><span class="person-name">Samuel Adeyemi</span><span class="person-unit">House 2</span></span></div>
+            <span class="prop-name">Casa Verde Homes</span>
+            <span class="transaction-amount">$1,500</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <article class="transaction" data-property="cv" data-status="paid">
+            <div class="person"><span class="person-avatar">HK</span><span><span class="person-name">Hannah Kim</span><span class="person-unit">House 3</span></span></div>
+            <span class="prop-name">Casa Verde Homes</span>
+            <span class="transaction-amount">$1,400</span>
+            <span><span class="payment-status is-paid">Paid</span><span class="payment-date"><small>Nov 12</small></span></span>
+          </article>
+
+          <div class="period-empty"><i class="bi bi-calendar2-x" aria-hidden="true"></i>No sample transaction data for this period. The current report data is for November 2026.</div>
+          <div class="empty-state"><i class="bi bi-check-circle" aria-hidden="true"></i>No overdue rent at Casa Verde this month.</div>
+
+          <div class="ledger-foot">
+            <span>Showing <b class="visible-count"></b> transactions</span>
+            <span>November 2026 · <a href="mailto:reports@tenapay.ph?subject=Payment%20report%20question">Ask about this report</a></span>
+          </div>
+        </div>
+
+        <p class="report-note"><i class="bi bi-info-circle" aria-hidden="true"></i>Sample report data aligned with the tenant directory. Vacant units are excluded from rent billed; a connected TenaPay account will show live payments.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 TenaPay · Landlord portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@tenapay.ph">hello@tenapay.ph</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
