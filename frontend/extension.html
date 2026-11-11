@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAKAZI CARE — Rent Extension</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css ">
+    <style>
+    </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Tenant navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="tenanthomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-door" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">MAKAZI CARE</span>
+          <span class="brand-sub d-block">Tenant</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tenantNav"
+              aria-controls="tenantNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="tenantNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="tenanthomepage.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="receiptspage.html">Receipts</a></li>
+          <li class="nav-item"><a class="nav-link" href="maintenancepage.html">Maintenance</a></li>
+          <li class="nav-item"><a class="nav-link" href="relocationpage.html">Relocation</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Extension</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">JD</span>
+          <span class="small fw-semibold">John Doe</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container">
+      <div class="narrow">
+
+        <h1 class="page-title">Need extra <em>time?</em></h1>
+        <p class="page-sub">Request a few more days for December rent. Mira or Rosa will confirm it within 24 hours.</p>
+
+        <!-- Current rent context -->
+        <div class="rent-banner">
+          <div class="rent-banner-info">
+            <small>Unit 101 · J.Crown Apartments</small>
+            <b>12,000 KES / month</b>
+          </div>
+          <div class="rent-banner-due">
+            <small>Standard due date</small>
+            <b>15 December 2026</b>
+          </div>
+        </div>
+
+        <!-- Confirmation card (DOM order: before form panel so sibling selector hides form on :target) -->
+        <section class="card-panel" id="extension-sent" aria-labelledby="sentTitle">
+          <div class="sent">
+            <span class="sent-mark"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+            <h2 id="sentTitle">Extension request sent.</h2>
+            <p>Mira has been notified. Once approved, your due date on the portal will update and no late fees will apply.</p>
+            <span class="sent-ref">Reference EXT-2612-101</span>
+            <div class="mt-4">
+              <a class="btn btn-sage w-100" href="tenanthomepage.html">Back to home</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Form Card -->
+        <section class="card-panel form-panel" aria-label="Rent extension request">
+          <form action="#extension-sent" method="get">
+
+            <!-- Step 1: New Date -->
+            <fieldset class="step">
+              <legend class="step-label"><span class="step-n">1</span>When can you pay?</legend>
+              <div class="choices">
+                <div>
+                  <input class="vh-radio" type="radio" name="extension_date" id="ext7" value="2026-12-22" checked />
+                  <label class="choice" for="ext7">
+                    <span class="choice-icon"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                    <span><b>7 extra days</b><small>Pay on Tuesday, 22 December 2026</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+                <div>
+                  <input class="vh-radio" type="radio" name="extension_date" id="ext10" value="2026-12-25" />
+                  <label class="choice" for="ext10">
+                    <span class="choice-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+                    <span><b>10 extra days</b><small>Pay on Friday, 25 December 2026</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+                <div>
+                  <input class="vh-radio" type="radio" name="extension_date" id="extCustom" value="custom" />
+                  <label class="choice" for="extCustom">
+                    <span class="choice-icon"><i class="bi bi-calendar3" aria-hidden="true"></i></span>
+                    <span><b>Pick a specific date</b><small>Up to 14 days past the 15th</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 2: Payment Plan -->
+            <fieldset class="step">
+              <legend class="step-label"><span class="step-n">2</span>Payment plan</legend>
+              <div class="choices">
+                <div>
+                  <input class="vh-radio" type="radio" name="plan" id="planFull" value="full" checked />
+                  <label class="choice" for="planFull">
+                    <span class="choice-icon"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+                    <span><b>Pay full 12,000 KES on new date</b><small>Single payment when your funds arrive</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+                <div>
+                  <input class="vh-radio" type="radio" name="plan" id="planSplit" value="split" />
+                  <label class="choice" for="planSplit">
+                    <span class="choice-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+                    <span><b>Pay 6,000 KES on Dec 15 + 6,000 KES on new date</b><small>Split payment to keep balance low</small></span>
+                    <span class="choice-tick"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 3: Brief Reason -->
+            <div class="step">
+              <label class="step-label" for="reasonSelect"><span class="step-n">3</span>Reason for extension</label>
+              <select class="form-select" id="reasonSelect" name="reason" required>
+                <option value="" disabled>Select reason…</option>
+                <option value="payroll" selected>Delayed payroll or salary deposit</option>
+                <option value="emergency">Unexpected medical or family expense</option>
+                <option value="bank">Bank transfer or clearance delay</option>
+                <option value="other">Other reason</option>
+              </select>
+
+              <div class="mt-3">
+                <label class="form-label small fw-bold text-muted" for="extNotes">Short note for Mira <span class="opt">Optional</span></label>
+                <textarea class="form-control" id="extNotes" name="notes" maxlength="300" placeholder="e.g. Salary payout was pushed by accounting to Dec 21."></textarea>
+              </div>
+            </div>
+
+            <!-- Reassurance note -->
+            <div class="calm-notice">
+              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+              <div>
+                <b>No late penalty on approved extensions.</b> As long as you submit before Dec 15 and pay on your promised date, your tenant record remains in good standing.
+              </div>
+            </div>
+
+            <button class="btn btn-sage w-100 mt-4" type="submit">Send extension request</button>
+            <a class="cancel" href="tenanthomepage.html">Cancel</a>
+          </form>
+        </section>
+
+        <!-- Previous extension record -->
+        <div class="history-card">
+          <div class="history-info">
+            <b>Past extension · March 2026</b>
+            <span>Requested 5 extra days (paid Mar 20)</span>
+          </div>
+          <span class="chip-approved">Approved &amp; Paid</span>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 Makazi Care· Tenant portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@makazicare.com">hello@makazicare.com</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar toggle only) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

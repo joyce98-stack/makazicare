@@ -1,28 +1,280 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Apartments listing</title>
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Makazi Care— Apartments</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <!-- Bootstrap 5 + Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  
-  <!-- css  -->
-   link rel="stylesheet" href="style.css">
-   
+
+
+  <link rel="stylesheet" href="style.css ">
+  <style>
+  </style>
 </head>
 
 <body>
-    
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Landlord navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="landlordhomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-heart" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block">MAKAZI CARE</span>
+          <span class="brand-sub d-block">Landlord</span>
+        </span>
+      </a>
 
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landlordNav"
+              aria-controls="landlordNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
 
+      <div class="collapse navbar-collapse" id="landlordNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="landlordhomepage.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="tenantslist.html">Tenants</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Apartments</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">RA</span>
+          <span class="small fw-semibold">Rosa Aquino</span>
+        </div>
+      </div>
+    </div>
+  </nav>
 
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container">
 
+      <!-- Head -->
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <h1 class="page-title">Your <em>apartments.</em></h1>
+          <!-- <p class="page-sub">Each building with its house types, how many there are, and the monthly price.</p> -->
+        </div>
+        <button class="btn btn-sage" type="button" data-bs-toggle="modal" data-bs-target="#addModal">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>Add apartment
+        </button>
+      </div>
 
+      <!-- Confirmation (shown after the form is sent) -->
+      <div id="apartment-added" role="status">
+        <i class="bi bi-check-circle-fill big" aria-hidden="true"></i>
+        <span>Apartment submitted, Rosa. Nice work.</span>
+        <a href="apartmentspage.html">Dismiss</a>
+      </div>
 
+      <!-- List -->
+      <div class="apartments">
 
+        <!-- J.Crown Apartments -->
+        <article class="apt" aria-labelledby="apt1">
+          <div class="apt-photo">
+            <img src="https://images.pexels.com/photos/34270526/pexels-photo-34270526.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=700&w=900"
+                 alt="J.Crown Apartments building facade" />
+          </div>
+          <div class="apt-body">
+            <h2 class="apt-name" id="apt1">J.Crown <em>Apartments</em></h2>
+            <p class="apt-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i> 14 Maginhawa St., Quezon City</p>
+            <table class="types">
+              <thead>
+                <tr><th scope="col">House type</th><th scope="col" class="num">Houses</th><th scope="col" class="num">Price / month</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="type">Studio</td><td class="num">4</td><td class="num price">$1,100</td></tr>
+                <tr><td class="type">1 Bedroom</td><td class="num">6</td><td class="num price">$1,200</td></tr>
+                <tr><td class="type">2 Bedroom</td><td class="num">2</td><td class="num price">$1,400</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><td>Total</td><td class="num">12</td><td></td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </article>
 
+        <!-- Casa Verde Homes -->
+        <article class="apt" aria-labelledby="apt2">
+          <div class="apt-photo">
+            <img src="https://images.pexels.com/photos/19920830/pexels-photo-19920830.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=700&w=900"
+                 alt="Casa Verde Homes exterior among autumn trees" />
+          </div>
+          <div class="apt-body">
+            <h2 class="apt-name" id="apt2">Casa Verde <em>Homes</em></h2>
+            <p class="apt-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i> 8 Sampaguita Lane, Marikina</p>
+            <table class="types">
+              <thead>
+                <tr><th scope="col">House type</th><th scope="col" class="num">Houses</th><th scope="col" class="num">Price / month</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="type">2-Bedroom House</td><td class="num">2</td><td class="num price">$1,400</td></tr>
+                <tr><td class="type">3-Bedroom House</td><td class="num">2</td><td class="num price">$1,500</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><td>Total</td><td class="num">4</td><td></td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </article>
+
+        <!-- Add another -->
+        <button class="add-card" type="button" data-bs-toggle="modal" data-bs-target="#addModal">
+          <span class="add-icon"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
+          <span>
+            <b>Add another apartment</b>
+            <small>Name it, then list its house types and prices</small>
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ ADD MODAL ============ -->
+  <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="addTitle">Add an apartment</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <form action="#apartment-added" method="get">
+
+            <div class="field">
+              <label class="field-label" for="aptName">Apartment name</label>
+              <input class="form-control" type="text" id="aptName" name="apartment_name" placeholder="e.g. Sunrise Residences" required />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="aptLocation">Location</label>
+              <input class="form-control" type="text" id="aptLocation" name="location" placeholder="Street, city" required />
+            </div>
+
+            <fieldset class="field">
+              <legend class="field-label mb-0">House types</legend>
+              <p class="hint mt-1">What kinds of homes are in the building, how many, and the monthly price.</p>
+
+              <!-- Type 1 (required) -->
+              <div class="type-row">
+                <div class="row g-2">
+                  <div class="col-12 col-sm-5">
+                    <label class="mini-label" for="type1">House type</label>
+                    <select class="form-select" id="type1" name="house_type_1" required>
+                      <option value="" selected disabled>Choose…</option>
+                      <option>Studio</option>
+                      <option>1 Bedroom</option>
+                      <option>2 Bedroom</option>
+                      <option>3 Bedroom</option>
+                      <option>Townhouse</option>
+                      <option>Bedspace / Room</option>
+                    </select>
+                  </div>
+                  <div class="col-5 col-sm-3">
+                    <label class="mini-label" for="count1">How many</label>
+                    <input class="form-control" type="number" id="count1" name="house_count_1" min="1" max="500" inputmode="numeric" placeholder="0" required />
+                  </div>
+                  <div class="col-7 col-sm-4">
+                    <label class="mini-label" for="price1">Price / month</label>
+                    <div class="input-group">
+                      <span class="input-group-text" aria-hidden="true">$</span>
+                      <input class="form-control" type="number" id="price1" name="house_price_1" min="0" step="10" inputmode="numeric" placeholder="0" required />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Types 2 & 3 (optional, tucked away) -->
+              <details class="more">
+                <summary><i class="bi bi-plus-circle" aria-hidden="true"></i>Add another house type</summary>
+
+                <div class="type-row">
+                  <div class="row g-2">
+                    <div class="col-12 col-sm-5">
+                      <label class="mini-label" for="type2">House type</label>
+                      <select class="form-select" id="type2" name="house_type_2">
+                        <option value="" selected>—</option>
+                        <option>Studio</option>
+                        <option>1 Bedroom</option>
+                        <option>2 Bedroom</option>
+                        <option>3 Bedroom</option>
+                        <option>Townhouse</option>
+                        <option>Bedspace / Room</option>
+                      </select>
+                    </div>
+                    <div class="col-5 col-sm-3">
+                      <label class="mini-label" for="count2">How many</label>
+                      <input class="form-control" type="number" id="count2" name="house_count_2" min="1" max="500" inputmode="numeric" placeholder="0" />
+                    </div>
+                    <div class="col-7 col-sm-4">
+                      <label class="mini-label" for="price2">Price / month</label>
+                      <div class="input-group">
+                        <span class="input-group-text" aria-hidden="true">$</span>
+                        <input class="form-control" type="number" id="price2" name="house_price_2" min="0" step="10" inputmode="numeric" placeholder="0" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="type-row">
+                  <div class="row g-2">
+                    <div class="col-12 col-sm-5">
+                      <label class="mini-label" for="type3">House type</label>
+                      <select class="form-select" id="type3" name="house_type_3">
+                        <option value="" selected>—</option>
+                        <option>Studio</option>
+                        <option>1 Bedroom</option>
+                        <option>2 Bedroom</option>
+                        <option>3 Bedroom</option>
+                        <option>Townhouse</option>
+                        <option>Bedspace / Room</option>
+                      </select>
+                    </div>
+                    <div class="col-5 col-sm-3">
+                      <label class="mini-label" for="count3">How many</label>
+                      <input class="form-control" type="number" id="count3" name="house_count_3" min="1" max="500" inputmode="numeric" placeholder="0" />
+                    </div>
+                    <div class="col-7 col-sm-4">
+                      <label class="mini-label" for="price3">Price / month</label>
+                      <div class="input-group">
+                        <span class="input-group-text" aria-hidden="true">$</span>
+                        <input class="form-control" type="number" id="price3" name="house_price_3" min="0" step="10" inputmode="numeric" placeholder="0" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </fieldset>
+
+            <div class="modal-actions">
+              <button class="btn btn-sage" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>Add apartment</button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 Makazi Care · Landlord portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@makazicare.ph">hello@makazicare.ph</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar + add-apartment dialog) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

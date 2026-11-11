@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Makazi Care — Rent Extensions (Landlord)</title>
+  <meta name="theme-color" content="#FAF7F1" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css ">
+    <style>
+
+    </style>
+</head>
+
+<body>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Landlord navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="landlordhomepage.html">
+        <span class="brand-mark"><i class="bi bi-house-heart" aria-hidden="true"></i></span>
+        <span>
+          <span class="brand-name d-block"> MAKAZI CARE</span>
+          <span class="brand-sub d-block">Landlord</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landlordNav"
+              aria-controls="landlordNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="landlordNav">
+        <ul class="navbar-nav me-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="landlordhomepage.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="tenantslist.html">Tenants</a></li>
+          <li class="nav-item"><a class="nav-link" href="apartments.html">Apartments</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top"> Requested <br> Extensions</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <span class="avatar" aria-hidden="true">RA</span>
+          <span class="small fw-semibold">Rosa Aquino</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="page" id="top">
+    <div class="container app">
+
+      <!-- Header -->
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+          <!-- <p class="eyebrow">Landlord Portal</p> -->
+          <h1 class="page-title">Rent <em>extensions.</em></h1>
+          <p class="page-sub">Review time requests from tenants, check their payment track record, and grant or deny extensions with one tap.</p>
+        </div>
+        <div>
+          <a class="btn btn-outline-earth" href="tenantslist.html">
+            <i class="bi bi-people" aria-hidden="true"></i>View all tenants
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="stats-strip">
+        <div class="stat-item">
+          <span class="stat-icon tint-brown"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+          <div>
+            <b>2 Pending</b>
+            <span>Needs your decision</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon tint-sage"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+          <div>
+            <b>24,400 KES</b>
+            <span>Total deferred volume</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon tint-clay"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+          <div>
+            <b>98% On-time</b>
+            <span>Settled after extension</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Confirmation Banners (:target, pure CSS) -->
+      <div class="action-banner banner-success" id="approved-101" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <div>
+          <strong>Extension approved for John Doe (Unit 101).</strong> New due date set to 22 December 2026 ($1,200). Late fee waived; tenant notified by email.
+        </div>
+        <a class="dismiss" href="#top">Dismiss</a>
+      </div>
+
+      <div class="action-banner banner-denied" id="denied-101" role="status">
+        <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
+        <div>
+          <strong>Extension denied for John Doe (Unit 101).</strong> Standard due date remains 15 December 2026. Notification sent.
+        </div>
+        <a class="dismiss" href="#top">Dismiss</a>
+      </div>
+
+      <div class="action-banner banner-success" id="approved-3a" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <div>
+          <strong>Extension approved for Grace Tan (Unit 3A).</strong> New settlement date set to 22 November 2026 ($1,240). Tenant notified.
+        </div>
+        <a class="dismiss" href="#top">Dismiss</a>
+      </div>
+
+      <div class="action-banner banner-denied" id="denied-3a" role="status">
+        <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
+        <div>
+          <strong>Extension denied for Grace Tan (Unit 3A).</strong> Balance of $1,240 stays due immediately. Manager Mira notified for follow-up.
+        </div>
+        <a class="dismiss" href="#top">Dismiss</a>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="toolbar" role="radiogroup" aria-label="Filter extensions">
+        <span class="toolbar-label">Status</span>
+        <input class="vh-radio" type="radio" name="ext_filter" id="fAll" checked />
+        <label class="pill" for="fAll">All <span class="n">5</span></label>
+
+        <input class="vh-radio" type="radio" name="ext_filter" id="fPending" />
+        <label class="pill" for="fPending">Pending <span class="n">2</span></label>
+
+        <input class="vh-radio" type="radio" name="ext_filter" id="fApproved" />
+        <label class="pill" for="fApproved">Approved <span class="n">2</span></label>
+
+        <input class="vh-radio" type="radio" name="ext_filter" id="fDenied" />
+        <label class="pill" for="fDenied">Denied <span class="n">1</span></label>
+      </div>
+
+      <!-- List of Requests -->
+      <div class="ext-list">
+
+        <!-- REQUEST 1: John Doe (Pending) -->
+        <article class="card-ext pending-highlight" data-status="pending" aria-labelledby="req1-title">
+          <div class="ext-head">
+            <div class="ext-who">
+              <span class="unit-badge unit-pill">101</span>
+              <div class="tenant-name">
+                <b id="req1-title">John Doe</b>
+                <span>J.Crown Apartments · Leased through Mar 2027</span>
+              </div>
+            </div>
+            <span class="status-badge badge-pending">Needs your decision</span>
+          </div>
+
+          <div class="ext-facts">
+            <div class="fact-cell">
+              <small>Monthly Rent</small>
+              <b>12,000 KES</b>
+            </div>
+            <div class="fact-cell">
+              <small>Standard Due Date</small>
+              <b>15 Dec 2026</b> 
+            </div>
+            <div class="fact-cell">
+              <small>Requested Date</small>
+              <b class="highlight-date">22 Dec 2026 (+7 days)</b>
+            </div>
+            <div class="fact-cell">
+              <small>Payment Plan</small>
+              <b>Full 12,000 KES on new date</b>
+            </div>
+          </div>
+
+          <div class="ext-note">
+            <i class="bi bi-chat-left-quote" aria-hidden="true"></i>
+            <b>Reason:</b> Delayed payroll or salary deposit.
+            <div class="mt-1 ps-3 text-secondary">
+              “Salary payout was pushed by accounting to Dec 21. Will settle immediately upon receipt on Dec 22.”
+            </div>
+          </div>
+
+          <div class="tenant-history">
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            <span class="fw-semibold">Tenant history:</span>
+            <span class="tag-history">5 years at J.Crown</span>
+            <span class="tag-history">Zero missed rents</span>
+            <span class="tag-history">1 prior extension (Mar 2026, paid on time)</span>
+          </div>
+
+          <div class="ext-actions">
+            <span class="small text-muted">Submitted 11 Dec 2026 · Ref: EXT-2612-101</span>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-outline-clay btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#denyModal101">
+                <i class="bi bi-x-circle" aria-hidden="true"></i>Deny
+              </button>
+              <button class="btn btn-sage btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#acceptModal101">
+                <i class="bi bi-check-circle" aria-hidden="true"></i>Accept extension
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- REQUEST 2: Grace Tan (Pending) -->
+        <article class="card-ext pending-highlight" data-status="pending" aria-labelledby="req2-title">
+          <div class="ext-head">
+            <div class="ext-who">
+              <span class="unit-badge unit-pill">3A</span>
+              <div class="tenant-name">
+                <b id="req2-title">Grace Tan</b>
+                <span>J.Crown Apartments · Leased through Aug 2027</span>
+              </div>
+            </div>
+            <span class="status-badge badge-pending">Needs your decision</span>
+          </div>
+
+          <div class="ext-facts">
+            <div class="fact-cell">
+              <small>Monthly Rent</small>
+              <b>12,400 KES</b>
+            </div>
+            <div class="fact-cell">
+              <small>Standard Due Date</small>
+              <b>15 Nov 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Requested Date</small>
+              <b class="highlight-date">22 Nov 2026 (+7 days)</b>
+            </div>
+            <div class="fact-cell">
+              <small>Payment Plan</small>
+              <b>Full 12,400 KES on promised date</b>
+            </div>
+          </div>
+
+          <div class="ext-note">
+            <i class="bi bi-chat-left-quote" aria-hidden="true"></i>
+            <b>Reason:</b> Bank transfer or clearance delay.
+            <div class="mt-1 ps-3 text-secondary">
+              “Awaiting clearance on client invoice check, funds clearing on Friday.”
+            </div>
+          </div>
+
+          <div class="tenant-history">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            <span class="fw-semibold">Tenant history:</span>
+            <span class="tag-history">1 year at J.Crown</span>
+            <span class="tag-history">First extension request</span>
+          </div>
+
+          <div class="ext-actions">
+            <span class="small text-muted">Submitted 16 Nov 2026 · Ref: EXT-2611-3A</span>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-outline-clay btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#denyModal3a">
+                <i class="bi bi-x-circle" aria-hidden="true"></i>Deny
+              </button>
+              <button class="btn btn-sage btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#acceptModal3a">
+                <i class="bi bi-check-circle" aria-hidden="true"></i>Accept extension
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- REQUEST 3: Jonas Lim (Approved) -->
+        <article class="card-ext" data-status="approved" aria-labelledby="req3-title">
+          <div class="ext-head">
+            <div class="ext-who">
+              <span class="unit-badge unit-pill">2A</span>
+              <div class="tenant-name">
+                <b id="req3-title">Jonas Lim</b>
+                <span>J.Crown Apartments · Lease renewal in progress</span>
+              </div>
+            </div>
+            <span class="status-badge badge-approved">Approved &amp; Paid</span>
+          </div>
+
+          <div class="ext-facts">
+            <div class="fact-cell">
+              <small>Rent</small>
+              <b>12,500 KES</b>
+            </div>
+            <div class="fact-cell">
+              <small>Original Due</small>
+              <b>15 Nov 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Extended To</small>
+              <b>20 Nov 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Outcome</small>
+              <b class="text-success"><i class="bi bi-check-lg" aria-hidden="true"></i> Paid on Nov 19</b>
+            </div>
+          </div>
+
+          <div class="ext-actions">
+            <span class="small text-muted">Approved by Rosa on 06 Nov 2026 · Settled early</span>
+            <span class="badge bg-light text-secondary border">No further action</span>
+          </div>
+        </article>
+
+        <!-- REQUEST 4: Elena Ramos (Approved) -->
+        <article class="card-ext" data-status="approved" aria-labelledby="req4-title">
+          <div class="ext-head">
+            <div class="ext-who">
+              <span class="unit-badge unit-pill cv">H1</span>
+              <div class="tenant-name">
+                <b id="req4-title">Elena Ramos</b>
+                <span>Casa Verde Homes · 6 years resident</span>
+              </div>
+            </div>
+            <span class="status-badge badge-approved">Approved &amp; Paid</span>
+          </div>
+
+          <div class="ext-facts">
+            <div class="fact-cell">
+              <small>Rent</small>
+              <b>14,500 KES</b>
+            </div>
+            <div class="fact-cell">
+              <small>Original Due</small>
+              <b>15 Sep 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Extended To</small>
+              <b>22 Sep 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Outcome</small>
+              <b class="text-success"><i class="bi bi-check-lg" aria-hidden="true"></i> Paid on Sep 21</b>
+            </div>
+          </div>
+
+          <div class="ext-actions">
+            <span class="small text-muted">Approved by Rosa on 12 Sep 2026 · Settled in full</span>
+            <span class="badge bg-light text-secondary border">No further action</span>
+          </div>
+        </article>
+
+        <!-- REQUEST 5: Marco Pascual (Denied) -->
+        <article class="card-ext" data-status="denied" aria-labelledby="req5-title">
+          <div class="ext-head">
+            <div class="ext-who">
+              <span class="unit-badge unit-pill">1B</span>
+              <div class="tenant-name">
+                <b id="req5-title">Marco Pascual</b>
+                <span>J.Crown Apartments · 7 years resident</span>
+              </div>
+            </div>
+            <span class="status-badge badge-denied">Denied</span>
+          </div>
+
+          <div class="ext-facts">
+            <div class="fact-cell">
+              <small>Rent</small>
+              <b>12,000 KES</b>
+            </div>
+            <div class="fact-cell">
+              <small>Original Due</small>
+              <b>15 Oct 2026</b>
+            </div>
+            <div class="fact-cell">
+              <small>Requested Extension</small>
+              <b>+14 days (Nov 29)</b>
+            </div>
+            <div class="fact-cell">
+              <small>Decision Reason</small>
+              <b class="text-danger">Consecutive overdue balance</b>
+            </div>
+          </div>
+
+          <div class="ext-note mb-3">
+            <i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i>
+            <b>Decision note:</b> Unit has ongoing outstanding balance. Deferred extension denied; referred to manager Mira to establish a structured payment schedule.
+          </div>
+
+          <div class="ext-actions">
+            <span class="small text-muted">Denied on 17 Nov 2026 · Transferred to Manager follow-up</span>
+            <a class="btn btn-outline-earth btn-sm" href="mailto:mira.cruz@tenapay.ph?subject=Payment%20arrangement%20follow-up%20%E2%80%94%20Unit%201B">
+              <i class="bi bi-envelope" aria-hidden="true"></i>Contact Mira
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============ ACCEPT MODAL: JOHN DOE ============ -->
+  <div class="modal fade" id="acceptModal101" tabindex="-1" aria-labelledby="accept101Title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="accept101Title"><i class="bi bi-check-circle text-success me-2" aria-hidden="true"></i>Accept extension?</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-summary-box">
+            <small>Tenant &amp; Unit</small>
+            <b>John Doe · Unit 101 (J.Crown Apartments)</b>
+            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+              <span>Amount due: <b>12,000 KES</b></span>
+              <span>New due date: <b class="text-success">22 Dec 2026</b></span>
+            </div>
+          </div>
+
+          <form action="#approved-101" method="get">
+            <div class="mb-3">
+              <label class="form-label" for="acceptNote101">Optional note for John</label>
+              <input class="form-control" type="text" id="acceptNote101" name="note" value="Approved. Thank you for the advance notice, John." />
+            </div>
+
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="waive101" checked />
+              <label class="form-check-label small" for="waive101">
+                Waive late penalty fee up to 22 Dec 2026
+              </label>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-sage flex-grow-1" type="submit" data-bs-dismiss="modal">
+                Confirm &amp; Accept Extension
+              </button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DENY MODAL: JOHN DOE ============ -->
+  <div class="modal fade" id="denyModal101" tabindex="-1" aria-labelledby="deny101Title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title text-danger" id="deny101Title"><i class="bi bi-x-circle text-danger me-2" aria-hidden="true"></i>Deny extension?</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small">
+            Denying this request keeps John's rent due on the standard date (15 Dec 2026).
+          </p>
+          <form action="#denied-101" method="get">
+            <div class="mb-3">
+              <label class="form-label" for="denyReason101">Reason for denial</label>
+              <select class="form-select" id="denyReason101" name="reason">
+                <option value="notice">Insufficient advance notice</option>
+                <option value="limit">Extension limit reached</option>
+                <option value="arrangement">Payment arrangement required</option>
+                <option value="other">Other reason</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="denyNote101">Message to John</label>
+              <textarea class="form-control" id="denyNote101" name="note" rows="2" placeholder="Explain kindly why the request cannot be granted…"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-clay flex-grow-1" type="submit" data-bs-dismiss="modal">
+                Confirm Denial
+              </button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Keep Reviewing</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ACCEPT MODAL: GRACE TAN ============ -->
+  <div class="modal fade" id="acceptModal3a" tabindex="-1" aria-labelledby="accept3aTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="accept3aTitle"><i class="bi bi-check-circle text-success me-2" aria-hidden="true"></i>Accept extension?</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-summary-box">
+            <small>Tenant &amp; Unit</small>
+            <b>Grace Tan · Unit 3A (J.Crown Apartments)</b>
+            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+              <span>Amount due: <b>12,400 KES</b></span>
+              <span>New due date: <b class="text-success">22 Nov 2026</b></span>
+            </div>
+          </div>
+
+          <form action="#approved-3a" method="get">
+            <div class="mb-3">
+              <label class="form-label" for="acceptNote3a">Optional note for Grace</label>
+              <input class="form-control" type="text" id="acceptNote3a" name="note" value="Approved. Settlement expected on or before Nov 22." />
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-sage flex-grow-1" type="submit" data-bs-dismiss="modal">
+                Confirm &amp; Accept Extension
+              </button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DENY MODAL: GRACE TAN ============ -->
+  <div class="modal fade" id="denyModal3a" tabindex="-1" aria-labelledby="deny3aTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title text-danger" id="deny3aTitle"><i class="bi bi-x-circle text-danger me-2" aria-hidden="true"></i>Deny extension?</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small">
+            Denying this request keeps Grace's November balance of 12,400 KES due immediately.
+          </p>
+          <form action="#denied-3a" method="get">
+            <div class="mb-3">
+              <label class="form-label" for="denyReason3a">Reason for denial</label>
+              <select class="form-select" id="denyReason3a" name="reason">
+                <option value="notice">Past standard due date</option>
+                <option value="arrangement">Direct arrangement with manager required</option>
+                <option value="other">Other reason</option>
+              </select>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-clay flex-grow-1" type="submit" data-bs-dismiss="modal">
+                Confirm Denial
+              </button>
+              <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Keep Reviewing</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>© 2026 Makazi Care· Landlord portal</span>
+      <span><i class="bi bi-envelope me-1" aria-hidden="true"></i><a href="mailto:hello@mazaricare.com">hello@mazaricare.com</a></span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap bundle (mobile navbar + modals) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
