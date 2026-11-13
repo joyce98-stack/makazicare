@@ -4000,3 +4000,161 @@
       .filter-label, .chevron, .btn { transition: none; }
     }
   
+  /* AUTHPAGE STYLING */
+   
+    :root {
+      --cream: #FAF7F1;
+      --paper: #FFFDF8;
+      --line: #E7DFCD;
+      --ink: #2F2720;
+      --muted: #6E6355;
+      --sage-100: #E3EADF;
+      --sage-300: #A9BFA1;
+      --sage-600: #5A7053;
+      --sage-800: #3A4A38;
+      --sage-900: #2C382B;
+      --brown-100: #EEE5D5;
+      --brown-300: #C5A87E;
+      --brown-600: #77593A;
+      --brown-700: #5F4630;
+      --brown-900: #3E2E22;
+      --brown-950: #241B14;
+      --olive-100: #ECEAD8;
+      --olive-800: #4F4D2A;
+    }
+
+    html { min-height: 100%; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--sage-800); color: var(--cream); }
+
+    .auth-header { padding: 1.1rem 0; }
+    .brand { display: inline-flex; align-items: center; gap: .7rem; color: inherit; text-decoration: none; }
+    .brand-mark {
+      display: grid; width: 42px; height: 42px; place-items: center;
+      border-radius: 14px; background: var(--sage-800); color: var(--cream); font-size: 1.1rem;
+    }
+    .brand-name {
+      display: block; color: var(--ink); font-family: "Fraunces", Georgia, serif;
+      font-size: 1.22rem; font-weight: 600; letter-spacing: .08em; line-height: 1;
+    }
+    .brand-sub { display: block; margin-top: .2rem; color: var(--brown-600); font-size: .58rem; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; }
+    .back-link { color: var(--muted); font-size: .86rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { color: var(--sage-800); }
+
+    .auth-main { flex: 1; display: grid; place-items: center; padding: 1.2rem 0 3.5rem; }
+    .auth-shell {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      width: min(100%, 1050px);
+      min-height: 610px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: 0 28px 72px -52px rgba(46, 56, 43, .6);
+    }
+
+    /* A quiet building view makes this portal feel connected to home. */
+    .welcome {
+      position: relative;
+      min-height: 610px;
+      overflow: hidden;
+      background: var(--sage-900);
+      color: var(--cream);
+    }
+    .welcome img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .welcome::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(36, 27, 20, .08) 10%, rgba(36, 27, 20, .78) 100%);
+    }
+    .welcome-copy { position: absolute; z-index: 1; left: 2.1rem; right: 2.1rem; bottom: 2.2rem; }
+    .welcome-kicker { margin: 0 0 .7rem; color: #E1E8D8; font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .welcome h1 { max-width: 11ch; margin: 0; color: #fffdf8; font-family: "Fraunces", Georgia, serif; font-size: clamp(2.2rem, 3.4vw, 3.4rem); font-weight: 520; line-height: 1; }
+    .welcome h1 em { color: #E4D5BD; font-weight: 420; }
+    .welcome-copy p:last-child { max-width: 35ch; margin: .85rem 0 0; color: rgba(255, 253, 248, .82); font-size: .9rem; line-height: 1.6; }
+
+    .form-side { display: flex; align-items: center; padding: clamp(1.5rem, 4vw, 3.4rem); }
+    .form-inner { width: 100%; max-width: 470px; margin: 0 auto; }
+    .form-kicker { margin: 0 0 .5rem; color: var(--sage-600); font-size: .68rem; font-weight: 700; letter-spacing: .19em; text-transform: uppercase; }
+    .form-title { margin: 0; color: var(--sage-900); font-family: "Fraunces", Georgia, serif; font-size: clamp(2rem, 3.3vw, 2.65rem); font-weight: 560; line-height: 1.05; }
+    .form-intro { margin: .6rem 0 1.6rem; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; margin-bottom: .4rem; color: var(--ink); font-size: .8rem; font-weight: 700; }
+    .form-control {
+      min-height: 48px;
+      padding: .72rem .9rem;
+      border: 1.5px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--ink);
+      font-size: .92rem;
+    }
+    .form-control::placeholder { color: #B4A895; }
+    .form-control:focus { border-color: var(--sage-600); box-shadow: 0 0 0 4px var(--sage-100); }
+    .form-control:user-invalid { border-color: var(--brown-600); }
+
+    .role-fieldset { margin: 1.3rem 0 1.15rem; padding: 0; border: 0; }
+    .role-fieldset legend { margin-bottom: .55rem; color: var(--ink); font-size: .8rem; font-weight: 700; }
+    .role-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+    .role-radio { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .role-card {
+      display: flex; min-height: 76px; flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+      padding: .7rem .35rem; border: 1.5px solid var(--line); border-radius: 14px;
+      background: #fff; color: var(--muted); font-size: .72rem; font-weight: 700; text-align: center; cursor: pointer;
+      transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+    }
+    .role-card i { font-size: 1.1rem; }
+    .role-card:hover { border-color: var(--sage-300); color: var(--sage-800); }
+    .role-radio:checked + .role-card { border-color: var(--sage-800); background: var(--sage-100); color: var(--sage-900); }
+    #roleManager:checked + .role-card { border-color: var(--olive-800); background: var(--olive-100); color: var(--olive-800); }
+    .role-radio:focus-visible + .role-card { outline: 2px solid var(--sage-800); outline-offset: 2px; }
+
+    .route-button { display: none; width: 100%; min-height: 49px; align-items: center; justify-content: center; gap: .55rem; }
+    #loginForm:has(#roleTenant:checked) .route-tenant,
+    #loginForm:has(#roleLandlord:checked) .route-landlord,
+    #loginForm:has(#roleManager:checked) .route-manager { display: flex; }
+    .btn-sage { border: 1px solid var(--sage-800); border-radius: 999px; background: var(--sage-800); color: var(--cream); font-size: .92rem; font-weight: 700; }
+    .btn-sage:hover, .btn-sage:focus { border-color: var(--sage-900); background: var(--sage-900); color: #fff; }
+    .btn-sage:focus-visible { outline: 2px solid var(--sage-800); outline-offset: 3px; }
+
+    .form-help { display: flex; justify-content: space-between; gap: .8rem; margin-top: .8rem; font-size: .78rem; }
+    .form-help a { color: var(--brown-700); font-weight: 600; text-decoration: none; }
+    .form-help a:hover { color: var(--brown-900); text-decoration: underline; text-underline-offset: 3px; }
+    .private-note { display: flex; gap: .5rem; margin: 1.25rem 0 0; color: var(--muted); font-size: .74rem; line-height: 1.55; }
+    .private-note i { color: var(--sage-600); }
+    .demo-note { margin: 1rem 0 0; padding: .75rem .85rem; border-radius: 12px; background: var(--brown-100); color: var(--brown-700); font-size: .72rem; line-height: 1.5; }
+
+    .site-footer { padding: 1rem 0; color: var(--muted); font-size: .78rem; }
+    .site-footer a { color: var(--brown-700); text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    @media (max-width: 767.98px) {
+      .auth-header { padding: .8rem 0; }
+      .auth-main { padding: .4rem 0 2rem; }
+      .auth-shell { grid-template-columns: 1fr; min-height: auto; border-radius: 22px; }
+      .welcome { min-height: 210px; }
+      .welcome-copy { left: 1.35rem; right: 1.35rem; bottom: 1.3rem; }
+      .welcome h1 { max-width: 18ch; font-size: 2rem; }
+      .welcome-copy p:last-child { margin-top: .45rem; font-size: .8rem; }
+      .form-side { padding: 1.6rem 1.25rem 1.8rem; }
+      .form-intro { margin-bottom: 1.2rem; }
+    }
+    @media (max-width: 380px) {
+      .role-options { gap: .3rem; }
+      .role-card { font-size: .66rem; }
+      .form-help { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .role-card { transition: none; }
+    }
+  
