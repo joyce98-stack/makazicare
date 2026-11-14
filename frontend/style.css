@@ -1,6 +1,7 @@
 /* LandingPage Styling */
-:root {
-      --cream: #f2f7da;
+  
+    :root {
+      --cream: #FAF7F1;
       --paper: #FFFDF8;
       --line: #E7DFCD;
       --ink: #2F2720;
@@ -37,7 +38,6 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--line);
-      width: 100%;
     }
     .brand-mark {
       width: 42px;
@@ -112,27 +112,57 @@
     .hero-copy {
       color: var(--muted);
       font-size: 1.03rem;
-      font-style: italic;
       line-height: 1.75;
       max-width: 46ch;
       margin: 0;
     }
     .hero-copy strong { color: var(--ink); font-weight: 600; }
 
-    .hero-media { margin: 2.4rem 0 0; }
-    .hero-media img {
+    .hero-media { max-width: 960px; margin: 2rem auto 0; }
+    .hero-media .carousel-inner {
+      height: clamp(220px, 34vw, 390px);
+      overflow: hidden;
+      border: 5px solid #fff;
+      border-radius: 24px;
+      background: var(--paper);
+      box-shadow: 0 24px 52px -32px rgba(46, 56, 43, .42);
+    }
+    .hero-media .carousel-item { height: 100%; }
+    .hero-media .carousel-item img {
       display: block;
       width: 100%;
-      height: clamp(300px, 46vw, 560px);
+      height: 100%;
       object-fit: cover;
-      object-position: center 62%;
-      border-radius: 26px;
-      border: 5px solid #fff;
-      box-shadow: 0 30px 60px -30px rgba(46, 56, 43, .42);
+      object-position: center;
     }
+    .hero-media .carousel-control-prev,
+    .hero-media .carousel-control-next {
+      top: 50%;
+      bottom: auto;
+      width: 42px;
+      height: 42px;
+      margin: 0 .8rem;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background: rgba(44, 56, 43, .78);
+      opacity: 1;
+    }
+    .hero-media .carousel-indicators { margin-bottom: 1rem; }
+    .hero-media .carousel-indicators [data-bs-target] {
+      width: 7px;
+      height: 7px;
+      margin: 0 4px;
+      border: 0;
+      border-radius: 999px;
+      background-color: #fff;
+      opacity: .65;
+    }
+    .hero-media .carousel-indicators .active { width: 22px; opacity: 1; }
     @media (max-width: 767.98px) {
-      .hero-media { margin-top: 1.6rem; }
-      .hero-media img { height: 300px; border-width: 4px; border-radius: 20px; }
+      .hero-media { margin-top: 1.5rem; }
+      .hero-media .carousel-inner { height: 230px; border-width: 4px; border-radius: 19px; }
+      .hero-media .carousel-control-prev,
+      .hero-media .carousel-control-next { width: 36px; height: 36px; margin: 0 .55rem; }
     }
 
     /* ---------- Roles ---------- */
@@ -153,7 +183,7 @@
       border-radius: 22px;
       overflow: hidden;
     }
-    .role { padding: 1.5rem 1.6rem; display: flex;  flex-direction:column; column-gap: 15cm 0.9rem; align-items: flex-start; }
+    .role { padding: 1.5rem 1.6rem; display: flex; gap: 0.9rem; align-items: flex-start; }
     .role + .role { border-left: 1px solid var(--line); }
     .role-icon {
       flex: 0 0 auto;
@@ -164,18 +194,6 @@
       border-radius: 12px;
       font-size: 1rem;
     }
-
-    .btn-sage {
-       background: var(--sage-800);
-       border: none; 
-       color: var(--cream); 
-
-    
-    
-    }
-
-
-
     .tint-sage { background: var(--sage-100); color: var(--sage-800); }
     .tint-brown { background: var(--brown-100); color: var(--brown-700); }
     .tint-olive { background: #ECEAD8; color: #5C5A33; }
@@ -195,9 +213,9 @@
     }
     .site-footer a { color: #E9DECD; text-decoration: none; border-bottom: 1px solid rgba(233, 222, 205, .35); }
     .site-footer a:hover { color: #fff; border-bottom-color: #fff; }
+  
 
-
-    # tenant homepage
+    /* # tenant homepage  */
     :root {
       --cream: #e4a21e;
       --paper: #8a6f2a;
