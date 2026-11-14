@@ -52,8 +52,8 @@ export function buildSeedData(passwordHash) {
     users: [
       {
         id: "user-rosa",
-        name: "Rosa Aquino",
-        email: "rosa@tenapay.ph",
+        name: "Rosa May",
+        email: "rosamay@gmail.com",
         role: "landlord",
         passwordHash,
         propertyIds: ["j-crown", "casa-verde"],
@@ -61,19 +61,19 @@ export function buildSeedData(passwordHash) {
       {
         id: "user-mira",
         name: "Mira Cruz",
-        email: "mira.cruz@tenapay.ph",
+        email: "mira.cruz@gmail.com",
         role: "manager",
         passwordHash,
         propertyIds: ["j-crown", "casa-verde"],
       },
       {
         id: "user-john",
-        name: "John Doe",
-        email: "john.doe@example.com",
+        name: "Mark Nil",
+        email: "marknil@example.com",
         role: "tenant",
         passwordHash,
         propertyIds: ["j-crown"],
-        tenantId: "tenant-john",
+        tenantId: "tenant-Mark",
       },
     ],
     properties: [
