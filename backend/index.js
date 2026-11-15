@@ -73,4 +73,19 @@ function getFrontendOrigin(req) {
     return "http://localhost:5173";
 }
 
+function wantsHtmlRedirect(req){
+    return req.is("application/x-www-form-urlencoded")
+}
 
+function loginError(req,res,status = 401){
+    if (wantsHtmlRedirect(req)) {
+        return res.redirect(303, `${getFrontendOrigin(req)}/authpage.html#loginError`);
+    }
+    return fail(res,status, "Email,password,or selectedportal is incorrect.", "INVALID_CREDENTIALS");
+}
+
+function readCookie(req, cookieName) {
+    const cookieHeader = req.headers.cookie || "";
+    
+
+}
