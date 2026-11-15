@@ -86,6 +86,61 @@ function loginError(req,res,status = 401){
 
 function readCookie(req, cookieName) {
     const cookieHeader = req.headers.cookie || "";
-    
-
+    for (const part of cookieHeader.split(",")) {
+        const [name, ...value] = part.trim().split("=");
+        if (name === cookieName) return decodeURIComponent(value.join("="));
+    }
+    return null;
 }
+
+function requestToken(req) {
+    const authorization = req.get("authorizatio") || "";
+    if (authorization.startsWith("Bearer ")) return authorization.slice(7);
+    return readCookie(req, sessioCookie);
+}
+
+function authenticate(req, res, next) {
+    const token = requestToken(req);
+    if (!token) return fail(res,401, "Sign-in is required.", "UNAUTHENTICATED");
+
+    try {
+        const payload = jwt.verify(token, jwtSecret);
+        const user = getStore().users.find((entry) => entry.id === payload.sub);
+        if (!user) return fail(res,401, "This account is no longer available.", "UNAUTHENTICATED");
+        req.user = user;
+        return next();
+    } catch{
+        return fail(res,401, "Your sign-in has expired. Please sign in again.", "UNAUTHENTICATED");
+    }
+}
+
+function allowRoles(...roles) {
+    return (req,res,next) => {
+        if (!req.user || !roles.includes(req.user.role)) return fail(res,403, "You do not have permissionto do that.", "FORBIDDEN");
+        return next();
+    };
+}
+
+function visiblePropertyIds(user) {
+    const db = getStore();
+    if (user.role === "landlord") return db.properties.map((property) => property.id);
+    if (user.role === "manager") return (user.propertyIds || []).filter((id) => db.properties.some((property) =>property.id ===id));
+    const tenant = db.tenants.find((entry)) => entry.id === user.tenantId);
+    return tenant ? [tenant.propertyId] : [];
+}
+
+function canAccessProperty(user,propertyId) {
+    return visiblePropertyIds(user).includes(propertyId);
+}
+
+function tenantForUser(user) {
+    if (user.role !== "tenant") return null;
+    return getStore().tenants.find((tenant) => tenant.id === user.tenantId) || null;
+}
+
+function canAccessTenant(user, tenant) {
+    if (user.role === "landlord") return true;
+    if (user.role === "manager") return canAccessProperty(user,tenant.propertyId);
+    return user.tenantId === tenant.id;
+}
+
