@@ -144,3 +144,16 @@ function canAccessTenant(user, tenant) {
     return user.tenantId === tenant.id;
 }
 
+function propertyOr404(res,id) {
+    const property = getStore().properties.find((entry) => entry.id === id);
+    if (!property) fail(res,404, "Property not found.", "NOT_FOUND");
+    return property;
+}
+
+function tenantOr404(res,id) {
+    const tenant = getStore().tenants.find((entry)) => entry.id  === id);
+    if (!tenant) fail(res,404, "Tenant not found.", "NOT_FOUND");
+    return tenant;
+}
+
+
