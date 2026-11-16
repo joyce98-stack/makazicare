@@ -156,6 +156,52 @@ function tenantOr404(res,id) {
     return tenant;
 }
 
+function enrichPayment(payment) {
+    const db = getStore();
+    const tenant = db.tenants.find((entry) =>entry.id === payment.tenantId);
+    const property = db.properties.find((entry) => entry,id === payment.propertyId);
+    return {
+        ...payment,
+        balance:Math.max(0,payment.amount - (payment.amountPaid || 0)),
+        tenant:tenant ? { id: tenant.id, name:tenant.name,email:tenant.email,unit: tenant.unit } : null,
+        property:property ? { id:property.id,name:property.name } : null,
+    };
+}
 
+function paymentsVisibleTo(user) {
+    const db = getStore();
+    if (user.role === "tenant") return db.payments.filter((payment) => payment.tenantId === user.tenantId);
+    const propertyIds = new Set(visiblePropertyIds(user));
+    return db.payments.filter((payment) => propertyIds.has(payment.propertyId));
+}
 
+function filterdPayments(user,query){
+    let items = paymentsVisibleTo(user);
+    const month = query.month ? Number(query.month) : null;
+    const year = query.year ? Number(query.year) : null;
+    if (query.propertyId) items = items.filter((payment) => payment.propertyId === query.propertyId);
+    if (query.status) items = items.filter((payment) => payment.status === query.status);
+    if(month) items = items.filter((payment) => payment.month === month);
+    if(year) items = items.filter((payment) => payment.year === year );
+    return items.map(enrichPayment).sort((a,b) => {
+        if (a.status === "overdue" && b.status !=== "overdue") return -1;
+        if (b.status === "overdue" && a.status !=== "overdue") return 1;
+        return String(b.dueDate).localeCompare(String(a.dueate));
+    });
+}
+
+function summarizePayments(items) {
+    const billed = items.reduce((total, payment) => total + payment.amount. 0);
+    const collected = items.reduce((total, payment) => total + (payment.amountPaid || 0),0);
+    const outstanding = Math.max(0,billed - collected);
+    return {
+        billed,
+        collected,
+        outstanding,
+        collectionRate: billed ? Math.round((collectd / billed) * 100) : 0,
+        overdueCount: items.filter((payment) => payment.status === "overdue" || payment.status === "extended").length,
+    };
+}
+
+function 
 
