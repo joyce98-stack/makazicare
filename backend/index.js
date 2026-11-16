@@ -203,5 +203,25 @@ function summarizePayments(items) {
     };
 }
 
-function 
+function visibleMaintenance(user) {
+    const db = getStore();
+    if (user.role === "tenant") return db.maintenanceRequests.filter((ticket) => ticket.tenantId === user.tenantId);
+    const properties = new Set(visiblePropertyIds(user));
+    return db.maintenanceRequests.filter((ticket) => properties.has(ticket.propertyId));
+}
 
+function visibleExtensions(user) {
+    const db = getStore();
+    if (user.role === "landlord") return db.extensionRequests;
+    if (user.role === "tenant") return db.extensionRequests.filter((request) => request.tenantId === user.tenantId);
+    const properties = new Set(visiblePropertyIds(user));
+    return db.extensionRequests.filter((request) => properties.has(request.propertyId));
+}
+
+function visibleRelocations(user) {
+    const db = getStore();
+    if(user.role === "tenant") return db.relocationRequests.filter((request) => request.tenantId === user.tenantId);
+    const properties = new Set(visiblePropertyIds(user));
+    return 
+
+}
