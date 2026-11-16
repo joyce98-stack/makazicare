@@ -222,6 +222,7 @@ function visibleRelocations(user) {
     const db = getStore();
     if(user.role === "tenant") return db.relocationRequests.filter((request) => request.tenantId === user.tenantId);
     const properties = new Set(visiblePropertyIds(user));
-    return 
-
+    return db.relocationRequests.filter((request) => properties.has(request.currentPropertyId));
 }
+
+function 
