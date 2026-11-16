@@ -225,4 +225,48 @@ function visibleRelocations(user) {
     return db.relocationRequests.filter((request) => properties.has(request.currentPropertyId));
 }
 
-function 
+function addAuditEvent(user,action,recordType,recordId,detail = {}) {
+    getStore().auditEvents.unshift({
+        id:makeId("event"),
+        actorId: user.id,
+        action,
+        recordType,
+        recordId
+        detail,
+        createdAt: new Date ().toISOString(),
+    });
+} 
+
+function getExtensionPayment(request) {
+    const db = getStore();
+    let payment = db.paymment.find((entry) => entry.id ===request.paymentId);
+    if (!payment) {
+        payment = db.payments.find((entry) => entry.tenantId ===request.tenantId && entry.year === request.year);
+        }
+        if (!payment) {
+            payment = {
+                id: `payment-${request.tenantId}-${request.year}-${String(request.month).padStart(2,"0")}`,
+                tenantId: request.tenantId,
+                propertyId: request.propertyId,
+                month:request.month,
+                year:request.year,
+                amount:request.amount,
+                amountPaid:0,
+                status: "pending",
+                dueDate: request.currentDueDate,
+                paidAt: null,
+                method: null,
+                receiptNumber: null,
+                recordedBy: null,
+            };
+            db.payments.push(payment);
+            request.paymentId = payment.id;
+        }
+        return payment;
+}
+
+app.get("api/auth/login", async (_req,res) => {
+    res.json({ status: "OK", service: "makazi-care-api",timestamp: new Date().toISOString() });
+});
+
+app.post
