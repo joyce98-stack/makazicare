@@ -301,3 +301,4 @@ app.post("/api/auth/login",async (req-res) => {
  app.get("/api/auth/me",authenticate, (req,res) => {
     res.json({ user: safeUser(req.user) });
  });
+ 
