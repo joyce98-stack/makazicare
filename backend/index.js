@@ -269,4 +269,35 @@ app.get("api/auth/login", async (_req,res) => {
     res.json({ status: "OK", service: "makazi-care-api",timestamp: new Date().toISOString() });
 });
 
-app.post
+app.post("/api/auth/login",async (req-res) => {
+    const email = cleanEmail(req.body.email);
+    const password = String(req.body.password || "");
+    const requestedRole = String(req.body.role || "");
+    const user = getStore().users.find((entry) => entry.email ===email);
+    const passwordIsValid = user ?awaiy bcrypt.compare(password,user.passwordHash) : false;
+
+    if (!user || !passwordIsValid || user.role !== requestedRole) return loginError(req,res);
+
+    const token = jwt.sign ({sub: user.id, role: },jwtSecret, { expiresIn: tokenLifetimeSeconds});
+    res.cookie(sessionCookie,token,{
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProduction,
+        maxAge: tokenLifetimeSeconds * 1000,
+        path: "/",
+    });
+
+    if (wantsHtmlRedirect(req)) {
+        return res.redirect(303, `${getFrontendOrigin(req)}/${roleHomes[user.role]}`);
+    }
+    return res.json({ token,expiresIn: tokenLifetimeSeconds,user: safeUser(user) });
+ });
+
+ app.post("api/auth/logout", (_req,res) => {
+    res.clearCookie{sessionCookie, { httpOnly: true, sameSite: "lax", secure:isProduction, path: "/" }};
+    res.json({ ok: true});
+ });
+
+ app.get("/api/auth/me",authenticate, (req,res) => {
+    res.json({ user: safeUser(req.user) });
+ });
