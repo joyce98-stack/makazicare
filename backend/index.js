@@ -302,3 +302,15 @@ app.post("/api/auth/login",async (req-res) => {
     res.json({ user: safeUser(req.user) });
  });
  
+ app.get("/api/dashboard", authenticate, (req,res) => {
+    const db= getStore();
+    if (req.user.role === "tenant") {
+        const tenant = tenantForUser(req.user);
+        if(!tenant) return fail(res,404, "Tenant recordnot found.", "NOT_FOUND");
+        const nextPayment = db.payments
+        .filter((payment) => payment.tenantId === tenant.id)
+        .sort((a,b) => `${b.year}-${b.month}` .localeCompare(`${a.year}-${a.month}`))[0] || null;
+        
+ 
+    }
+ })
