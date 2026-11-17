@@ -310,7 +310,41 @@ app.post("/api/auth/login",async (req-res) => {
         const nextPayment = db.payments
         .filter((payment) => payment.tenantId === tenant.id)
         .sort((a,b) => `${b.year}-${b.month}` .localeCompare(`${a.year}-${a.month}`))[0] || null;
-        
- 
+       return res.json({
+        user: safeUser(req.user),
+        tenant,
+        property: db.properties.find((property) => property.id === tenant.propertyId),
+        nextPayment: nextpyment ? enrichPayment(nextPayment) : null,
+        maintenanceOpen: db.maintenanceRequests.filter((ticket) => ticket.tenantId === tenant.id && ticket.status !== "resoled").length,       
+       }); 
     }
+
+    const period = filterdPayments(req.user, {month:req.query.month || "11", year: req.query.year || "2026"};
+    return res.json({
+        user: safeUser(req.user),
+        summary:summarizePayments(period),
+        properties: visiblePropertyIds(req.user).map((id) => db.properties.find((property) => property.id === id)),
+        tenants: db.tenants.filter((tenantt) => canAccessTenant(req.user, tenant)).length,
+        maintenanceOpen{ visibleMaintenance(req.user).filter((ticket) => ticket.status !=="resolved").length,
+        });
+    });
+
+    app.get("/api/properties", authenticate, (req,res) => {
+        const db = getStore();
+        const propertyIds = new Set(visiblePropertyIds(req.user));
+        const properties = db.properties
+        .filter((property) => propertyIds.has(property.id))
+        .map((property) => ({
+            ...property,
+            occupiedCount:db.tenants.filter((tenant) => tenant.propertyId === property.id && tenant.status === "active").length,
+        }));
+        res.json({ items: properties });
+ });
+
+ app.post("/api/properties", authenticate, allowRoles("landlord"),async (req,res) => {
+    const { name,address,type,unitCount} = req.body;
+    if (!String(name || !String(address ||"").trim() || !positiveNumber(unitcount)){
+        
+    })
+
  })
