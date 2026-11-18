@@ -418,6 +418,32 @@ app.get("/api/tenants", authenticate, (req,res) => {
     if(duplicate) return fail(res,409, "A payment record already exists for this tenant and period.", "DUPLICATE_PAYMENT");
     
     const payment = {
-        id:`payment`
+        id:`payment-${tenantId}-${yearNumber}-${String(monthNumber).padStart(2,"0")}`,
+        tenantId,propertyId: tenant.propertyId, month:monthNumber,year: yearNumber,
+        amount: paymentAmount, amountPaid: 0, status: "pending", dueDate,
+        paidAt: null, method:null, receiptNumber:  null,recordedBy:null,
+    };
+    getStore().payments.push(payment);
+    addAuditEvent(req.user, "payment.created","payment",payment.id);
+    await saveStore();
+    res.status(201).json({item:enrichPayment(payment) });
+ });
+
+ app.post("/api/payments/:paymentId/record",authenticate, allowRoles("landlord", "manager"), async (req,res) => {
+    const payment = getStore().payments.find((entry) => entry.id === req.params.paymentId);
+    if (!payment) return fail(res,404,"Payment record not found.","NOT_FOUND");
+    if (!canAccessProperty(req.user,payment.propertyId)) return fail(res,403,"You cannot update payments for this property.", "FORBIDDEN");
+    const tenant = getStore().tenants.find((entry) => entry.id === payment.tenantId);
+    const remaining = Math.max(0,payment.amount - (payment.amountPaid || 0));
+    const amount = Number(req.body.amount ?? remaining);
+    const method = String(req.body.method || "").trim();
+    const paidAt = req.body.paidAt;
+    if(!positiveNumber(amount) || amount > remaining || !method || !isDate(paidAt)) {
+        return fail(res,400,"Enter an amount upto the remaining balance,payment method, and valid date.","VALIDATION_ERROR");
     }
+    payment.amountPaid = (payment.amountPaid || 0) + amount;
+    payment.method = method;
+    payment.paidAt = paidAt;
+    payment.status = payment.amountPaid >= payment.amount
+
  })
