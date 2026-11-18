@@ -403,4 +403,21 @@ app.get("/api/tenants", authenticate, (req,res) => {
     res.json({ items, summary: summarizePayments(items), count: items.length });
  });
 
- app.post("/api/payments", authenticate, )
+ app.post("/api/payments", authenticate, allowroles("landlord","manager"), async (req,res) => {
+    const { tenantId,month,year, dueDate, amount} = req.body;
+    const tenant = tenantOr404(res, tenantId);
+    if (!tenant) return;
+    if (!canAccessTenant(req.user, tenant)) return fail(res,403,"You cannot record a payment for this tenant.","FORBIDDEN");
+    const monthNumber = Number(month);
+    const yearNumber = Number(year);
+    const paymentAmount = Number(amount || tenant.rent);
+    if (!Number.isInteger(monthNumber) || monthNumber < 1 || !Number.isInteger(yearNumber) || yearNumber < 2020 || !positiveNumber(paymentAmount) || !isDate(dueDate)) {
+        return fail(res,400, "A Valid tenant,month,year,due date and amount are required . " , "VALIDATION_ERROR" ); 
+    }
+    const duplicate = getStore () .payments.find((payment) => payment.tenantId === tenantId && payment.month  === monthNumber && payment.year === yearNumber );
+    if(duplicate) return fail(res,409, "A payment record already exists for this tenant and period.", "DUPLICATE_PAYMENT");
+    
+    const payment = {
+        id:`payment`
+    }
+ })
