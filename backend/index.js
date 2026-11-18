@@ -344,7 +344,63 @@ app.post("/api/auth/login",async (req-res) => {
  app.post("/api/properties", authenticate, allowRoles("landlord"),async (req,res) => {
     const { name,address,type,unitCount} = req.body;
     if (!String(name || !String(address ||"").trim() || !positiveNumber(unitcount)){
-        
-    })
+        return fail(res,400, "Name,address, and a positive unit count are required.", "VALIDATION_ERROR");
+    }
+    const property = {
+        id:makeId("proprty"),
+        name:String(name).trim(),
+        address: String(address).trim(),
+        type: String(type || "apartment").trim(),
+        unitCount: Number(unitCount),
+        ownerId: req.user.id,
+        createdAt:new Date().toISOString(),
+    };
+    getStore().properties.push(property);
+    req.user.propertyIds.push(property.id);
+    addAuditEvent(req.user,"property.created", "property",property.id);
+    await saveStore();
+    res.status(201).json({ item:property });        
+});
 
- })
+app.get("/api/tenants", authenticate, (req,res) => {
+    const db = getStore();
+    let tenants = db.tenants.filter((tenant) => canAccessTenant(req.user,tenant));
+    if (req.query.propertId) tenants = tenants.filter((tenant) => tenant.propertyId ===mreq.query.propertyId);
+    if (req.query.status) tenants = tenants.filter((tenant) => tenant.status === req.query.status);
+    if(req.query.search) {
+        const search = String(req.query.search).trim().toLowerCase();
+        tenants = tenants.filter((tenant) => `${tenant.name} ${tenant.unit} ${tenant.email}`.toLowerCase().includes(search));
+    }
+    res.json({items: tenants.map((tenant) => ({
+        ...tenant,
+        property: db.properties.find((property) => property.id === tenant.propertyId),
+     })) });
+    });
+
+    app.post("/api/tenants", authenticate, allowRoles("landlord","manager"), async (req, res) => {
+        const {name,email,phone,propertyId,unit,rent,occupiedSince } = req.body;
+        if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(unit || "").trim() || !positiveNumber(rent)){
+            return fail(res,400,"Name,valid email, unit, and positive rent are required.", "VALIDATION_ERROR");
+        }
+        if (!propertyOr404(res,property)) return;
+        if (!canAccessProperty(req.user,propertyId)) return fail(res,403, "You cannot add tenants to this property.", "FORBIDDEN");
+        if (getStore().tenants.some((tenant) => tenant.propertyId === propertyId && tenant.unit.toLowerCase() === String(unit).trim().toLocaleLowerCase() && tenant.status === "active")) {
+            return fail(res,409, "That unit already has an active tenant.", "UNIT_OCCUPIED");
+        }
+        const tenant = {
+            id: makeId("tenant"), name: String(name).trim(),email: cleanEmail(email), phone: String(phone || "").trim(),
+            propertyId,unit: String(unit).trim(), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active", 
+        };
+        getStore().tenants.push(tenant);
+        addAuditEvent(req.user, "tenant.created", "tenant", tenant.id);
+        await saveStore();
+        res.status(201).json({ item: tenant });
+ });
+
+ app.get("/api/payments", authenticate, (req,res) => {
+    if (req.query.propertId && !canAccessProperty(req.user, req.query.propertId)) return fail(res,403, "You cannot view payments for that property.", "FORBIDDEN");
+    const items = filterdPayments (req.user,req.query);
+    res.json({ items, summary: summarizePayments(items), count: items.length });
+ });
+
+ app.post("/api/payments", authenticate, )
