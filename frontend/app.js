@@ -1,4 +1,5 @@
 const roleHome = {
+  admin: "adminhomepage.html",
   tenant: "tenanthomepage.html",
   landlord: "landlordhomepage.html",
   manager: "propertymanager.html",
@@ -10,6 +11,7 @@ const pageRole = {
   landlordhomepage: "landlord", apartments: "landlord", tenantslist: "landlord",
   extensionrequests: "landlord", propertymanagerlist: "landlord", paymentreport: "landlord",
   propertymanager: "manager", pmpaymentreport: "manager", pmrequests: "manager",
+  adminhomepage: "admin",
 };
 pageRole.tenantslist = ["landlord", "manager"];
 
@@ -361,6 +363,7 @@ async function loadPageData(user) {
       addLivePanel("Live portfolio summary", [`${data.tenants} tenants`, `${data.properties.length} properties`, `${currency.format(data.summary.collected)} collected`, `${currency.format(data.summary.outstanding)} outstanding`, `${data.maintenanceOpen} open maintenance requests`]);
     }
   }
+  if (page === "adminhomepage") await loadAdminOverview();
   if (page === "tenantreceipts") {
     const data = await api("/api/receipts");
     addLivePanel("Recorded receipts", data.items.length ? data.items.map((item) => `${item.receiptNumber || item.id} · ${currency.format(item.amount)} · ${item.method || "Payment"}`) : ["No receipts recorded yet."]);
@@ -390,6 +393,40 @@ async function loadPageData(user) {
     const data = await api("/api/managers");
     addLivePanel("Manager invitations", data.invitations.map((item) => `${item.name} · ${item.email} · ${item.status}`));
     bindManagerInvite();
+  }
+}
+
+async function loadAdminOverview() {
+  const data = await api("/api/admin/overview");
+  addLivePanel("System totals", [
+    `${data.summary.landlordCount} landlords`,
+    `${data.summary.propertyCount} properties`,
+    `${data.summary.apartmentCount} apartments`,
+    `${data.summary.houseCount} houses`,
+    `${data.summary.tenantCount} tenants`,
+    `${data.summary.managerCount} property managers`,
+  ]);
+  const records = recordPanel("Landlord records and properties");
+  if (!data.landlords.length) records.textContent = "No landlords have registered yet.";
+  for (const landlord of data.landlords) {
+    const card = document.createElement("article");
+    card.className = "border rounded p-3";
+    const heading = document.createElement("h3");
+    heading.className = "h5";
+    heading.textContent = landlord.name;
+    const email = document.createElement("p");
+    email.textContent = landlord.email;
+    const counts = document.createElement("p");
+    counts.textContent = `${landlord.propertyCount} properties (${landlord.apartmentCount} apartments, ${landlord.houseCount} houses) · ${landlord.tenantCount} tenants · ${landlord.managerCount} managers · ${landlord.pendingManagerInvitations} pending manager invites`;
+    const list = document.createElement("ul");
+    list.className = "mb-0";
+    for (const property of landlord.properties) {
+      const item = document.createElement("li");
+      item.textContent = `${property.name} — ${property.type}, ${property.unitCount} units, ${property.tenantCount} tenants · ${property.address}`;
+      list.append(item);
+    }
+    card.append(heading, email, counts, list);
+    records.append(card);
   }
 }
 
@@ -448,13 +485,19 @@ function bindManagerInvite() {
 function bindPropertyForm() {
   const form = document.querySelector("#addModal form");
   if (!form) return;
+  if (!form.querySelector("#propertyCategory")) {
+    const field = document.createElement("div");
+    field.className = "mb-3";
+    field.innerHTML = '<label class="form-label" for="propertyCategory">Property category</label><select class="form-select" id="propertyCategory" required><option value="apartment">Apartment building</option><option value="house">Houses</option></select>';
+    form.querySelector("#aptLocation")?.closest(".mb-3, .field, div")?.after(field);
+  }
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
       const name = document.querySelector("#aptName").value;
       const address = document.querySelector("#aptLocation").value;
       const unitCount = ["#count1", "#count2", "#count3"].reduce((sum, selector) => sum + Number(document.querySelector(selector)?.value || 0), 0);
-      const type = document.querySelector("#type1")?.value || "apartment";
+      const type = document.querySelector("#propertyCategory")?.value || "apartment";
       const result = await api("/api/properties", { method: "POST", body: JSON.stringify({ name, address, unitCount, type }) });
       showMessage(`${result.item.name} was added.`, form, "success");
       const data = await api("/api/properties");

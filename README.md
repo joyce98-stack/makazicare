@@ -6,10 +6,12 @@ Makazi Care is a small property and tenant management application. The Express s
 
 1. Install Node.js 20 or newer.
 2. Run `npm install` in this folder.
-3. Copy `.env.example` to `.env` and set `JWT_SECRET` to a long random value. You can change `DEMO_PASSWORD` to set the shared password for the seeded demo accounts.
+3. Copy `.env.example` to `.env`, set a long random `JWT_SECRET`, and replace the `ADMIN_PASSWORD` placeholder with a unique password of at least 16 characters. You can change `DEMO_PASSWORD` to set the shared password if you enable sample demo data.
 4. Run `npm start` and open `http://localhost:3001`.
 
-The first start creates demo data and hashes the demo password. Seeded accounts are:
+The first start creates an empty property database and the system admin. Set `SEED_DEMO_DATA=true` to load the sample demo landlords, properties, tenants, and accounts instead.
+
+When demo data is enabled, seeded accounts are:
 
 | Role | Email |
 | --- | --- |
@@ -20,6 +22,8 @@ The first start creates demo data and hashes the demo password. Seeded accounts 
 All demo accounts use the password in `DEMO_PASSWORD` (defaults to `DemoPass123!` in development).
 
 Landlords can also register from the sign-in page. Registration creates a landlord account only; managers and tenants are added from the landlord portal using one-time account setup links.
+
+The read-only system admin is seeded from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on first startup. The admin can review landlord accounts, owned properties, tenant counts, and manager counts. Set a unique password of at least 16 characters in `.env` before starting with a fresh data file.
 
 The API health endpoint is `GET /api/health`. Authentication uses a signed, HTTP-only session cookie. New tenant and manager records produce one-time acceptance links that staff can share. Email delivery is not configured. The app records payments manually; it does not charge tenants online.
 

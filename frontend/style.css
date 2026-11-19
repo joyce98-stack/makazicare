@@ -4140,7 +4140,8 @@
     .route-button { display: none; width: 100%; min-height: 49px; align-items: center; justify-content: center; gap: .55rem; }
     #loginForm:has(#roleTenant:checked) .route-tenant,
     #loginForm:has(#roleLandlord:checked) .route-landlord,
-    #loginForm:has(#roleManager:checked) .route-manager { display: flex; }
+    #loginForm:has(#roleManager:checked) .route-manager,
+    #loginForm:has(#roleAdmin:checked) .route-admin { display: flex; }
     .btn-sage { border: 1px solid var(--sage-800); border-radius: 999px; background: var(--sage-800); color: var(--cream); font-size: .92rem; font-weight: 700; }
     .btn-sage:hover, .btn-sage:focus { border-color: var(--sage-900); background: var(--sage-900); color: #fff; }
     .btn-sage:focus-visible { outline: 2px solid var(--sage-800); outline-offset: 3px; }

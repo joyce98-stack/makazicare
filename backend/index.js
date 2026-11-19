@@ -52,6 +52,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 
 const roleHomes = {
+  admin: "adminhomepage.html",
   tenant: "tenanthomepage.html",
   landlord: "landlordhomepage.html",
   manager: "propertymanager.html",
@@ -372,6 +373,49 @@ app.get("/api/dashboard", authenticate, (req, res) => {
     properties: visiblePropertyIds(req.user).map((id) => db.properties.find((property) => property.id === id)),
     tenants: db.tenants.filter((tenant) => canAccessTenant(req.user, tenant)).length,
     maintenanceOpen: visibleMaintenance(req.user).filter((ticket) => ticket.status !== "resolved").length,
+  });
+});
+
+app.get("/api/admin/overview", authenticate, allowRoles("admin"), (_req, res) => {
+  const db = getStore();
+  const landlords = db.users.filter((user) => user.role === "landlord").map((landlord) => {
+    const properties = db.properties.filter((property) => property.ownerId === landlord.id);
+    const propertyIds = new Set(properties.map((property) => property.id));
+    const managerIds = new Set(db.managers
+      .filter((assignment) => assignment.status === "active" && assignment.propertyIds.some((id) => propertyIds.has(id)))
+      .map((assignment) => assignment.userId));
+    const pendingManagerInvitations = db.managerInvitations.filter((invitation) => invitation.status === "pending" && invitation.propertyIds.some((id) => propertyIds.has(id))).length;
+    const propertyRecords = properties.map((property) => ({
+      id: property.id,
+      name: property.name,
+      address: property.address,
+      type: property.type,
+      unitCount: property.unitCount,
+      tenantCount: db.tenants.filter((tenant) => tenant.propertyId === property.id).length,
+    }));
+    return {
+      id: landlord.id,
+      name: landlord.name,
+      email: landlord.email,
+      propertyCount: properties.length,
+      apartmentCount: properties.filter((property) => ["apartment", "apartments"].includes(String(property.type).toLowerCase())).length,
+      houseCount: properties.filter((property) => ["house", "houses", "home", "homes"].includes(String(property.type).toLowerCase())).length,
+      tenantCount: db.tenants.filter((tenant) => propertyIds.has(tenant.propertyId)).length,
+      managerCount: managerIds.size,
+      pendingManagerInvitations,
+      properties: propertyRecords,
+    };
+  });
+  res.json({
+    summary: {
+      landlordCount: landlords.length,
+      propertyCount: db.properties.length,
+      apartmentCount: db.properties.filter((property) => ["apartment", "apartments"].includes(String(property.type).toLowerCase())).length,
+      houseCount: db.properties.filter((property) => ["house", "houses", "home", "homes"].includes(String(property.type).toLowerCase())).length,
+      tenantCount: db.tenants.length,
+      managerCount: new Set(db.managers.filter((assignment) => assignment.status === "active").map((assignment) => assignment.userId)).size,
+    },
+    landlords,
   });
 });
 

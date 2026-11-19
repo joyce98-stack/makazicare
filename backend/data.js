@@ -14,7 +14,7 @@ const tenantSeed = [
   ["tenant-hannah", "Hannah Kim", "hannah.kim@example.com", "+639175550113", "casa-verde", "H3", 1400, "2025-04-01"],
 ];
 
-export function buildSeedData(passwordHash) {
+export function buildSeedData(passwordHash, adminUser = null) {
   const tenants = tenantSeed.map(([id, name, email, phone, propertyId, unit, rent, occupiedSince]) => ({
     id,
     name,
@@ -75,6 +75,7 @@ export function buildSeedData(passwordHash) {
         propertyIds: ["j-crown"],
         tenantId: "tenant-john",
       },
+      ...(adminUser ? [adminUser] : []),
     ],
     properties: [
       {
@@ -211,6 +212,23 @@ export function buildSeedData(passwordHash) {
         joinedAt: "2024-01-15",
       },
     ],
+    managerInvitations: [],
+    tenantInvitations: [],
+    auditEvents: [],
+  };
+}
+
+export function buildEmptyData(adminUser) {
+  return {
+    version: 1,
+    users: [adminUser],
+    properties: [],
+    tenants: [],
+    payments: [],
+    maintenanceRequests: [],
+    extensionRequests: [],
+    relocationRequests: [],
+    managers: [],
     managerInvitations: [],
     tenantInvitations: [],
     auditEvents: [],
