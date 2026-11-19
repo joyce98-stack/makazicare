@@ -4,16 +4,17 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import jwt from "jsonwebtoken";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getStore, initializeStore, saveStore } from "./store.js";
 
 const port = Number(process.env.PORT || 3001);
+const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../frontend");
 const jwtSecret = process.env.JWT_SECRET || "development-only-change-this-secret";
 const sessionCookie = "makazi_care_session";
 const tokenLifetimeSeconds = 8 * 60 * 60;
-const configuredOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173")
+const configuredOrigins = (process.env.CORS_ORIGIN || "http://localhost:3001,http://127.0.0.1:3001")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -28,7 +29,18 @@ await initializeStore();
 
 const app = express();
 app.disable("x-powered-by");
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://images.pexels.com"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
 app.use(cors({
   credentials: true,
   origin(origin, callback) {
@@ -42,7 +54,7 @@ app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 const roleHomes = {
   tenant: "tenanthomepage.html",
   landlord: "landlordhomepage.html",
-  manager: "managerhomepage.html",
+  manager: "propertymanager.html",
 };
 
 const fail = (res, status, message, code) => res.status(status).json({ error: message, ...(code ? { code } : {}) });
@@ -53,7 +65,12 @@ const safeUser = (user) => {
   return publicUser;
 };
 const makeId = (prefix) => `${prefix}-${randomUUID()}`;
-const isDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+const isDate = (value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+};
 const positiveNumber = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
 
 function getFrontendOrigin(req) {
@@ -70,7 +87,7 @@ function getFrontendOrigin(req) {
       // Use the local Vite default below when there is no valid referrer.
     }
   }
-  return "http://localhost:5173";
+  return "http://localhost:3001";
 }
 
 function wantsHtmlRedirect(req) {
@@ -123,7 +140,7 @@ function allowRoles(...roles) {
 
 function visiblePropertyIds(user) {
   const db = getStore();
-  if (user.role === "landlord") return db.properties.map((property) => property.id);
+  if (user.role === "landlord") return db.properties.filter((property) => property.ownerId === user.id).map((property) => property.id);
   if (user.role === "manager") return (user.propertyIds || []).filter((id) => db.properties.some((property) => property.id === id));
   const tenant = db.tenants.find((entry) => entry.id === user.tenantId);
   return tenant ? [tenant.propertyId] : [];
@@ -139,7 +156,7 @@ function tenantForUser(user) {
 }
 
 function canAccessTenant(user, tenant) {
-  if (user.role === "landlord") return true;
+  if (user.role === "landlord") return canAccessProperty(user, tenant.propertyId);
   if (user.role === "manager") return canAccessProperty(user, tenant.propertyId);
   return user.tenantId === tenant.id;
 }
@@ -212,7 +229,6 @@ function visibleMaintenance(user) {
 
 function visibleExtensions(user) {
   const db = getStore();
-  if (user.role === "landlord") return db.extensionRequests;
   if (user.role === "tenant") return db.extensionRequests.filter((request) => request.tenantId === user.tenantId);
   const properties = new Set(visiblePropertyIds(user));
   return db.extensionRequests.filter((request) => properties.has(request.propertyId));
@@ -356,6 +372,7 @@ app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, re
     createdAt: new Date().toISOString(),
   };
   getStore().properties.push(property);
+  req.user.propertyIds ||= [];
   req.user.propertyIds.push(property.id);
   addAuditEvent(req.user, "property.created", "property", property.id);
   await saveStore();
@@ -382,19 +399,53 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
   if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(unit || "").trim() || !positiveNumber(rent)) {
     return fail(res, 400, "Name, valid email, unit, and positive rent are required.", "VALIDATION_ERROR");
   }
+  const normalizedEmail = cleanEmail(email);
+  if (getStore().users.some((user) => user.email === normalizedEmail) || getStore().tenantInvitations.some((invite) => invite.email === normalizedEmail && invite.status === "pending")) {
+    return fail(res, 409, "An account or pending tenant invitation already uses this email.", "EMAIL_IN_USE");
+  }
   if (!propertyOr404(res, propertyId)) return;
   if (!canAccessProperty(req.user, propertyId)) return fail(res, 403, "You cannot add tenants to this property.", "FORBIDDEN");
   if (getStore().tenants.some((tenant) => tenant.propertyId === propertyId && tenant.unit.toLowerCase() === String(unit).trim().toLowerCase() && tenant.status === "active")) {
     return fail(res, 409, "That unit already has an active tenant.", "UNIT_OCCUPIED");
   }
   const tenant = {
-    id: makeId("tenant"), name: String(name).trim(), email: cleanEmail(email), phone: String(phone || "").trim(),
+    id: makeId("tenant"), name: String(name).trim(), email: normalizedEmail, phone: String(phone || "").trim(),
     propertyId, unit: String(unit).trim(), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active",
   };
+  const inviteToken = randomUUID();
+  const invitation = {
+    id: makeId("tenant_invite"), tenantId: tenant.id, email: tenant.email,
+    tokenHash: createHash("sha256").update(inviteToken).digest("hex"), status: "pending", createdAt: new Date().toISOString(),
+  };
   getStore().tenants.push(tenant);
+  getStore().tenantInvitations.push(invitation);
   addAuditEvent(req.user, "tenant.created", "tenant", tenant.id);
   await saveStore();
-  res.status(201).json({ item: tenant });
+  res.status(201).json({ item: tenant, acceptanceUrl: `${getFrontendOrigin(req)}/tenant-accept.html?token=${encodeURIComponent(inviteToken)}` });
+});
+
+app.post("/api/tenants/accept", async (req, res) => {
+  const token = String(req.body.token || "");
+  const password = String(req.body.password || "");
+  if (token.length < 20 || password.length < 10) return fail(res, 400, "A valid invitation and a password of at least 10 characters are required.", "VALIDATION_ERROR");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const invitation = getStore().tenantInvitations.find((entry) => entry.tokenHash === tokenHash && entry.status === "pending");
+  if (!invitation) return fail(res, 400, "This invitation is invalid or has already been used.", "INVALID_INVITATION");
+  if (Date.now() - Date.parse(invitation.createdAt) > 7 * 24 * 60 * 60 * 1000) {
+    invitation.status = "expired";
+    await saveStore();
+    return fail(res, 410, "This invitation has expired. Ask your property manager to send a new one.", "INVITATION_EXPIRED");
+  }
+  const tenant = getStore().tenants.find((entry) => entry.id === invitation.tenantId);
+  if (!tenant || getStore().users.some((user) => user.email === invitation.email)) return fail(res, 409, "This tenant invitation can no longer be used.", "INVITATION_UNAVAILABLE");
+  const user = { id: makeId("user"), name: tenant.name, email: tenant.email, role: "tenant", tenantId: tenant.id, passwordHash: await bcrypt.hash(password, 12) };
+  getStore().users.push(user);
+  invitation.status = "accepted";
+  invitation.acceptedAt = new Date().toISOString();
+  delete invitation.tokenHash;
+  addAuditEvent(user, "tenant.invitation_accepted", "tenant", tenant.id);
+  await saveStore();
+  res.status(201).json({ user: safeUser(user) });
 });
 
 app.get("/api/payments", authenticate, (req, res) => {
@@ -552,7 +603,7 @@ app.patch("/api/maintenance/:ticketId", authenticate, allowRoles("landlord", "ma
   res.json({ item: ticket });
 });
 
-app.get("/api/extensions", authenticate, allowRoles("landlord"), (req, res) => {
+app.get("/api/extensions", authenticate, allowRoles("landlord", "manager", "tenant"), (req, res) => {
   let items = visibleExtensions(req.user);
   if (req.query.status) items = items.filter((request) => request.status === req.query.status);
   const db = getStore();
@@ -596,6 +647,7 @@ app.post("/api/extensions", authenticate, allowRoles("tenant"), async (req, res)
 app.patch("/api/extensions/:requestId/decision", authenticate, allowRoles("landlord"), async (req, res) => {
   const request = getStore().extensionRequests.find((entry) => entry.id === req.params.requestId);
   if (!request) return fail(res, 404, "Extension request not found.", "NOT_FOUND");
+  if (!canAccessProperty(req.user, request.propertyId)) return fail(res, 403, "You cannot review requests for this property.", "FORBIDDEN");
   if (request.status !== "pending") return fail(res, 409, "This request has already been reviewed.", "ALREADY_REVIEWED");
   const decision = String(req.body.decision || "");
   if (!(["approve", "decline"].includes(decision))) return fail(res, 400, "Decision must be approve or decline.", "VALIDATION_ERROR");
@@ -665,12 +717,44 @@ app.patch("/api/relocations/:requestId", authenticate, allowRoles("landlord", "m
 
 app.get("/api/managers", authenticate, allowRoles("landlord"), (req, res) => {
   const db = getStore();
-  const items = db.managers.map((assignment) => ({
+  const propertyIds = new Set(visiblePropertyIds(req.user));
+  const items = db.managers.filter((assignment) => assignment.propertyIds.some((id) => propertyIds.has(id))).map((assignment) => ({
     ...assignment,
+    propertyIds: assignment.propertyIds.filter((id) => propertyIds.has(id)),
     user: safeUser(db.users.find((user) => user.id === assignment.userId)),
-    properties: assignment.propertyIds.map((id) => db.properties.find((property) => property.id === id)).filter(Boolean),
+    properties: assignment.propertyIds.filter((id) => propertyIds.has(id)).map((id) => db.properties.find((property) => property.id === id)).filter(Boolean),
   }));
-  res.json({ items, invitations: db.managerInvitations, count: items.length });
+  const invitations = db.managerInvitations
+    .filter((invitation) => invitation.propertyIds.some((id) => propertyIds.has(id)))
+    .map(({ tokenHash, ...invitation }) => invitation);
+  res.json({ items, invitations, count: items.length });
+});
+
+app.post("/api/managers/accept", async (req, res) => {
+  const token = String(req.body.token || "");
+  const password = String(req.body.password || "");
+  if (token.length < 20 || password.length < 10) return fail(res, 400, "A valid invitation and a password of at least 10 characters are required.", "VALIDATION_ERROR");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const invitation = getStore().managerInvitations.find((entry) => entry.tokenHash === tokenHash && entry.status === "pending");
+  if (!invitation) return fail(res, 400, "This invitation is invalid or has already been used.", "INVALID_INVITATION");
+  if (Date.now() - Date.parse(invitation.createdAt) > 7 * 24 * 60 * 60 * 1000) {
+    invitation.status = "expired";
+    await saveStore();
+    return fail(res, 410, "This invitation has expired. Ask the landlord to send a new one.", "INVITATION_EXPIRED");
+  }
+  if (getStore().users.some((user) => user.email === invitation.email)) return fail(res, 409, "An account already uses this email address.", "EMAIL_IN_USE");
+  const user = {
+    id: makeId("user"), name: invitation.name, email: invitation.email, role: "manager",
+    passwordHash: await bcrypt.hash(password, 12), propertyIds: invitation.propertyIds,
+  };
+  getStore().users.push(user);
+  getStore().managers.push({ userId: user.id, propertyIds: invitation.propertyIds, status: "active", joinedAt: new Date().toISOString().slice(0, 10) });
+  invitation.status = "accepted";
+  invitation.acceptedAt = new Date().toISOString();
+  delete invitation.tokenHash;
+  addAuditEvent(user, "manager.invitation_accepted", "manager_invitation", invitation.id);
+  await saveStore();
+  res.status(201).json({ user: safeUser(user) });
 });
 
 app.post("/api/managers/invitations", authenticate, allowRoles("landlord"), async (req, res) => {
@@ -684,21 +768,39 @@ app.post("/api/managers/invitations", authenticate, allowRoles("landlord"), asyn
   }
   const visible = new Set(visiblePropertyIds(req.user));
   if (propertyIds.some((id) => !visible.has(id))) return fail(res, 403, "You can only assign properties you own.", "FORBIDDEN");
+  const token = randomUUID();
   const invitation = {
     id: makeId("invite"), name: String(name).trim(), email: normalizedEmail,
-    propertyIds: [...new Set(propertyIds)], status: "pending", invitedBy: req.user.id, createdAt: new Date().toISOString(),
+    propertyIds: [...new Set(propertyIds)], tokenHash: createHash("sha256").update(token).digest("hex"),
+    status: "pending", invitedBy: req.user.id, createdAt: new Date().toISOString(),
   };
   getStore().managerInvitations.push(invitation);
   addAuditEvent(req.user, "manager.invited", "manager_invitation", invitation.id);
   await saveStore();
-  res.status(201).json({ item: invitation, message: "Invitation saved. Configure email delivery to send the sign-in link." });
+  const { tokenHash: _tokenHash, ...publicInvitation } = invitation;
+  res.status(201).json({ item: publicInvitation, acceptanceUrl: `${getFrontendOrigin(req)}/manager-accept.html?token=${encodeURIComponent(token)}` });
 });
 
 app.get("/api/audit", authenticate, allowRoles("landlord"), (req, res) => {
   const limit = Math.min(100, Math.max(1, Number(req.query.limit || 25)));
-  res.json({ items: getStore().auditEvents.slice(0, limit) });
+  const db = getStore();
+  const items = db.auditEvents.filter((event) => {
+    if (event.actorId === req.user.id) return true;
+    let propertyId = null;
+    if (event.recordType === "property") propertyId = event.recordId;
+    if (event.recordType === "tenant") propertyId = db.tenants.find((tenant) => tenant.id === event.recordId)?.propertyId;
+    if (event.recordType === "payment") propertyId = db.payments.find((payment) => payment.id === event.recordId)?.propertyId;
+    if (event.recordType === "maintenance") propertyId = db.maintenanceRequests.find((ticket) => ticket.id === event.recordId)?.propertyId;
+    if (event.recordType === "extension") propertyId = db.extensionRequests.find((request) => request.id === event.recordId)?.propertyId;
+    if (event.recordType === "relocation") propertyId = db.relocationRequests.find((request) => request.id === event.recordId)?.currentPropertyId;
+    if (event.recordType === "manager_invitation") propertyId = db.managerInvitations.find((invite) => invite.id === event.recordId)?.propertyIds.find((id) => canAccessProperty(req.user, id));
+    return propertyId ? canAccessProperty(req.user, propertyId) : false;
+  }).slice(0, limit);
+  res.json({ items });
 });
 
+app.get("/", (_req, res) => res.sendFile(path.join(frontendRoot, "landingpage.html")));
+app.use(express.static(frontendRoot, { extensions: ["html"] }));
 app.use("/api", (_req, res) => fail(res, 404, "API route not found.", "NOT_FOUND"));
 
 app.use((error, _req, res, _next) => {
@@ -711,7 +813,7 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPat
 if (isMain) {
   app.listen(port, () => {
     console.log(`Makazi Care API listening on http://localhost:${port}`);
-    console.log("Demo accounts and API usage are documented in server/README.md");
+    console.log("Demo accounts and setup instructions are documented in README.md");
   });
 }
 

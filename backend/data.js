@@ -68,12 +68,12 @@ export function buildSeedData(passwordHash) {
       },
       {
         id: "user-john",
-        name: "Mark Nil",
-        email: "marknil@example.com",
+        name: "John Doe",
+        email: "john.doe@example.com",
         role: "tenant",
         passwordHash,
         propertyIds: ["j-crown"],
-        tenantId: "tenant-Mark",
+        tenantId: "tenant-john",
       },
     ],
     properties: [
@@ -212,6 +212,7 @@ export function buildSeedData(passwordHash) {
       },
     ],
     managerInvitations: [],
+    tenantInvitations: [],
     auditEvents: [],
   };
 }
