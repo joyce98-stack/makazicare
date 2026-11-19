@@ -285,6 +285,36 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "makazi-care-api", timestamp: new Date().toISOString() });
 });
 
+app.post("/api/auth/register", async (req, res) => {
+  const name = String(req.body.name || "").trim();
+  const email = cleanEmail(req.body.email);
+  const password = String(req.body.password || "");
+  if (!name || !/^\S+@\S+\.\S+$/.test(email) || password.length < 12) {
+    return fail(res, 400, "Enter your name, a valid email, and a password with at least 12 characters.", "VALIDATION_ERROR");
+  }
+  if (getStore().users.some((user) => user.email === email)) {
+    return fail(res, 409, "An account already uses this email address.", "EMAIL_IN_USE");
+  }
+
+  const user = {
+    id: makeId("user"), name, email, role: "landlord",
+    passwordHash: await bcrypt.hash(password, 12), propertyIds: [],
+  };
+  getStore().users.push(user);
+  addAuditEvent(user, "landlord.registered", "user", user.id);
+  await saveStore();
+
+  const token = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, { expiresIn: tokenLifetimeSeconds });
+  res.cookie(sessionCookie, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isProduction,
+    maxAge: tokenLifetimeSeconds * 1000,
+    path: "/",
+  });
+  res.status(201).json({ expiresIn: tokenLifetimeSeconds, user: safeUser(user) });
+});
+
 app.post("/api/auth/login", async (req, res) => {
   const email = cleanEmail(req.body.email);
   const password = String(req.body.password || "");

@@ -129,6 +129,26 @@ async function initLogin() {
   });
 }
 
+async function initLandlordRegistration() {
+  const form = page === "landlord-register" ? document.querySelector("#landlordRegisterForm") : null;
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = document.querySelector("#registerPassword").value;
+    if (password !== document.querySelector("#registerPasswordConfirm").value) {
+      return showMessage("The passwords do not match.", form);
+    }
+    try {
+      await api("/api/auth/register", { method: "POST", body: JSON.stringify({
+        name: document.querySelector("#registerName").value,
+        email: document.querySelector("#registerEmail").value,
+        password,
+      }) });
+      location.href = roleHome.landlord;
+    } catch (error) { showMessage(error.message, form); }
+  });
+}
+
 async function initManagerAcceptance() {
   const isManager = page === "manager-accept";
   const isTenant = page === "tenant-accept";
@@ -527,6 +547,7 @@ function bindChargeCreation() {
 
 async function boot() {
   await initLogin();
+  await initLandlordRegistration();
   await initManagerAcceptance();
   const requiredRole = pageRole[page];
   if (!requiredRole) return;

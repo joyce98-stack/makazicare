@@ -19,6 +19,8 @@ The first start creates demo data and hashes the demo password. Seeded accounts 
 
 All demo accounts use the password in `DEMO_PASSWORD` (defaults to `DemoPass123!` in development).
 
+Landlords can also register from the sign-in page. Registration creates a landlord account only; managers and tenants are added from the landlord portal using one-time account setup links.
+
 The API health endpoint is `GET /api/health`. Authentication uses a signed, HTTP-only session cookie. New tenant and manager records produce one-time acceptance links that staff can share. Email delivery is not configured. The app records payments manually; it does not charge tenants online.
 
 ## Production notes
