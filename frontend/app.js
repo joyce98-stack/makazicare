@@ -71,12 +71,12 @@ function addLivePanel(title, lines) {
   if (!panel) {
     panel = document.createElement("section");
     panel.dataset.livePanel = "true";
-    panel.className = "container my-3 p-3 rounded border bg-white";
+    panel.className = "app-data-panel my-4";
     panel.setAttribute("aria-live", "polite");
     main.prepend(panel);
   }
   const heading = document.createElement("h2");
-  heading.className = "h5";
+  heading.className = "app-data-panel-title";
   heading.textContent = title;
   const list = document.createElement("div");
   list.className = "d-flex flex-wrap gap-3";
@@ -95,11 +95,11 @@ function recordPanel(title) {
   if (!panel) {
     panel = document.createElement("section");
     panel.dataset.recordPanel = "true";
-    panel.className = "container my-3 p-3 rounded border bg-white";
+    panel.className = "app-data-panel my-4";
     main.prepend(panel);
   }
   const heading = document.createElement("h2");
-  heading.className = "h5";
+  heading.className = "app-data-panel-title";
   heading.textContent = title;
   const records = document.createElement("div");
   records.className = "d-grid gap-2";
