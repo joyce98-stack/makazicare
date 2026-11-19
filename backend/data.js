@@ -25,6 +25,7 @@ export function buildSeedData(passwordHash, adminUser = null) {
     rent,
     occupiedSince,
     status: "active",
+    paymentReference: `MC${String(id).replace(/[^a-z0-9]/gi, "").toUpperCase().slice(-10)}`,
   }));
 
   const overdueTenants = new Set(["tenant-marco", "tenant-grace"]);
@@ -214,6 +215,7 @@ export function buildSeedData(passwordHash, adminUser = null) {
     ],
     managerInvitations: [],
     tenantInvitations: [],
+    collectionTransactions: [],
     auditEvents: [],
   };
 }
@@ -231,6 +233,7 @@ export function buildEmptyData(adminUser) {
     managers: [],
     managerInvitations: [],
     tenantInvitations: [],
+    collectionTransactions: [],
     auditEvents: [],
   };
 }

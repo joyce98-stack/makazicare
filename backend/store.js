@@ -21,6 +21,10 @@ export async function initializeStore() {
   try {
     state = JSON.parse(await readFile(databasePath, "utf8"));
     state.tenantInvitations ||= [];
+    state.collectionTransactions ||= [];
+    for (const tenant of state.tenants || []) {
+      if (!tenant.paymentReference) tenant.paymentReference = `MC${tenant.id.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(-10)}`;
+    }
     return state;
   } catch (error) {
     if (error.code !== "ENOENT") throw error;

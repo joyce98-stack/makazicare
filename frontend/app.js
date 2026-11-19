@@ -12,6 +12,7 @@ const pageRole = {
   extensionrequests: "landlord", propertymanagerlist: "landlord", paymentreport: "landlord",
   propertymanager: "manager", pmpaymentreport: "manager", pmrequests: "manager",
   adminhomepage: "admin",
+  collections: "landlord",
 };
 pageRole.tenantslist = ["landlord", "manager"];
 
@@ -358,7 +359,18 @@ async function loadPageData(user) {
   if (page === "tenanthomepage" || page === "landlordhomepage" || page === "propertymanager") {
     const data = await api("/api/dashboard");
     if (user.role === "tenant") {
-      addLivePanel("Live account", [data.tenant.name, `${data.property?.name || "Property"} · Unit ${data.tenant.unit}`, `Monthly rent ${currency.format(data.tenant.rent)}`, `${data.maintenanceOpen} open maintenance requests`]);
+      const paymentInfo = data.paymentDetails?.mpesaShortCode
+        ? [`PayBill ${data.paymentDetails.mpesaShortCode}`, `Account reference ${data.paymentDetails.paymentReference}`]
+        : ["Electronic payment details are not set up yet."];
+      const mpesaText = document.querySelector("#tenantMpesaDetails");
+      if (mpesaText && data.paymentDetails?.mpesaShortCode) mpesaText.textContent = `PayBill: ${data.paymentDetails.mpesaShortCode} · Account: ${data.paymentDetails.paymentReference}`;
+      const bank = data.paymentDetails?.bank;
+      if (document.querySelector("#tenantBankName")) {
+        document.querySelector("#tenantBankName").textContent = bank?.bankName || "Bank details are not set up yet.";
+        document.querySelector("#tenantBankAccountName").textContent = bank?.bankAccountName ? `Account name: ${bank.bankAccountName}` : "";
+        document.querySelector("#tenantBankAccountNumber").textContent = bank?.bankAccountNumber ? `Account number: ${bank.bankAccountNumber}` : "";
+      }
+      addLivePanel("Live account", [data.tenant.name, `${data.property?.name || "Property"} · Unit ${data.tenant.unit}`, `Monthly rent ${currency.format(data.tenant.rent)}`, ...paymentInfo, `${data.maintenanceOpen} open maintenance requests`]);
     } else {
       addLivePanel("Live portfolio summary", [`${data.tenants} tenants`, `${data.properties.length} properties`, `${currency.format(data.summary.collected)} collected`, `${currency.format(data.summary.outstanding)} outstanding`, `${data.maintenanceOpen} open maintenance requests`]);
     }
@@ -394,6 +406,90 @@ async function loadPageData(user) {
     addLivePanel("Manager invitations", data.invitations.map((item) => `${item.name} · ${item.email} · ${item.status}`));
     bindManagerInvite();
   }
+  if (page === "collections") await loadCollectionSettings();
+}
+
+async function loadCollectionSettings() {
+  const [settings, transactions] = await Promise.all([
+    api("/api/integrations/collections"),
+    api("/api/integrations/collections/transactions"),
+  ]);
+  const form = document.querySelector("#collectionSettingsForm");
+  if (form && !form.dataset.bound) {
+    form.dataset.bound = "true";
+    form.elements.shortCode.value = settings.mpesa?.shortCode || "";
+    form.elements.bankName.value = settings.bank?.bankName || "";
+    form.elements.bankAccountName.value = settings.bank?.bankAccountName || "";
+    form.elements.bankAccountNumber.value = settings.bank?.bankAccountNumber || "";
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const result = await api("/api/integrations/collections/mpesa", { method: "POST", body: JSON.stringify({
+          shortCode: form.elements.shortCode.value,
+          bankName: form.elements.bankName.value,
+          bankAccountName: form.elements.bankAccountName.value,
+          bankAccountNumber: form.elements.bankAccountNumber.value,
+        }) });
+        const urls = document.querySelector("#callbackUrls");
+        urls.hidden = false;
+        urls.querySelector("#confirmationUrl").textContent = result.confirmationUrl;
+        urls.querySelector("#validationUrl").textContent = result.validationUrl;
+        document.querySelector("#callbackWarning").hidden = !result.publicHttpsRequired;
+        showMessage("PayBill settings saved. Copy the callback URLs into the Daraja C2B configuration.", form, "success");
+      } catch (error) { showMessage(error.message, form); }
+    });
+  }
+  const now = new Date();
+  const chargeForm = document.querySelector("#chargeGenerationForm");
+  if (chargeForm && !chargeForm.dataset.initialized) {
+    chargeForm.dataset.initialized = "true";
+    chargeForm.elements.month.value = String(now.getMonth() + 1);
+    chargeForm.elements.year.value = String(now.getFullYear());
+    chargeForm.elements.dueDate.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-15`;
+  }
+
+  const records = recordPanel("Incoming M-Pesa payments");
+  if (!transactions.items.length) records.textContent = "No incoming payment notifications yet.";
+  for (const transaction of transactions.items) {
+    const row = document.createElement("div");
+    row.className = "d-flex flex-wrap align-items-center gap-2 border-bottom pb-2";
+    const details = document.createElement("span");
+    details.className = "me-auto";
+    details.textContent = `${transaction.transactionId} · ${currency.format(transaction.amount)} · reference ${transaction.paymentReference || "(empty)"} · ${transaction.status}${transaction.unappliedAmount ? ` · unapplied ${currency.format(transaction.unappliedAmount)}` : ""}`;
+    row.append(details);
+    if (transaction.status === "unmatched") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "btn btn-outline-earth btn-sm";
+      button.textContent = "Try matching again";
+      button.addEventListener("click", async () => {
+        try {
+          await api(`/api/integrations/collections/transactions/${encodeURIComponent(transaction.id)}/reconcile`, { method: "POST" });
+          await loadCollectionSettings();
+        } catch (error) { showMessage(error.message); }
+      });
+      row.append(button);
+    }
+    records.append(row);
+  }
+  bindChargeGeneration();
+}
+
+function bindChargeGeneration() {
+  const form = document.querySelector("#chargeGenerationForm");
+  if (!form || form.dataset.bound) return;
+  form.dataset.bound = "true";
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      const result = await api("/api/payments/generate-monthly", { method: "POST", body: JSON.stringify({
+        month: Number(form.elements.month.value),
+        year: Number(form.elements.year.value),
+        dueDate: form.elements.dueDate.value,
+      }) });
+      showMessage(`Created ${result.created} rent charges. ${result.skipped} existing charges were skipped.`, form, "success");
+    } catch (error) { showMessage(error.message, form); }
+  });
 }
 
 async function loadAdminOverview() {

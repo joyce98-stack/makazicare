@@ -4,7 +4,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import jwt from "jsonwebtoken";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getStore, initializeStore, saveStore } from "./store.js";
@@ -62,7 +62,7 @@ const fail = (res, status, message, code) => res.status(status).json({ error: me
 const cleanEmail = (email) => String(email || "").trim().toLowerCase();
 const safeUser = (user) => {
   if (!user) return null;
-  const { passwordHash, ...publicUser } = user;
+  const { passwordHash, collectionSettings, ...publicUser } = user;
   return publicUser;
 };
 const makeId = (prefix) => `${prefix}-${randomUUID()}`;
@@ -282,8 +282,176 @@ function getExtensionPayment(request) {
   return payment;
 }
 
+function findCollectionLandlord(callbackToken) {
+  if (!callbackToken || callbackToken.length < 40) return null;
+  const tokenHash = createHash("sha256").update(callbackToken).digest("hex");
+  return getStore().users.find((user) => user.role === "landlord" && user.collectionSettings?.mpesa?.callbackTokenHash === tokenHash) || null;
+}
+
+function normalizePaymentReference(value) {
+  return String(value || "").trim().replace(/\s+/g, "").toUpperCase();
+}
+
+function parseMpesaTime(value) {
+  const match = String(value || "").match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+  if (!match) return new Date().toISOString();
+  const [, year, month, day, hour, minute, second] = match;
+  const parsed = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+03:00`);
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+}
+
+function applyCollectionTransaction(transaction, landlord) {
+  const db = getStore();
+  const propertyIds = new Set(db.properties.filter((property) => property.ownerId === landlord.id).map((property) => property.id));
+  const normalizedReference = normalizePaymentReference(transaction.paymentReference);
+  const tenant = db.tenants.find((entry) => normalizePaymentReference(entry.paymentReference) === normalizedReference && propertyIds.has(entry.propertyId));
+  if (!tenant) {
+    transaction.status = "unmatched";
+    transaction.unmatchedReason = "No tenant in this landlord's properties has that payment reference.";
+    return;
+  }
+
+  const payments = db.payments
+    .filter((payment) => payment.tenantId === tenant.id && (payment.amountPaid || 0) < payment.amount)
+    .sort((a, b) => String(a.dueDate).localeCompare(String(b.dueDate)) || a.year - b.year || a.month - b.month);
+  let unappliedAmount = transaction.unappliedAmount ?? transaction.amount;
+  const allocations = transaction.allocations || [];
+  for (const payment of payments) {
+    if (unappliedAmount <= 0) break;
+    const balance = Math.max(0, payment.amount - (payment.amountPaid || 0));
+    const allocatedAmount = Math.min(balance, unappliedAmount);
+    if (allocatedAmount <= 0) continue;
+    payment.amountPaid = (payment.amountPaid || 0) + allocatedAmount;
+    payment.method = "mpesa_paybill";
+    payment.paidAt = transaction.receivedAt;
+    payment.status = payment.amountPaid >= payment.amount ? "paid" : "partial";
+    payment.receiptNumber ||= transaction.transactionId;
+    unappliedAmount -= allocatedAmount;
+    allocations.push({ paymentId: payment.id, amount: allocatedAmount });
+  }
+
+  transaction.tenantId = tenant.id;
+  transaction.allocations = allocations;
+  transaction.unappliedAmount = unappliedAmount;
+  transaction.status = allocations.length ? (unappliedAmount ? "partially_applied" : "applied") : "unmatched";
+  transaction.unmatchedReason = allocations.length ? null : "No outstanding rent charges exist for this tenant.";
+  for (const allocation of allocations) {
+    addAuditEvent(landlord, "payment.received", "payment", allocation.paymentId, {
+      provider: "mpesa_c2b",
+      transactionId: transaction.transactionId,
+      amount: allocation.amount,
+    });
+  }
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "makazi-care-api", timestamp: new Date().toISOString() });
+});
+
+app.get("/api/integrations/collections", authenticate, allowRoles("landlord"), (req, res) => {
+  const settings = req.user.collectionSettings || {};
+  res.json({
+    mpesa: settings.mpesa ? { shortCode: settings.mpesa.shortCode, configuredAt: settings.mpesa.configuredAt } : null,
+    bank: settings.bank || null,
+  });
+});
+
+app.post("/api/integrations/collections/mpesa", authenticate, allowRoles("landlord"), async (req, res) => {
+  const shortCode = String(req.body.shortCode || "").trim();
+  if (!/^\d{5,6}$/.test(shortCode)) return fail(res, 400, "Enter the 5 or 6 digit M-Pesa PayBill number.", "VALIDATION_ERROR");
+  if (getStore().users.some((user) => user.id !== req.user.id && user.role === "landlord" && user.collectionSettings?.mpesa?.shortCode === shortCode)) {
+    return fail(res, 409, "That PayBill number is already connected to another landlord.", "PAYBILL_IN_USE");
+  }
+
+  const callbackToken = randomBytes(32).toString("base64url");
+  req.user.collectionSettings ||= {};
+  req.user.collectionSettings.mpesa = {
+    shortCode,
+    callbackTokenHash: createHash("sha256").update(callbackToken).digest("hex"),
+    configuredAt: new Date().toISOString(),
+  };
+  const bankName = String(req.body.bankName || "").trim();
+  const bankAccountName = String(req.body.bankAccountName || "").trim();
+  const bankAccountNumber = String(req.body.bankAccountNumber || "").trim();
+  req.user.collectionSettings.bank = bankName && bankAccountName && bankAccountNumber
+    ? { bankName, bankAccountName, bankAccountNumber }
+    : null;
+  addAuditEvent(req.user, "collections.configured", "user", req.user.id, { provider: "mpesa_paybill", shortCode });
+  await saveStore();
+
+  const publicApiOrigin = process.env.PUBLIC_API_ORIGIN?.trim().replace(/\/$/, "") || `${req.protocol}://${req.get("host")}`;
+  const callbackBase = `${publicApiOrigin}/hooks/collections/${callbackToken}`;
+  res.json({
+    mpesa: { shortCode, configuredAt: req.user.collectionSettings.mpesa.configuredAt },
+    confirmationUrl: `${callbackBase}/confirm`,
+    validationUrl: `${callbackBase}/validate`,
+    validationRequired: false,
+    publicHttpsRequired: !publicApiOrigin.startsWith("https://"),
+  });
+});
+
+app.post("/hooks/collections/:callbackToken/validate", async (req, res) => {
+  const landlord = findCollectionLandlord(req.params.callbackToken);
+  if (!landlord) return res.status(404).json({ ResultCode: "C2B00016", ResultDesc: "Rejected" });
+  const mpesa = landlord.collectionSettings.mpesa;
+  const shortCode = String(req.body.BusinessShortCode || req.body.ShortCode || "");
+  const reference = normalizePaymentReference(req.body.BillRefNumber);
+  const ownsReference = getStore().tenants.some((tenant) => {
+    const property = getStore().properties.find((entry) => entry.id === tenant.propertyId);
+    return property?.ownerId === landlord.id && normalizePaymentReference(tenant.paymentReference) === reference;
+  });
+  if (shortCode !== mpesa.shortCode) return res.json({ ResultCode: "C2B00015", ResultDesc: "Rejected" });
+  if (!ownsReference) return res.json({ ResultCode: "C2B00012", ResultDesc: "Rejected" });
+  return res.json({ ResultCode: "0", ResultDesc: "Accepted" });
+});
+
+app.post("/hooks/collections/:callbackToken/confirm", async (req, res) => {
+  const landlord = findCollectionLandlord(req.params.callbackToken);
+  if (!landlord) return res.status(404).json({ ResultCode: "C2B00016", ResultDesc: "Rejected" });
+  const transactionId = String(req.body.TransID || "").trim();
+  const amount = Number(req.body.TransAmount);
+  const shortCode = String(req.body.BusinessShortCode || "");
+  if (!transactionId || !positiveNumber(amount)) return res.status(400).json({ ResultCode: "C2B00013", ResultDesc: "Invalid transaction" });
+  if (shortCode !== landlord.collectionSettings.mpesa.shortCode) return res.status(400).json({ ResultCode: "C2B00015", ResultDesc: "Invalid short code" });
+
+  const db = getStore();
+  if (db.collectionTransactions.some((entry) => entry.provider === "mpesa_c2b" && entry.transactionId === transactionId)) {
+    return res.json({ ResultCode: "0", ResultDesc: "Accepted" });
+  }
+  const transaction = {
+    id: makeId("collection"),
+    provider: "mpesa_c2b",
+    transactionId,
+    landlordId: landlord.id,
+    shortCode,
+    paymentReference: String(req.body.BillRefNumber || "").trim(),
+    amount,
+    receivedAt: parseMpesaTime(req.body.TransTime),
+    status: "unmatched",
+    allocations: [],
+    unappliedAmount: amount,
+  };
+  applyCollectionTransaction(transaction, landlord);
+  db.collectionTransactions.unshift(transaction);
+  await saveStore();
+  return res.json({ ResultCode: "0", ResultDesc: "Accepted" });
+});
+
+app.get("/api/integrations/collections/transactions", authenticate, allowRoles("landlord"), (req, res) => {
+  const items = getStore().collectionTransactions
+    .filter((transaction) => transaction.landlordId === req.user.id)
+    .slice(0, 100);
+  res.json({ items, count: items.length });
+});
+
+app.post("/api/integrations/collections/transactions/:transactionId/reconcile", authenticate, allowRoles("landlord"), async (req, res) => {
+  const transaction = getStore().collectionTransactions.find((entry) => entry.id === req.params.transactionId && entry.landlordId === req.user.id);
+  if (!transaction) return fail(res, 404, "Incoming payment not found.", "NOT_FOUND");
+  if (transaction.status === "applied" || !(transaction.unappliedAmount > 0)) return fail(res, 409, "This incoming payment has already been fully applied.", "ALREADY_APPLIED");
+  applyCollectionTransaction(transaction, req.user);
+  addAuditEvent(req.user, "collection.reconciled", "collection", transaction.id, { status: transaction.status });
+  await saveStore();
+  res.json({ item: transaction });
 });
 
 app.post("/api/auth/register", async (req, res) => {
@@ -361,6 +529,16 @@ app.get("/api/dashboard", authenticate, (req, res) => {
       user: safeUser(req.user),
       tenant,
       property: db.properties.find((property) => property.id === tenant.propertyId),
+      paymentDetails: (() => {
+        const property = db.properties.find((entry) => entry.id === tenant.propertyId);
+        const owner = db.users.find((entry) => entry.id === property?.ownerId);
+        const settings = owner?.collectionSettings || {};
+        return {
+          paymentReference: tenant.paymentReference,
+          mpesaShortCode: settings.mpesa?.shortCode || null,
+          bank: settings.bank || null,
+        };
+      })(),
       nextPayment: nextPayment ? enrichPayment(nextPayment) : null,
       maintenanceOpen: db.maintenanceRequests.filter((ticket) => ticket.tenantId === tenant.id && ticket.status !== "resolved").length,
     });
@@ -484,6 +662,7 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
   }
   const tenant = {
     id: makeId("tenant"), name: String(name).trim(), email: normalizedEmail, phone: String(phone || "").trim(),
+    paymentReference: `MC${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`,
     propertyId, unit: String(unit).trim(), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active",
   };
   const inviteToken = randomUUID();
@@ -552,6 +731,43 @@ app.post("/api/payments", authenticate, allowRoles("landlord", "manager"), async
   addAuditEvent(req.user, "payment.created", "payment", payment.id);
   await saveStore();
   res.status(201).json({ item: enrichPayment(payment) });
+});
+
+app.post("/api/payments/generate-monthly", authenticate, allowRoles("landlord", "manager"), async (req, res) => {
+  const month = Number(req.body.month);
+  const year = Number(req.body.year);
+  const dueDate = req.body.dueDate;
+  if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2020 || !isDate(dueDate)) {
+    return fail(res, 400, "Enter a valid month, year, and due date.", "VALIDATION_ERROR");
+  }
+  const db = getStore();
+  const tenants = db.tenants.filter((tenant) => tenant.status === "active" && canAccessTenant(req.user, tenant));
+  const created = [];
+  for (const tenant of tenants) {
+    if (db.payments.some((payment) => payment.tenantId === tenant.id && payment.month === month && payment.year === year)) continue;
+    const payment = {
+      id: `payment-${tenant.id}-${year}-${String(month).padStart(2, "0")}`,
+      tenantId: tenant.id,
+      propertyId: tenant.propertyId,
+      month,
+      year,
+      amount: Number(tenant.rent),
+      amountPaid: 0,
+      status: "pending",
+      dueDate,
+      paidAt: null,
+      method: null,
+      receiptNumber: null,
+      recordedBy: req.user.id,
+    };
+    db.payments.push(payment);
+    created.push(payment);
+  }
+  if (created.length) {
+    addAuditEvent(req.user, "payment.charges_generated", "payment_period", `${year}-${String(month).padStart(2, "0")}`, { count: created.length });
+    await saveStore();
+  }
+  res.status(201).json({ created: created.length, skipped: tenants.length - created.length, items: created.map(enrichPayment) });
 });
 
 app.post("/api/payments/:paymentId/record", authenticate, allowRoles("landlord", "manager"), async (req, res) => {

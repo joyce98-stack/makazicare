@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FAF7F1">
+  <title>Payment setup · Makazi Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Landlord navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="landlordhomepage.html"><span class="brand-mark"><i class="bi bi-house-heart" aria-hidden="true"></i></span><span><span class="brand-name d-block">MAKAZI CARE</span><span class="brand-sub d-block">Payment setup</span></span></a>
+      <div class="navbar-collapse show"><a class="nav-link" href="landlordhomepage.html">Dashboard</a></div>
+    </div>
+  </nav>
+  <main class="page">
+    <div class="container">
+      <h1 class="page-title">Payment <em>setup.</em></h1>
+      <p class="page-sub">Configure your PayBill and the bank details tenants should use. PayBill auto-updates require a Daraja account and a deployed HTTPS callback URL.</p>
+
+      <section class="card-panel mx-auto mb-4" style="max-width: 54rem">
+        <h2 class="h4">M-Pesa PayBill</h2>
+        <form id="collectionSettingsForm" class="d-grid gap-3">
+          <label for="shortCode">Your 5 or 6 digit PayBill number</label>
+          <input id="shortCode" name="shortCode" class="form-control" inputmode="numeric" pattern="[0-9]{5,6}" required>
+          <hr>
+          <h2 class="h5">Bank details shown to tenants</h2>
+          <p class="small text-muted mb-0">These details appear in the tenant portal. Automatic bank matching needs your bank's transaction notification API.</p>
+          <label for="bankName">Bank name</label>
+          <input id="bankName" name="bankName" class="form-control" autocomplete="organization">
+          <label for="bankAccountName">Account name</label>
+          <input id="bankAccountName" name="bankAccountName" class="form-control">
+          <label for="bankAccountNumber">Account number</label>
+          <input id="bankAccountNumber" name="bankAccountNumber" class="form-control" inputmode="numeric">
+          <button class="btn btn-sage" type="submit">Save payment details and generate callback URLs</button>
+        </form>
+        <div id="callbackUrls" class="mt-4 p-3 border rounded" hidden>
+          <h2 class="h5">Daraja C2B callback URLs</h2>
+          <p>Copy these into the Daraja C2B URL registration for your PayBill. Re-saving settings rotates the callback token, so register the new URLs if you save again.</p>
+          <dl class="mb-0">
+            <dt>Confirmation URL</dt><dd id="confirmationUrl" class="text-break"></dd>
+            <dt>Validation URL</dt><dd id="validationUrl" class="text-break"></dd>
+          </dl>
+          <p id="callbackWarning" class="alert alert-warning mt-3 mb-0" hidden>These URLs are not HTTPS. They are for local development and cannot receive live Safaricom callbacks. Deploy the API with HTTPS and set PUBLIC_API_ORIGIN first.</p>
+          <p class="small mt-3 mb-0">Share the confirmation URL only with Daraja. It contains a private callback token.</p>
+        </div>
+      </section>
+
+      <section class="card-panel mx-auto" style="max-width: 54rem">
+        <h2 class="h4">Prepare monthly rent charges</h2>
+        <p>Incoming PayBill amounts are applied to the tenant's oldest outstanding rent charge. Create the month's charges before tenants pay.</p>
+        <form id="chargeGenerationForm" class="d-flex flex-wrap gap-3 align-items-end">
+          <label>Month <input name="month" class="form-control" type="number" min="1" max="12" required></label>
+          <label>Year <input name="year" class="form-control" type="number" min="2020" required></label>
+          <label>Due date <input name="dueDate" class="form-control" type="date" required></label>
+          <button class="btn btn-sage" type="submit">Create charges for my tenants</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

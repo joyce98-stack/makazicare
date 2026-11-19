@@ -25,7 +25,9 @@ Landlords can also register from the sign-in page. Registration creates a landlo
 
 The read-only system admin is seeded from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on first startup. The admin can review landlord accounts, owned properties, tenant counts, and manager counts. Set a unique password of at least 16 characters in `.env` before starting with a fresh data file.
 
-The API health endpoint is `GET /api/health`. Authentication uses a signed, HTTP-only session cookie. New tenant and manager records produce one-time acceptance links that staff can share. Email delivery is not configured. The app records payments manually; it does not charge tenants online.
+The API health endpoint is `GET /api/health`. Authentication uses a signed, HTTP-only session cookie. New tenant and manager records produce one-time acceptance links that staff can share. Email delivery is not configured. The app does not initiate rent payments; tenants pay through their landlord's PayBill or bank account.
+
+Landlords can configure their own PayBill and bank display details under **Payment setup**. Tenants receive a unique PayBill account reference. The Daraja-ready C2B callbacks match incoming transactions to the oldest outstanding rent charges, deduplicate by transaction ID, and keep unmatched or excess payments for reconciliation. To receive live callbacks, each landlord needs Daraja access and the API must be deployed to a public HTTPS origin set in `PUBLIC_API_ORIGIN`; the landlord then registers the confirmation and validation URLs in Daraja. Bank details are display-only until the landlord has access to a bank notification API such as KCB BUNI.
 
 ## Production notes
 
