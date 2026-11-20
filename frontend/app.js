@@ -664,7 +664,7 @@ function bindTenantCreateForm() {
       const result = await api("/api/tenants", { method: "POST", body: JSON.stringify({ ...values, rent: Number(values.rent) }) });
       showMessage(`${result.item.name} was added.`, form, "success");
       const notice = form.querySelector(":scope > .app-message");
-      const inviteLink = document.createElement("a");
+      const inviteLink = document.createElement("a"); 
       inviteLink.href = result.acceptanceUrl;
       inviteLink.textContent = "Share tenant account setup link";
       inviteLink.className = "d-block text-break mt-2";
