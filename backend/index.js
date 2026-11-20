@@ -484,6 +484,47 @@ app.post("/api/auth/register", async (req, res) => {
   res.status(201).json({ expiresIn: tokenLifetimeSeconds, user: safeUser(user) });
 });
 
+// Verify an existing administrator before allowing another admin account to be created.
+app.post("/api/auth/register-admin", async (req, res) => {
+  const currentAdminEmail = cleanEmail(req.body.currentAdminEmail);
+  const currentAdminPassword = String(req.body.currentAdminPassword || "");
+  const currentAdmin = getStore().users.find((user) => user.email === currentAdminEmail && user.role === "admin");
+  if (!currentAdmin || !(await bcrypt.compare(currentAdminPassword, currentAdmin.passwordHash))) {
+    return loginError(req, res);
+  }
+  const name = String(req.body.name || "").trim();
+  const email = cleanEmail(req.body.email);
+  const password = String(req.body.password || "");
+  if (!name || !/^\S+@\S+\.\S+$/.test(email) || password.length < 12) {
+    return fail(res, 400, "Enter a name, a valid email, and a password with at least 12 characters.", "VALIDATION_ERROR");
+  }
+  if (getStore().users.some((user) => user.email === email)) {
+    return fail(res, 409, "An account already uses this email address.", "EMAIL_IN_USE");
+  }
+  const user = { id: makeId("user"), name, email, role: "admin", passwordHash: await bcrypt.hash(password, 12) };
+  getStore().users.push(user);
+  addAuditEvent(currentAdmin, "admin.registered", "user", user.id);
+  await saveStore();
+  res.status(201).json({ user: safeUser(user) });
+});
+
+app.post("/api/admin/users", authenticate, allowRoles("admin"), async (req, res) => {
+  const name = String(req.body.name || "").trim();
+  const email = cleanEmail(req.body.email);
+  const password = String(req.body.password || "");
+  if (!name || !/^\S+@\S+\.\S+$/.test(email) || password.length < 12) {
+    return fail(res, 400, "Enter a name, a valid email, and a password with at least 12 characters.", "VALIDATION_ERROR");
+  }
+  if (getStore().users.some((user) => user.email === email)) {
+    return fail(res, 409, "An account already uses this email address.", "EMAIL_IN_USE");
+  }
+  const user = { id: makeId("user"), name, email, role: "admin", passwordHash: await bcrypt.hash(password, 12) };
+  getStore().users.push(user);
+  addAuditEvent(req.user, "admin.registered", "user", user.id);
+  await saveStore();
+  res.status(201).json({ user: safeUser(user) });
+});
+
 app.post("/api/auth/login", async (req, res) => {
   const email = cleanEmail(req.body.email);
   const password = String(req.body.password || "");

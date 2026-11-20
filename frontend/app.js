@@ -110,6 +110,19 @@ function recordPanel(title) {
 async function initLogin() {
   const form = document.querySelector("#loginForm");
   if (!form) return;
+  const requestedReturn = new URLSearchParams(location.search).get("return") || "";
+  const returnMatch = requestedReturn.match(/^([\w-]+\.html)(#[\w-]+)?$/);
+  const returnPage = returnMatch?.[1].replace(/\.html$/, "");
+  const returnRole = pageRole[returnPage];
+  if (returnMatch && (Array.isArray(returnRole) ? returnRole.includes("admin") : returnRole === "admin")) {
+    const adminRole = form.querySelector('#roleAdmin');
+    if (adminRole) adminRole.checked = true;
+    const prompt = document.createElement("p");
+    prompt.className = "alert alert-info py-2";
+    prompt.setAttribute("role", "status");
+    prompt.textContent = "Sign in with your system admin account to continue to admin registration.";
+    form.prepend(prompt);
+  }
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const button = event.submitter;
@@ -123,7 +136,8 @@ async function initLogin() {
           role: form.querySelector('[name="role"]:checked')?.value,
         }),
       });
-      location.href = roleHome[result.user.role];
+      const canReturn = returnMatch && (Array.isArray(returnRole) ? returnRole.includes(result.user.role) : returnRole === result.user.role);
+      location.href = canReturn ? requestedReturn : roleHome[result.user.role];
     } catch (error) {
       showMessage(error.message, form);
     } finally {
@@ -149,6 +163,34 @@ async function initLandlordRegistration() {
       }) });
       location.href = roleHome.landlord;
     } catch (error) { showMessage(error.message, form); }
+  });
+}
+
+async function initAdminRegistration() {
+  const form = page === "admin-register" ? document.querySelector("#adminRegistrationForm") : null;
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const values = Object.fromEntries(new FormData(form));
+    if (values.password !== values.passwordConfirm) {
+      return showMessage("The new admin passwords do not match.", form);
+    }
+    const payload = {
+      currentAdminEmail: values.currentAdminEmail,
+      currentAdminPassword: values.currentAdminPassword,
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    };
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true;
+    try {
+      const result = await api("/api/auth/register-admin", { method: "POST", body: JSON.stringify(payload) });
+      form.reset();
+      form.hidden = true;
+      showMessage(`System admin account created for ${result.user.email}. Sign in with the new account.`, form.parentElement, "success");
+    } catch (error) { showMessage(error.message, form); }
+    finally { submit.disabled = false; }
   });
 }
 
@@ -493,36 +535,114 @@ function bindChargeGeneration() {
 }
 
 async function loadAdminOverview() {
+  const adminForm = document.querySelector("#adminRegisterForm");
+  if (adminForm && !adminForm.dataset.bound) {
+    adminForm.dataset.bound = "true";
+    adminForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(adminForm));
+      try {
+        const result = await api("/api/admin/users", { method: "POST", body: JSON.stringify(values) });
+        adminForm.reset();
+        showMessage(`System administrator account created for ${result.user.email}.`, adminForm, "success");
+      } catch (error) { showMessage(error.message, adminForm); }
+    });
+  }
   const data = await api("/api/admin/overview");
-  addLivePanel("System totals", [
-    `${data.summary.landlordCount} landlords`,
-    `${data.summary.propertyCount} properties`,
-    `${data.summary.apartmentCount} apartments`,
-    `${data.summary.houseCount} houses`,
-    `${data.summary.tenantCount} tenants`,
-    `${data.summary.managerCount} property managers`,
-  ]);
-  const records = recordPanel("Landlord records and properties");
-  if (!data.landlords.length) records.textContent = "No landlords have registered yet.";
+  const stats = document.querySelector("#adminStats");
+  if (stats) {
+    const items = [
+      ["Landlords", data.summary.landlordCount, "bi-person-badge"],
+      ["Properties", data.summary.propertyCount, "bi-buildings"],
+      ["Apartments", data.summary.apartmentCount, "bi-building"],
+      ["Houses", data.summary.houseCount, "bi-house"],
+      ["Tenants", data.summary.tenantCount, "bi-people"],
+      ["Managers", data.summary.managerCount, "bi-clipboard-check"],
+    ];
+    stats.replaceChildren(...items.map(([label, value, icon]) => {
+      const cell = document.createElement("div");
+      cell.className = "admin-stat-cell";
+      const badge = document.createElement("span");
+      badge.className = "admin-stat-icon";
+      const glyph = document.createElement("i");
+      glyph.className = `bi ${icon}`;
+      glyph.setAttribute("aria-hidden", "true");
+      badge.append(glyph);
+      const copy = document.createElement("div");
+      const count = document.createElement("b");
+      count.textContent = String(value ?? 0);
+      const name = document.createElement("span");
+      name.textContent = label;
+      copy.append(count, name);
+      cell.append(badge, copy);
+      return cell;
+    }));
+    stats.setAttribute("aria-busy", "false");
+  }
+  const records = document.querySelector("#adminLandlordRecords");
+  if (!records) return;
+  records.replaceChildren();
+  if (!data.landlords.length) {
+    const empty = document.createElement("p");
+    empty.className = "text-muted mb-0";
+    empty.textContent = "No landlords have registered yet.";
+    records.append(empty);
+  }
   for (const landlord of data.landlords) {
     const card = document.createElement("article");
-    card.className = "border rounded p-3";
+    card.className = "admin-landlord-card";
+    card.dataset.search = `${landlord.name} ${landlord.email} ${landlord.properties.map((property) => `${property.name} ${property.address}`).join(" ")}`.toLowerCase();
+    const top = document.createElement("div");
+    top.className = "d-flex flex-wrap align-items-start justify-content-between gap-2";
+    const identity = document.createElement("div");
     const heading = document.createElement("h3");
-    heading.className = "h5";
+    heading.className = "h5 mb-1";
     heading.textContent = landlord.name;
     const email = document.createElement("p");
+    email.className = "text-muted mb-0";
     email.textContent = landlord.email;
     const counts = document.createElement("p");
-    counts.textContent = `${landlord.propertyCount} properties (${landlord.apartmentCount} apartments, ${landlord.houseCount} houses) · ${landlord.tenantCount} tenants · ${landlord.managerCount} managers · ${landlord.pendingManagerInvitations} pending manager invites`;
-    const list = document.createElement("ul");
-    list.className = "mb-0";
-    for (const property of landlord.properties) {
-      const item = document.createElement("li");
-      item.textContent = `${property.name} — ${property.type}, ${property.unitCount} units, ${property.tenantCount} tenants · ${property.address}`;
-      list.append(item);
+    counts.className = "small text-muted mt-3 mb-2";
+    counts.textContent = `${landlord.propertyCount} properties · ${landlord.apartmentCount} apartments · ${landlord.houseCount} houses · ${landlord.tenantCount} tenants · ${landlord.managerCount} managers · ${landlord.pendingManagerInvitations} pending invitations`;
+    identity.append(heading, email);
+    top.append(identity, counts);
+    card.append(top);
+    if (landlord.properties.length) {
+      const list = document.createElement("ul");
+      list.className = "admin-property-list mb-0";
+      for (const property of landlord.properties) {
+        const item = document.createElement("li");
+        const name = document.createElement("strong");
+        name.className = "d-block";
+        name.textContent = property.name;
+        const details = document.createElement("span");
+        details.className = "small text-muted";
+        details.textContent = `${property.type} · ${property.unitCount} units · ${property.tenantCount} tenants`;
+        const address = document.createElement("span");
+        address.className = "d-block small text-muted mt-1";
+        address.textContent = property.address;
+        item.append(name, details, address);
+        list.append(item);
+      }
+      card.append(list);
+    } else {
+      const empty = document.createElement("p");
+      empty.className = "small text-muted mb-0";
+      empty.textContent = "No properties have been added.";
+      card.append(empty);
     }
-    card.append(heading, email, counts, list);
     records.append(card);
+  }
+  records.setAttribute("aria-busy", "false");
+  const search = document.querySelector("#landlordSearchInput");
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = "true";
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      records.querySelectorAll(".admin-landlord-card").forEach((card) => {
+        card.hidden = !card.dataset.search.includes(query);
+      });
+    });
   }
 }
 
@@ -685,22 +805,38 @@ function bindChargeCreation() {
 }
 
 async function boot() {
+  document.querySelectorAll("nav .navbar-collapse").forEach((collapse) => {
+    collapse.addEventListener("click", (event) => {
+      const link = event.target.closest("a.nav-link");
+      if (link && collapse.classList.contains("show") && window.bootstrap?.Collapse) {
+        window.bootstrap.Collapse.getOrCreateInstance(collapse).hide();
+      }
+    });
+  });
   await initLogin();
   await initLandlordRegistration();
+  await initAdminRegistration();
   await initManagerAcceptance();
   const requiredRole = pageRole[page];
   if (!requiredRole) return;
+  let user;
   try {
-    const { user } = await api("/api/auth/me");
-    if (!(Array.isArray(requiredRole) ? requiredRole.includes(user.role) : user.role === requiredRole)) {
-      location.replace(roleHome[user.role]);
-      return;
-    }
-    addLogout(user);
-    bindTenantForms();
-    await loadPageData(user);
+    ({ user } = await api("/api/auth/me"));
   } catch {
-    location.replace(`authpage.html?return=${encodeURIComponent(page + ".html")}`);
+    location.replace(`authpage.html?return=${encodeURIComponent(page + ".html" + location.hash)}`);
+    return;
+  }
+  if (!(Array.isArray(requiredRole) ? requiredRole.includes(user.role) : user.role === requiredRole)) {
+    location.replace(roleHome[user.role]);
+    return;
+  }
+  addLogout(user);
+  bindTenantForms();
+  try { await loadPageData(user); }
+  catch (error) {
+    document.querySelector("#adminStats")?.setAttribute("aria-busy", "false");
+    document.querySelector("#adminLandlordRecords")?.setAttribute("aria-busy", "false");
+    showMessage(error.message, document.querySelector("main"));
   }
 }
 
