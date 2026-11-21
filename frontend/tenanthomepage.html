@@ -45,32 +45,27 @@
           <li class="nav-item"><a class="nav-link" href="relocation.html">Relocation</a></li>
           <li class="nav-item"><a class="nav-link" href="extension.html">Extension</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-          <span class="avatar" aria-hidden="true">JH</span>
-          <span class="small fw-semibold">Joyce</span>
-        </div>
       </div>
     </div>
   </nav>
 
   <!-- ============ CONTENT ============ -->
-  <main class="page">
+  <main class="page" id="tenant-dashboard-main" hidden>
     <div class="container">
       <div class="row g-5 align-items-start">
 
         <!-- Property + arched window image -->
         <div class="col-lg-5">
           <p class="eyebrow mb-0">Your home</p>
-          <h1 class="property-name">J.Crown<br /><em>Apartments</em></h1>
-          <p class="property-address"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Nairobi, Kenya</p>
+          <h1 class="property-name" id="tenantPropertyName">Your home</h1>
+          <p class="property-address" id="tenantPropertyAddress"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Property location not set</p>
 
           <figure class="window">
             <div class="window-pane">
               <img
-                src="https://images.pexels.com/photos/34270526/pexels-photo-34270526.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=960"
-                alt="J.Crown Apartments building facade seen through an arched window" />
+                id="tenantPropertyPhoto" src="" alt="Your property" />
             </div>
-            <figcaption class="window-tag"><i class="bi bi-door-open" aria-hidden="true"></i>  Unit: J 10  </figcaption>
+            <figcaption class="window-tag" id="tenantUnitTag"><i class="bi bi-door-open" aria-hidden="true"></i> Unit details pending</figcaption>
           </figure>
         </div>
 
@@ -87,21 +82,21 @@
                 <span class="fact-icon tint-sage"><i class="bi bi-person" aria-hidden="true"></i></span>
                 <div>
                   <p class="fact-label">Tenant</p>
-                  <p class="fact-value">Joyce</p>
+                  <p class="fact-value" id="tenantFullName">Tenant</p>
                 </div>
               </div>
               <div class="fact">
                 <span class="fact-icon tint-brown"><i class="bi bi-door-closed" aria-hidden="true"></i></span>
                 <div>
                   <p class="fact-label">Unit</p>
-                  <p class="fact-value">J 10</p>
+                  <p class="fact-value" id="tenantUnit">—</p>
                 </div>
               </div>
               <div class="fact">
                 <span class="fact-icon tint-brown"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
                 <div>
                   <p class="fact-label">Rent due</p>
-                  <p class="fact-value">10,000 KES</p>
+                  <p class="fact-value" id="tenantRent">—</p>
                   <p class="fact-note">per month</p>
                 </div>
               </div>
@@ -109,8 +104,8 @@
                 <span class="fact-icon tint-sage"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
                 <div>
                   <p class="fact-label">Due date</p>
-                  <p class="fact-value">15th of the month</p>
-                  <p class="fact-note">next: 15 December</p>
+                  <p class="fact-value" id="tenantDueDate">Not set</p>
+                  <p class="fact-note" id="tenantDueNote">No rent charge yet</p>
                 </div>
               </div>
 

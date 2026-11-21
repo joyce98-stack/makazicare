@@ -45,10 +45,6 @@
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="apartments.html">Apartments</a></li>
           <li class="nav-item"><a class="nav-link" href="propertymanagerlist.html">Property Managers</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-          <span class="avatar" aria-hidden="true">RA</span>
-          <span class="small fw-semibold">Rosa Aquino</span>
-        </div>
       </div>
     </div> 
   </nav>
@@ -162,6 +158,25 @@
               <input class="form-control" type="text" id="aptLocation" name="location" placeholder="Street, city" required />
             </div>
 
+            <div class="field">
+              <label class="field-label" for="propertyCategory">Property category</label>
+              <select class="form-select" id="propertyCategory" name="property_category" required>
+                <option value="apartment" selected>Apartment building</option>
+                <option value="house">Houses</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="aptPhotoFile">Property photo <span class="opt">Optional</span></label>
+              <input class="form-control" type="file" id="aptPhotoFile" name="photo_file" accept="image/jpeg,image/png,image/webp" />
+              <label class="form-label small mt-2" for="aptPhotoUrl">Or use a photo URL</label>
+              <input class="form-control" type="url" id="aptPhotoUrl" name="photo_url" placeholder="https://example.com/property-photo.jpg" />
+              <label class="form-check mt-2" id="removePhotoWrap" hidden>
+                <input class="form-check-input" type="checkbox" id="removePropertyPhoto" />
+                <span class="form-check-label">Remove the current photo</span>
+              </label>
+            </div>
+
             <fieldset class="field">
               <legend class="field-label mb-0">House types</legend>
               <p class="hint mt-1">What kinds of homes are in the building, how many, and the monthly price.</p>
@@ -188,8 +203,8 @@
                   <div class="col-7 col-sm-4">
                     <label class="mini-label" for="price1">Price / month</label>
                     <div class="input-group">
-                      <span class="input-group-text" aria-hidden="true">$</span>
-                      <input class="form-control" type="number" id="price1" name="house_price_1" min="0" step="10" inputmode="numeric" placeholder="0" required />
+                      <span class="input-group-text" aria-hidden="true">KES</span>
+                      <input class="form-control" type="number" id="price1" name="house_price_1" min="0" step="1" inputmode="numeric" placeholder="0" required />
                     </div>
                   </div>
                 </div>
@@ -220,8 +235,8 @@
                     <div class="col-7 col-sm-4">
                       <label class="mini-label" for="price2">Price / month</label>
                       <div class="input-group">
-                        <span class="input-group-text" aria-hidden="true">$</span>
-                        <input class="form-control" type="number" id="price2" name="house_price_2" min="0" step="10" inputmode="numeric" placeholder="0" />
+                        <span class="input-group-text" aria-hidden="true">KES</span>
+                      <input class="form-control" type="number" id="price2" name="house_price_2" min="0" step="1" inputmode="numeric" placeholder="0" />
                       </div>
                     </div>
                   </div>
@@ -248,8 +263,8 @@
                     <div class="col-7 col-sm-4">
                       <label class="mini-label" for="price3">Price / month</label>
                       <div class="input-group">
-                        <span class="input-group-text" aria-hidden="true">$</span>
-                        <input class="form-control" type="number" id="price3" name="house_price_3" min="0" step="10" inputmode="numeric" placeholder="0" />
+                        <span class="input-group-text" aria-hidden="true">KES</span>
+                      <input class="form-control" type="number" id="price3" name="house_price_3" min="0" step="1" inputmode="numeric" placeholder="0" />
                       </div>
                     </div>
                   </div>
@@ -258,7 +273,7 @@
             </fieldset>
 
             <div class="modal-actions">
-              <button class="btn btn-sage" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>Add apartment</button>
+              <button class="btn btn-sage" id="savePropertyButton" type="submit"><i class="bi bi-check2" aria-hidden="true"></i><span>Add apartment</span></button>
               <button class="btn btn-outline-earth" type="button" data-bs-dismiss="modal">Cancel</button>
             </div>
           </form>

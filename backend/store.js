@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,14 +49,13 @@ export async function initializeStore() {
     role: "admin",
     passwordHash: await bcrypt.hash(adminPassword, 12),
   };
-  if (process.env.SEED_DEMO_DATA === "false") {
+  if (process.env.SEED_DEMO_DATA !== "true") {
     state = buildEmptyData(adminUser);
-    await writeSnapshot();
-    return state;
+  } else {
+    const demoPassword = process.env.DEMO_PASSWORD || "DemoPass123!";
+    const passwordHash = await bcrypt.hash(demoPassword, 10);
+    state = buildSeedData(passwordHash, adminUser);
   }
-  const demoPassword = process.env.DEMO_PASSWORD || "DemoPass123!";
-  const passwordHash = await bcrypt.hash(demoPassword, 10);
-  state = buildSeedData(passwordHash, adminUser);
   await writeSnapshot();
   return state;
 }

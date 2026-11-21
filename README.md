@@ -9,7 +9,7 @@ Makazi Care is a small property and tenant management application. The Express s
 3. Copy `.env.example` to `.env`, set a long random `JWT_SECRET`, and replace the `ADMIN_PASSWORD` placeholder with a unique password of at least 16 characters. You can change `DEMO_PASSWORD` to set the shared password if you enable sample demo data.
 4. Run `npm start` and open `http://localhost:3001`.
 
-The first start creates an empty property database and the system admin. Set `SEED_DEMO_DATA=true` to load the sample demo landlords, properties, tenants, and accounts instead.
+The first start creates an empty property database and the system admin. New landlord accounts also start with an empty portfolio and must add their own properties. Set `SEED_DEMO_DATA=true` to load sample demo landlords, properties, tenants, and accounts.
 
 When demo data is enabled, seeded accounts are:
 

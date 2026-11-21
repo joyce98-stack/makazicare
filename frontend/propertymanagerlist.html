@@ -46,10 +46,6 @@
           <li class="nav-item"><a class="nav-link" href="extensionrequests.html">Extensions</a></li>
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Managers</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-          <span class="avatar" aria-hidden="true">RA</span>
-          <span class="small fw-semibold">Rosa Aquino</span>
-        </div>
       </div>
     </div>
   </nav>
@@ -71,6 +67,14 @@
           </button>
         </div>
       </div>
+
+      <section class="mt-5" aria-labelledby="managerDirectoryTitle">
+        <div class="mb-3">
+          <h2 class="section-heading" id="managerDirectoryTitle">Find a property manager</h2>
+          <p class="page-sub">Browse managers who have chosen to list their experience, skills, and service areas.</p>
+        </div>
+        <div id="managerDirectory" class="manager-list" aria-live="polite"></div>
+      </section>
 
       <!-- Quick Metrics Strip -->
       <div class="stats-strip">
@@ -107,7 +111,7 @@
       </div>
 
       <!-- Managers List -->
-      <div class="manager-list">
+      <div class="manager-list" id="managerRecords">
 
         <!-- MANAGER 1: Mira Cruz (Active) -->
         <article class="card-manager highlight" aria-labelledby="mgr1-name">

@@ -37,7 +37,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://images.pexels.com"],
+      imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
     },
   },
@@ -49,7 +49,7 @@ app.use(cors({
     return callback(new Error("Origin is not allowed by CORS."));
   },
 }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 
 const roleHomes = {
@@ -485,6 +485,33 @@ app.post("/api/auth/register", async (req, res) => {
   res.status(201).json({ expiresIn: tokenLifetimeSeconds, user: safeUser(user) });
 });
 
+app.post("/api/auth/register-manager", async (req, res) => {
+  const name = String(req.body.name || "").trim();
+  const email = cleanEmail(req.body.email);
+  const password = String(req.body.password || "");
+  const headline = String(req.body.headline || "").trim();
+  const bio = String(req.body.bio || "").trim();
+  const skills = Array.isArray(req.body.skills) ? [...new Set(req.body.skills.map((value) => String(value).trim()).filter(Boolean))].slice(0, 20) : [];
+  const propertyTypes = Array.isArray(req.body.propertyTypes) ? [...new Set(req.body.propertyTypes.map((value) => String(value).trim()).filter(Boolean))].slice(0, 10) : [];
+  const serviceAreas = Array.isArray(req.body.serviceAreas) ? [...new Set(req.body.serviceAreas.map((value) => String(value).trim()).filter(Boolean))].slice(0, 20) : [];
+  const experienceYears = Number(req.body.experienceYears || 0);
+  if (!name || !/^\S+@\S+\.\S+$/.test(email) || password.length < 12) return fail(res, 400, "Enter your name, a valid email, and a password with at least 12 characters.", "VALIDATION_ERROR");
+  if (getStore().users.some((user) => user.email === email)) return fail(res, 409, "An account already uses this email address.", "EMAIL_IN_USE");
+  if (!headline || headline.length > 100 || bio.length < 30 || bio.length > 1000 || !skills.length || !propertyTypes.length || !serviceAreas.length || !Number.isInteger(experienceYears) || experienceYears < 0 || experienceYears > 60) {
+    return fail(res, 400, "Add a short professional headline, a 30–1000 character profile, at least one skill, property type, service area, and valid years of experience.", "VALIDATION_ERROR");
+  }
+  const user = {
+    id: makeId("user"), name, email, role: "manager", passwordHash: await bcrypt.hash(password, 12), propertyIds: [],
+    managerProfile: { headline, bio, skills, propertyTypes, serviceAreas, experienceYears, listed: req.body.listed !== false, updatedAt: new Date().toISOString() },
+  };
+  getStore().users.push(user);
+  addAuditEvent(user, "manager.registered", "user", user.id);
+  await saveStore();
+  const token = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, { expiresIn: tokenLifetimeSeconds });
+  res.cookie(sessionCookie, token, { httpOnly: true, sameSite: "lax", secure: isProduction, maxAge: tokenLifetimeSeconds * 1000, path: "/" });
+  res.status(201).json({ expiresIn: tokenLifetimeSeconds, user: safeUser(user) });
+});
+
 // Verify an existing administrator before allowing another admin account to be created.
 app.post("/api/auth/register-admin", async (req, res) => {
   const currentAdminEmail = cleanEmail(req.body.currentAdminEmail);
@@ -652,16 +679,40 @@ app.get("/api/properties", authenticate, (req, res) => {
 });
 
 app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, res) => {
-  const { name, address, type, unitCount } = req.body;
-  if (!String(name || "").trim() || !String(address || "").trim() || !positiveNumber(unitCount)) {
-    return fail(res, 400, "Name, address, and a positive unit count are required.", "VALIDATION_ERROR");
+  const { name, address, type, unitCount, houseTypes, photoUrl } = req.body;
+  const cleanTypes = Array.isArray(houseTypes) ? houseTypes.map((item) => ({
+    name: String(item && typeof item === "object" ? item.name || "" : "").trim(),
+    count: Number(item && typeof item === "object" ? item.count : NaN),
+    rent: Number(item && typeof item === "object" ? item.rent : NaN),
+  })) : [];
+  const totalUnits = cleanTypes.length ? cleanTypes.reduce((sum, item) => sum + item.count, 0) : Number(unitCount);
+  let cleanPhotoUrl = "";
+  if (photoUrl) {
+    const photo = String(photoUrl).trim();
+    if (/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(photo) && photo.length <= 4_500_000) {
+      cleanPhotoUrl = photo;
+    } else try {
+      const parsed = new URL(photo);
+      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("invalid protocol");
+      cleanPhotoUrl = parsed.toString();
+    } catch {
+      return fail(res, 400, "Enter a valid photo URL beginning with http:// or https://.", "VALIDATION_ERROR");
+    }
   }
+  if (!String(name || "").trim()) return fail(res, 400, "Enter the apartment or property name.", "VALIDATION_ERROR");
+  if (!String(address || "").trim()) return fail(res, 400, "Enter the property location.", "VALIDATION_ERROR");
+  if (!Array.isArray(houseTypes) || !cleanTypes.length) return fail(res, 400, "Add at least one house type with its unit count and monthly rent.", "VALIDATION_ERROR");
+  if (cleanTypes.length > 20) return fail(res, 400, "Add no more than 20 house types per property.", "VALIDATION_ERROR");
+  const invalidTypeIndex = cleanTypes.findIndex((item) => !item.name || !Number.isInteger(item.count) || item.count < 1 || item.count > 500 || !Number.isFinite(item.rent) || item.rent < 0);
+  if (invalidTypeIndex >= 0) return fail(res, 400, `Complete house type ${invalidTypeIndex + 1} with a name, whole unit count from 1 to 500, and valid monthly rent.`, "VALIDATION_ERROR");
   const property = {
     id: makeId("property"),
     name: String(name).trim(),
     address: String(address).trim(),
     type: String(type || "apartment").trim(),
-    unitCount: Number(unitCount),
+    unitCount: totalUnits,
+    ...(cleanTypes.length ? { houseTypes: cleanTypes } : {}),
+    ...(cleanPhotoUrl ? { photoUrl: cleanPhotoUrl } : {}),
     ownerId: req.user.id,
     createdAt: new Date().toISOString(),
   };
@@ -671,6 +722,45 @@ app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, re
   addAuditEvent(req.user, "property.created", "property", property.id);
   await saveStore();
   res.status(201).json({ item: property });
+});
+
+app.patch("/api/properties/:propertyId", authenticate, allowRoles("landlord"), async (req, res) => {
+  const property = getStore().properties.find((entry) => entry.id === req.params.propertyId && entry.ownerId === req.user.id);
+  if (!property) return fail(res, 404, "Property not found.", "NOT_FOUND");
+  const { name, address, type, houseTypes, photoUrl, removePhoto } = req.body;
+  if (!String(name || "").trim()) return fail(res, 400, "Enter the apartment or property name.", "VALIDATION_ERROR");
+  if (!String(address || "").trim()) return fail(res, 400, "Enter the property location.", "VALIDATION_ERROR");
+  if (!Array.isArray(houseTypes) || !houseTypes.length || houseTypes.length > 20) return fail(res, 400, "Add between 1 and 20 house types with unit counts and monthly rents.", "VALIDATION_ERROR");
+  const cleanTypes = houseTypes.map((item) => ({
+    name: String(item && typeof item === "object" ? item.name || "" : "").trim(),
+    count: Number(item && typeof item === "object" ? item.count : NaN),
+    rent: Number(item && typeof item === "object" ? item.rent : NaN),
+  }));
+  const invalidTypeIndex = cleanTypes.findIndex((item) => !item.name || !Number.isInteger(item.count) || item.count < 1 || item.count > 500 || !Number.isFinite(item.rent) || item.rent < 0);
+  if (invalidTypeIndex >= 0) return fail(res, 400, `Complete house type ${invalidTypeIndex + 1} with a name, whole unit count from 1 to 500, and valid monthly rent.`, "VALIDATION_ERROR");
+  let cleanPhotoUrl;
+  if (photoUrl) {
+    const photo = String(photoUrl).trim();
+    if (/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(photo) && photo.length <= 4_500_000) {
+      cleanPhotoUrl = photo;
+    } else try {
+      const parsed = new URL(photo);
+      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("invalid protocol");
+      cleanPhotoUrl = parsed.toString();
+    } catch {
+      return fail(res, 400, "Enter a valid photo URL beginning with http:// or https://.", "VALIDATION_ERROR");
+    }
+  }
+  property.name = String(name).trim();
+  property.address = String(address).trim();
+  property.type = String(type || property.type || "apartment").trim();
+  property.houseTypes = cleanTypes;
+  property.unitCount = cleanTypes.reduce((total, item) => total + item.count, 0);
+  if (removePhoto) delete property.photoUrl;
+  else if (cleanPhotoUrl) property.photoUrl = cleanPhotoUrl;
+  addAuditEvent(req.user, "property.updated", "property", property.id);
+  await saveStore();
+  res.json({ item: property });
 });
 
 app.get("/api/tenants", authenticate, (req, res) => {
@@ -1068,6 +1158,59 @@ app.get("/api/managers", authenticate, allowRoles("landlord"), (req, res) => {
   res.json({ items, invitations, count: items.length });
 });
 
+app.get("/api/manager-directory", (_req, res) => {
+  const items = getStore().users.filter((user) => user.role === "manager" && user.managerProfile?.listed).map((user) => ({
+    id: user.id,
+    name: user.name,
+    headline: user.managerProfile.headline,
+    bio: user.managerProfile.bio,
+    skills: user.managerProfile.skills,
+    propertyTypes: user.managerProfile.propertyTypes,
+    serviceAreas: user.managerProfile.serviceAreas,
+    experienceYears: user.managerProfile.experienceYears,
+  }));
+  res.json({ items, count: items.length });
+});
+
+app.get("/api/managers/profile", authenticate, allowRoles("manager"), (req, res) => {
+  res.json({ item: req.user.managerProfile || { headline: "", bio: "", skills: [], propertyTypes: [], serviceAreas: [], experienceYears: 0, listed: false } });
+});
+
+app.patch("/api/managers/profile", authenticate, allowRoles("manager"), async (req, res) => {
+  const headline = String(req.body.headline || "").trim();
+  const bio = String(req.body.bio || "").trim();
+  const skills = Array.isArray(req.body.skills) ? [...new Set(req.body.skills.map((value) => String(value).trim()).filter(Boolean))].slice(0, 20) : [];
+  const propertyTypes = Array.isArray(req.body.propertyTypes) ? [...new Set(req.body.propertyTypes.map((value) => String(value).trim()).filter(Boolean))].slice(0, 10) : [];
+  const serviceAreas = Array.isArray(req.body.serviceAreas) ? [...new Set(req.body.serviceAreas.map((value) => String(value).trim()).filter(Boolean))].slice(0, 20) : [];
+  const experienceYears = Number(req.body.experienceYears || 0);
+  if (!headline || headline.length > 100 || bio.length < 30 || bio.length > 1000 || !skills.length || !propertyTypes.length || !serviceAreas.length || !Number.isInteger(experienceYears) || experienceYears < 0 || experienceYears > 60) {
+    return fail(res, 400, "Add a short headline, a 30–1000 character profile, at least one skill, property type, service area, and valid years of experience.", "VALIDATION_ERROR");
+  }
+  req.user.managerProfile = { headline, bio, skills, propertyTypes, serviceAreas, experienceYears, listed: req.body.listed === true, updatedAt: new Date().toISOString() };
+  addAuditEvent(req.user, "manager.profile_updated", "manager_profile", req.user.id);
+  await saveStore();
+  res.json({ item: req.user.managerProfile });
+});
+
+app.post("/api/managers/assign-listed", authenticate, allowRoles("landlord"), async (req, res) => {
+  const manager = getStore().users.find((user) => user.id === req.body.managerId && user.role === "manager" && user.managerProfile?.listed);
+  if (!manager) return fail(res, 404, "Listed property manager not found.", "NOT_FOUND");
+  const propertyIds = Array.isArray(req.body.propertyIds) ? [...new Set(req.body.propertyIds)] : [];
+  const ownedPropertyIds = new Set(visiblePropertyIds(req.user));
+  if (!propertyIds.length || propertyIds.some((id) => !ownedPropertyIds.has(id))) return fail(res, 400, "Select at least one of your properties to assign.", "VALIDATION_ERROR");
+  const assignment = getStore().managers.find((entry) => entry.userId === manager.id);
+  if (assignment) {
+    assignment.propertyIds = [...new Set([...assignment.propertyIds, ...propertyIds])];
+    assignment.status = "active";
+  } else {
+    getStore().managers.push({ userId: manager.id, propertyIds, status: "active", joinedAt: new Date().toISOString().slice(0, 10) });
+  }
+  manager.propertyIds = [...new Set([...(manager.propertyIds || []), ...propertyIds])];
+  addAuditEvent(req.user, "manager.assigned_from_directory", "manager", manager.id, { propertyIds });
+  await saveStore();
+  res.status(201).json({ item: { id: manager.id, name: manager.name, propertyIds } });
+});
+
 app.post("/api/managers/accept", async (req, res) => {
   const token = String(req.body.token || "");
   const password = String(req.body.password || "");
@@ -1084,6 +1227,7 @@ app.post("/api/managers/accept", async (req, res) => {
   const user = {
     id: makeId("user"), name: invitation.name, email: invitation.email, role: "manager",
     passwordHash: await bcrypt.hash(password, 12), propertyIds: invitation.propertyIds,
+    managerProfile: { headline: "", bio: "", skills: [], propertyTypes: [], serviceAreas: [], experienceYears: 0, listed: false },
   };
   getStore().users.push(user);
   getStore().managers.push({ userId: user.id, propertyIds: invitation.propertyIds, status: "active", joinedAt: new Date().toISOString().slice(0, 10) });
