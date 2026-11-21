@@ -70,6 +70,65 @@ function addLogout(user) {
   nav.append(group);
 }
 
+function renderRoleNavigation(user) {
+  const collapse = document.querySelector("nav .navbar-collapse");
+  if (!collapse) return;
+  const navbar = collapse.closest(".navbar");
+  if (navbar?.classList.contains("navbar-expand-lg")) navbar.classList.replace("navbar-expand-lg", "navbar-expand-xl");
+  const linksByRole = {
+    landlord: [
+      ["Dashboard", "landlordhomepage.html", ["landlordhomepage"]],
+      ["Tenants", "tenantslist.html", ["tenantslist"]],
+      ["Apartments", "apartments.html", ["apartments"]],
+      ["Extensions", "extensionrequests.html", ["extensionrequests"]],
+      ["Property managers", "propertymanagerlist.html", ["propertymanagerlist"]],
+      ["Payment report", "paymentreport.html", ["paymentreport"]],
+      ["Payment setup", "collections.html", ["collections"]],
+    ],
+    tenant: [
+      ["Home", "tenanthomepage.html", ["tenanthomepage"]],
+      ["Receipts", "tenantreceipts.html", ["tenantreceipts"]],
+      ["Maintenance", "maintenance.html", ["maintenance"]],
+      ["Relocation", "relocation.html", ["relocation"]],
+      ["Extension", "extension.html", ["extension"]],
+    ],
+    manager: [
+      ["Overview", "propertymanager.html#overview", ["propertymanager"]],
+      ["Tenants", "tenantslist.html", ["tenantslist"]],
+      ["Properties", "propertymanager.html#properties", ["propertymanager"]],
+      ["Payments", "pmpaymentreport.html", ["pmpaymentreport"]],
+      ["Maintenance", "pmrequests.html", ["pmrequests"]],
+      ["My listing", "manager-profile.html", ["manager-profile"]],
+    ],
+    admin: [
+      ["Overview", "adminhomepage.html#overview", ["adminhomepage"]],
+      ["Landlords & properties", "adminhomepage.html#landlordsSection", ["adminhomepage"]],
+      ["Register admin", "adminhomepage.html#registerAdmin", ["adminhomepage"]],
+    ],
+  };
+  let list = collapse.querySelector("ul.navbar-nav");
+  if (!list) {
+    list = document.createElement("ul");
+    collapse.prepend(list);
+  }
+  list.className = "navbar-nav me-auto gap-lg-1";
+  list.replaceChildren();
+  for (const [label, href] of linksByRole[user.role] || []) {
+    const item = document.createElement("li");
+    item.className = "nav-item";
+    const link = document.createElement("a");
+    const [targetPage, targetHash] = href.split("#");
+    const isCurrentPage = targetPage.replace(/\.html$/, "") === page;
+    const isCurrent = isCurrentPage && (!targetHash || location.hash === `#${targetHash}` || (!location.hash && targetHash === "overview"));
+    link.className = `nav-link${isCurrent ? " active" : ""}`;
+    if (isCurrent) link.setAttribute("aria-current", "page");
+    link.href = href;
+    link.textContent = label;
+    item.append(link);
+    list.append(item);
+  }
+}
+
 function addLivePanel(title, lines) {
   const main = document.querySelector("main");
   if (!main) return;
@@ -1760,6 +1819,7 @@ async function boot() {
     return;
   }
   document.body.dataset.role = user.role;
+  renderRoleNavigation(user);
   addLogout(user);
   bindTenantForms();
   try {
