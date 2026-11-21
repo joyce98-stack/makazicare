@@ -666,15 +666,23 @@ app.get("/api/admin/overview", authenticate, allowRoles("admin"), (_req, res) =>
   });
 });
 
-app.get("/api/properties", authenticate, (req, res) => {
+app.get("/api/properties", authenticate, async (req, res) => {
   const db = getStore();
   const propertyIds = new Set(visiblePropertyIds(req.user));
   const properties = db.properties
     .filter((property) => propertyIds.has(property.id))
-    .map((property) => ({
-      ...property,
-      occupiedCount: db.tenants.filter((tenant) => tenant.propertyId === property.id && tenant.status === "active").length,
-    }));
+    .map((property) => {
+      const tenants = db.tenants.filter((tenant) => tenant.propertyId === property.id && tenant.status === "active");
+      if (!Array.isArray(property.units)) property.units = (property.houseTypes || []).flatMap((type) => Array.from({ length: Number(type.count) || 0 }, (_, index) => ({ id: makeId("unit"), name: type.unitNames?.[index] || `${type.name} ${index + 1}`, type: type.name, rent: Number(type.rent) || 0 })));
+      const units = property.units;
+      const normalizedUnits = units.map((unit) => {
+        const tenant = tenants.find((entry) => entry.unitId === unit.id || entry.unit.toLowerCase() === String(unit.name).toLowerCase());
+        return { ...unit, status: tenant ? "occupied" : "vacant", tenantId: tenant?.id || null };
+      });
+      property.units = normalizedUnits;
+      return { ...property, units: normalizedUnits, occupiedCount: tenants.length };
+    });
+  await saveStore();
   res.json({ items: properties });
 });
 
@@ -684,6 +692,7 @@ app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, re
     name: String(item && typeof item === "object" ? item.name || "" : "").trim(),
     count: Number(item && typeof item === "object" ? item.count : NaN),
     rent: Number(item && typeof item === "object" ? item.rent : NaN),
+    unitNames: Array.isArray(item?.unitNames) ? item.unitNames.map((unitName) => String(unitName).trim()) : [],
   })) : [];
   const totalUnits = cleanTypes.length ? cleanTypes.reduce((sum, item) => sum + item.count, 0) : Number(unitCount);
   let cleanPhotoUrl = "";
@@ -705,6 +714,16 @@ app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, re
   if (cleanTypes.length > 20) return fail(res, 400, "Add no more than 20 house types per property.", "VALIDATION_ERROR");
   const invalidTypeIndex = cleanTypes.findIndex((item) => !item.name || !Number.isInteger(item.count) || item.count < 1 || item.count > 500 || !Number.isFinite(item.rent) || item.rent < 0);
   if (invalidTypeIndex >= 0) return fail(res, 400, `Complete house type ${invalidTypeIndex + 1} with a name, whole unit count from 1 to 500, and valid monthly rent.`, "VALIDATION_ERROR");
+  const badNames = cleanTypes.findIndex((item) => item.unitNames.length && (item.unitNames.length !== item.count || item.unitNames.some((unitName) => !unitName)));
+  if (badNames >= 0) return fail(res, 400, `Enter exactly ${cleanTypes[badNames].count} house names for ${cleanTypes[badNames].name}, separated by commas.`, "VALIDATION_ERROR");
+  const unitNames = new Set();
+  const units = cleanTypes.flatMap((item) => Array.from({ length: item.count }, (_, index) => {
+    const unitName = item.unitNames[index] || `${item.name} ${index + 1}`;
+    if (unitNames.has(unitName.toLowerCase())) return null;
+    unitNames.add(unitName.toLowerCase());
+    return { id: makeId("unit"), name: unitName, type: item.name, rent: item.rent, status: "vacant", tenantId: null };
+  }));
+  if (units.some((unit) => !unit)) return fail(res, 400, "Each house must have a unique name within this property.", "VALIDATION_ERROR");
   const property = {
     id: makeId("property"),
     name: String(name).trim(),
@@ -712,6 +731,7 @@ app.post("/api/properties", authenticate, allowRoles("landlord"), async (req, re
     type: String(type || "apartment").trim(),
     unitCount: totalUnits,
     ...(cleanTypes.length ? { houseTypes: cleanTypes } : {}),
+    units,
     ...(cleanPhotoUrl ? { photoUrl: cleanPhotoUrl } : {}),
     ownerId: req.user.id,
     createdAt: new Date().toISOString(),
@@ -735,9 +755,12 @@ app.patch("/api/properties/:propertyId", authenticate, allowRoles("landlord"), a
     name: String(item && typeof item === "object" ? item.name || "" : "").trim(),
     count: Number(item && typeof item === "object" ? item.count : NaN),
     rent: Number(item && typeof item === "object" ? item.rent : NaN),
+    unitNames: Array.isArray(item?.unitNames) ? item.unitNames.map((unitName) => String(unitName).trim()) : [],
   }));
   const invalidTypeIndex = cleanTypes.findIndex((item) => !item.name || !Number.isInteger(item.count) || item.count < 1 || item.count > 500 || !Number.isFinite(item.rent) || item.rent < 0);
   if (invalidTypeIndex >= 0) return fail(res, 400, `Complete house type ${invalidTypeIndex + 1} with a name, whole unit count from 1 to 500, and valid monthly rent.`, "VALIDATION_ERROR");
+  const badNames = cleanTypes.findIndex((item) => item.unitNames.length && (item.unitNames.length !== item.count || item.unitNames.some((unitName) => !unitName)));
+  if (badNames >= 0) return fail(res, 400, `Enter exactly ${cleanTypes[badNames].count} house names for ${cleanTypes[badNames].name}, separated by commas.`, "VALIDATION_ERROR");
   let cleanPhotoUrl;
   if (photoUrl) {
     const photo = String(photoUrl).trim();
@@ -754,7 +777,25 @@ app.patch("/api/properties/:propertyId", authenticate, allowRoles("landlord"), a
   property.name = String(name).trim();
   property.address = String(address).trim();
   property.type = String(type || property.type || "apartment").trim();
+  const existingUnits = Array.isArray(property.units) ? property.units : [];
+  const activeTenants = getStore().tenants.filter((tenant) => tenant.propertyId === property.id && tenant.status === "active");
+  const unitNames = new Set();
+  const updatedUnits = cleanTypes.flatMap((item) => Array.from({ length: item.count }, (_, index) => {
+    const name = item.unitNames[index] || `${item.name} ${index + 1}`;
+    if (unitNames.has(name.toLowerCase())) return null;
+    unitNames.add(name.toLowerCase());
+    const old = existingUnits.find((unit) => unit.name.toLowerCase() === name.toLowerCase()) || existingUnits.find((unit) => unit.type === item.name && unit.rent === item.rent && !unitNames.has(unit.name.toLowerCase()));
+    const tenant = activeTenants.find((entry) => entry.unitId === old?.id || entry.unit.toLowerCase() === name.toLowerCase());
+    return { id: old?.id || makeId("unit"), name, type: item.name, rent: item.rent, status: tenant ? "occupied" : "vacant", tenantId: tenant?.id || null };
+  }));
+  if (updatedUnits.some((unit) => !unit)) return fail(res, 400, "Each house must have a unique name within this property.", "VALIDATION_ERROR");
+  if (activeTenants.some((tenant) => !updatedUnits.some((unit) => unit.id === tenant.unitId || unit.name.toLowerCase() === tenant.unit.toLowerCase()))) return fail(res, 409, "A house assigned to a tenant cannot be removed or renamed. Reassign the tenant first.", "UNIT_OCCUPIED");
+  for (const tenant of activeTenants) {
+    const assignedUnit = updatedUnits.find((unit) => unit.id === tenant.unitId || unit.name.toLowerCase() === tenant.unit.toLowerCase());
+    if (assignedUnit) { tenant.unitId = assignedUnit.id; tenant.unit = assignedUnit.name; }
+  }
   property.houseTypes = cleanTypes;
+  property.units = updatedUnits;
   property.unitCount = cleanTypes.reduce((total, item) => total + item.count, 0);
   if (removePhoto) delete property.photoUrl;
   else if (cleanPhotoUrl) property.photoUrl = cleanPhotoUrl;
@@ -779,7 +820,7 @@ app.get("/api/tenants", authenticate, (req, res) => {
 });
 
 app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async (req, res) => {
-  const { name, email, phone, propertyId, unit, rent, occupiedSince } = req.body;
+  const { name, email, phone, propertyId, unit, unitId, rent, occupiedSince } = req.body;
   if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(phone || "").trim() || !String(unit || "").trim() || !positiveNumber(rent)) {
     return fail(res, 400, "Name, valid email, phone, unit, and positive rent are required.", "VALIDATION_ERROR");
   }
@@ -789,13 +830,17 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
   }
   if (!propertyOr404(res, propertyId)) return;
   if (!canAccessProperty(req.user, propertyId)) return fail(res, 403, "You cannot add tenants to this property.", "FORBIDDEN");
-  if (getStore().tenants.some((tenant) => tenant.propertyId === propertyId && tenant.unit.toLowerCase() === String(unit).trim().toLowerCase() && tenant.status === "active")) {
+  const property = getStore().properties.find((entry) => entry.id === propertyId);
+  const selectedUnit = property?.units?.find((entry) => entry.id === unitId && entry.status !== "occupied");
+  if (unitId && !selectedUnit) return fail(res, 409, "Choose a vacant house from this property.", "UNIT_UNAVAILABLE");
+  const assignedUnitName = selectedUnit?.name || String(unit).trim();
+  if (getStore().tenants.some((tenant) => tenant.propertyId === propertyId && tenant.status === "active" && (tenant.unitId === unitId || tenant.unit.toLowerCase() === assignedUnitName.toLowerCase()))) {
     return fail(res, 409, "That unit already has an active tenant.", "UNIT_OCCUPIED");
   }
   const tenant = {
     id: makeId("tenant"), name: String(name).trim(), email: normalizedEmail, phone: String(phone || "").trim(),
     paymentReference: `MC${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`,
-    propertyId, unit: String(unit).trim(), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active",
+    propertyId, unit: assignedUnitName, ...(selectedUnit ? { unitId: selectedUnit.id } : {}), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active",
   };
   const inviteToken = randomUUID();
   const invitation = {
@@ -803,6 +848,7 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
     tokenHash: createHash("sha256").update(inviteToken).digest("hex"), status: "pending", createdAt: new Date().toISOString(),
   };
   getStore().tenants.push(tenant);
+  if (selectedUnit) { selectedUnit.status = "occupied"; selectedUnit.tenantId = tenant.id; }
   getStore().tenantInvitations.push(invitation);
   addAuditEvent(req.user, "tenant.created", "tenant", tenant.id);
   await saveStore();

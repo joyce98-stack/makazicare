@@ -553,6 +553,14 @@ async function loadPageData(user) {
     const { items: ownedProperties } = await api("/api/properties");
     if (!ownedProperties.length) {
       renderEmptyWorkspace("Your workspace is ready", "Your tenants, payments, and property managers will appear here after you add your first property.");
+      const workspace = document.querySelector("main .container") || document.querySelector("main");
+      if (workspace) {
+        const paymentSetup = document.createElement("a");
+        paymentSetup.className = "btn btn-outline-earth mt-3 ms-2";
+        paymentSetup.href = "collections.html";
+        paymentSetup.innerHTML = '<i class="bi bi-credit-card me-1" aria-hidden="true"></i> Add payment details';
+        workspace.append(paymentSetup);
+      }
       return;
     }
   }
@@ -718,6 +726,9 @@ function renderLandlordDashboard(user, dashboard, properties) {
     const address = document.createElement("p");
     address.className = "property-address";
     address.textContent = property.address;
+    const houseNames = document.createElement("p");
+    houseNames.className = "small text-muted mb-3";
+    houseNames.textContent = property.units?.length ? `Houses: ${property.units.map((unit) => unit.name).join(", ")}` : "No houses listed yet";
     const units = document.createElement("div");
     units.className = "units";
     for (const [value, label] of [[property.unitCount, "Units"], [property.occupiedCount, "Occupied"], [Math.max(0, property.unitCount - property.occupiedCount), "Vacant"]]) {
@@ -734,7 +745,7 @@ function renderLandlordDashboard(user, dashboard, properties) {
     link.className = "card-link mt-auto";
     link.href = `apartments.html?edit=${encodeURIComponent(property.id)}#addModal`;
     link.innerHTML = 'Edit details <i class="bi bi-pencil" aria-hidden="true"></i>';
-    body.append(name, address, units, link);
+    body.append(name, address, houseNames, units, link);
     card.append(photo, body);
     propertyList.append(card);
   }
@@ -1190,7 +1201,7 @@ function renderProperties(properties) {
     body.append(heading, location);
     const table = document.createElement("table");
     table.className = "types";
-    table.innerHTML = "<thead><tr><th scope=\"col\">House type</th><th scope=\"col\" class=\"num\">Houses</th><th scope=\"col\" class=\"num\">Price / month</th></tr></thead>";
+    table.innerHTML = "<thead><tr><th scope=\"col\">House type</th><th scope=\"col\">House names</th><th scope=\"col\" class=\"num\">Houses</th><th scope=\"col\" class=\"num\">Price / month</th></tr></thead>";
     const tbody = document.createElement("tbody");
     const houseTypes = property.houseTypes?.length ? property.houseTypes : [{ name: property.type === "house" ? "House" : "Apartment unit", count: property.unitCount, rent: null }];
     for (const type of houseTypes) {
@@ -1198,13 +1209,15 @@ function renderProperties(properties) {
       const label = document.createElement("td");
       label.className = "type";
       label.textContent = type.name;
+      const names = document.createElement("td");
+      names.textContent = property.units?.filter((unit) => unit.type === type.name).map((unit) => unit.name).join(", ") || "Names not set";
       const count = document.createElement("td");
       count.className = "num";
       count.textContent = type.count;
       const rent = document.createElement("td");
       rent.className = "num price";
       rent.textContent = type.rent !== null && type.rent !== undefined && Number.isFinite(Number(type.rent)) ? currency.format(type.rent) : "Not set";
-      tr.append(label, count, rent);
+      tr.append(label, names, count, rent);
       tbody.append(tr);
     }
     const foot = document.createElement("tfoot");
@@ -1214,7 +1227,7 @@ function renderProperties(properties) {
     const totalCount = document.createElement("td");
     totalCount.className = "num";
     totalCount.textContent = property.unitCount;
-    totalRow.append(totalLabel, totalCount, document.createElement("td"));
+    totalRow.append(totalLabel, document.createElement("td"), totalCount, document.createElement("td"));
     foot.append(totalRow);
     table.append(tbody, foot);
     body.append(table);
@@ -1436,18 +1449,37 @@ function bindTenantCreateForm() {
   const records = recordPanel("Add tenant");
   const form = document.createElement("form");
   form.className = "d-flex flex-wrap gap-2 align-items-end";
-  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel" required></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>Unit <input class="form-control" name="unit" required></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required></label><button class="btn btn-sage" type="submit">Add tenant</button>';
+  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel" required></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>House <select class="form-select" name="unitId" required disabled><option value="">Choose a property first</option></select></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required readonly></label><button class="btn btn-sage" type="submit">Add tenant</button>';
   records.append(form);
+  let properties = [];
   api("/api/properties").then(({ items }) => {
+    properties = items;
     const select = form.elements.propertyId;
     select.add(new Option("Choose a property", ""));
     for (const property of items) select.add(new Option(property.name, property.id));
+    const unitPicker = form.elements.unitId;
+    select.addEventListener("change", () => {
+      const property = properties.find((entry) => entry.id === select.value);
+      const available = property?.units?.filter((unit) => unit.status !== "occupied") || [];
+      unitPicker.replaceChildren(new Option(available.length ? "Choose a house" : "No vacant houses", ""));
+      unitPicker.disabled = !available.length;
+      for (const unit of available) unitPicker.add(new Option(`${unit.name} · ${unit.type}`, unit.id));
+      form.elements.rent.value = "";
+    });
+    unitPicker.addEventListener("change", () => {
+      const property = properties.find((entry) => entry.id === select.value);
+      const unit = property?.units?.find((entry) => entry.id === unitPicker.value);
+      form.elements.rent.value = unit?.rent || "";
+    });
   }).catch((error) => showMessage(error.message, form));
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const values = Object.fromEntries(new FormData(form));
+    const property = properties.find((entry) => entry.id === values.propertyId);
+    const selectedUnit = property?.units?.find((entry) => entry.id === values.unitId);
+    if (!selectedUnit) { showMessage("Choose a vacant house before adding the tenant.", form); return; }
     try {
-      const result = await api("/api/tenants", { method: "POST", body: JSON.stringify({ ...values, rent: Number(values.rent) }) });
+      const result = await api("/api/tenants", { method: "POST", body: JSON.stringify({ ...values, unit: selectedUnit.name, rent: Number(values.rent) }) });
       const delivery = result.notifications;
       const statusText = delivery ? ` Email: ${delivery.email.status.replaceAll("_", " ")}; SMS: ${delivery.sms.status.replaceAll("_", " ")}.` : "";
       showMessage(`${result.item.name} was added.${statusText}`, form, "success");
@@ -1520,6 +1552,13 @@ function bindPropertyForm(properties = []) {
   const modalTitle = document.querySelector("#addTitle");
   const submitLabel = document.querySelector("#savePropertyButton span");
   const removePhotoWrap = document.querySelector("#removePhotoWrap");
+  for (const row of form.querySelectorAll(".type-row")) {
+    if (row.querySelector("[name='unit_names']")) continue;
+    const wrapper = document.createElement("div");
+    wrapper.className = "mt-2";
+    wrapper.innerHTML = '<label class="mini-label">House names <span class="text-muted">(optional; separate each name with a comma)</span></label><input class="form-control" name="unit_names" placeholder="e.g. A1, A2, A3">';
+    row.append(wrapper);
+  }
   if (editing) {
     form.dataset.propertyId = editing.id;
     if (modalTitle) modalTitle.textContent = "Edit property details";
@@ -1534,6 +1573,8 @@ function bindPropertyForm(properties = []) {
       row.querySelector("select").value = houseType.name;
       row.querySelector('input[type="number"]').value = houseType.count;
       row.querySelectorAll('input[type="number"]')[1].value = houseType.rent;
+      const names = houseType.unitNames?.length ? houseType.unitNames : editing.units?.filter((unit) => unit.type === houseType.name).map((unit) => unit.name);
+      row.querySelector('[name="unit_names"]').value = names?.join(", ") || "";
       if (index > 0) row.closest("details")?.setAttribute("open", "");
     }
     const photoUrl = document.querySelector("#aptPhotoUrl");
@@ -1556,6 +1597,7 @@ function bindPropertyForm(properties = []) {
         const name = row.querySelector("select")?.value.trim() || "";
         const countValue = row.querySelector('input[type="number"]')?.value.trim() || "";
         const rentValue = row.querySelectorAll('input[type="number"]')[1]?.value.trim() || "";
+        const unitNamesValue = row.querySelector('[name="unit_names"]')?.value.trim() || "";
         if (!name && !countValue && !rentValue) continue;
         if (!name || !countValue || !rentValue) {
           throw new Error(`Complete the house type, unit count, and monthly rent for type ${index + 1}, or leave that row blank.`);
@@ -1568,7 +1610,9 @@ function bindPropertyForm(properties = []) {
         if (!Number.isFinite(rent) || rent < 0) {
           throw new Error(`Enter a valid monthly rent for house type ${index + 1}.`);
         }
-        houseTypes.push({ name, count, rent });
+        const unitNames = unitNamesValue ? unitNamesValue.split(",").map((unitName) => unitName.trim()).filter(Boolean) : [];
+        if (unitNames.length && unitNames.length !== count) throw new Error(`Enter exactly ${count} house names for ${name}, separated by commas.`);
+        houseTypes.push({ name, count, rent, unitNames });
       }
       if (!houseTypes.length) throw new Error("Add at least one house type, with its unit count and monthly rent.");
       const preservedTypes = editing?.houseTypes?.slice(3) || [];
