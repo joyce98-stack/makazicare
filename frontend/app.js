@@ -650,7 +650,7 @@ function bindTenantCreateForm() {
   const records = recordPanel("Add tenant");
   const form = document.createElement("form");
   form.className = "d-flex flex-wrap gap-2 align-items-end";
-  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel"></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>Unit <input class="form-control" name="unit" required></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required></label><button class="btn btn-sage" type="submit">Add tenant</button>';
+  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel" required></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>Unit <input class="form-control" name="unit" required></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required></label><button class="btn btn-sage" type="submit">Add tenant</button>';
   records.append(form);
   api("/api/properties").then(({ items }) => {
     const select = form.elements.propertyId;
@@ -662,7 +662,9 @@ function bindTenantCreateForm() {
     const values = Object.fromEntries(new FormData(form));
     try {
       const result = await api("/api/tenants", { method: "POST", body: JSON.stringify({ ...values, rent: Number(values.rent) }) });
-      showMessage(`${result.item.name} was added.`, form, "success");
+      const delivery = result.notifications;
+      const statusText = delivery ? ` Email: ${delivery.email.status.replaceAll("_", " ")}; SMS: ${delivery.sms.status.replaceAll("_", " ")}.` : "";
+      showMessage(`${result.item.name} was added.${statusText}`, form, "success");
       const notice = form.querySelector(":scope > .app-message");
       const inviteLink = document.createElement("a"); 
       inviteLink.href = result.acceptanceUrl;
@@ -685,9 +687,11 @@ function bindManagerInvite() {
       const result = await api("/api/managers/invitations", { method: "POST", body: JSON.stringify({
         name: document.querySelector("#mgrName").value,
         email: document.querySelector("#mgrEmail").value,
+        phone: document.querySelector("#mgrPhone").value,
         propertyIds,
       }) });
-      showMessage("Invitation created. Share this one-time setup link with the manager: ", form, "success");
+      const delivery = result.notifications;
+      showMessage(`Invitation created. Email: ${delivery.email.status.replaceAll("_", " ")}; SMS: ${delivery.sms.status.replaceAll("_", " ")}. Setup link: `, form, "success");
       const message = form.querySelector(":scope > .app-message");
       const link = document.createElement("a");
       link.href = result.acceptanceUrl;

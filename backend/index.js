@@ -8,6 +8,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getStore, initializeStore, saveStore } from "./store.js";
+import { sendOnboardingNotifications } from "./notifications.js";
 
 const port = Number(process.env.PORT || 3001);
 const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../frontend");
@@ -689,8 +690,8 @@ app.get("/api/tenants", authenticate, (req, res) => {
 
 app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async (req, res) => {
   const { name, email, phone, propertyId, unit, rent, occupiedSince } = req.body;
-  if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(unit || "").trim() || !positiveNumber(rent)) {
-    return fail(res, 400, "Name, valid email, unit, and positive rent are required.", "VALIDATION_ERROR");
+  if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(phone || "").trim() || !String(unit || "").trim() || !positiveNumber(rent)) {
+    return fail(res, 400, "Name, valid email, phone, unit, and positive rent are required.", "VALIDATION_ERROR");
   }
   const normalizedEmail = cleanEmail(email);
   if (getStore().users.some((user) => user.email === normalizedEmail) || getStore().tenantInvitations.some((invite) => invite.email === normalizedEmail && invite.status === "pending")) {
@@ -715,7 +716,13 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
   getStore().tenantInvitations.push(invitation);
   addAuditEvent(req.user, "tenant.created", "tenant", tenant.id);
   await saveStore();
-  res.status(201).json({ item: tenant, acceptanceUrl: `${getFrontendOrigin(req)}/tenant-accept.html?token=${encodeURIComponent(inviteToken)}` });
+  const acceptanceUrl = `${getFrontendOrigin(req)}/tenant-accept.html?token=${encodeURIComponent(inviteToken)}`;
+  invitation.notifications = await sendOnboardingNotifications({
+    name: tenant.name, email: tenant.email, phone: tenant.phone, role: "tenant",
+    details: `Property: ${getStore().properties.find((property) => property.id === propertyId)?.name || ""}; unit: ${tenant.unit}; monthly rent: KES ${tenant.rent}.`, acceptanceUrl,
+  });
+  await saveStore();
+  res.status(201).json({ item: tenant, acceptanceUrl, notifications: invitation.notifications });
 });
 
 app.post("/api/tenants/accept", async (req, res) => {
@@ -1089,10 +1096,10 @@ app.post("/api/managers/accept", async (req, res) => {
 });
 
 app.post("/api/managers/invitations", authenticate, allowRoles("landlord"), async (req, res) => {
-  const { name, email, propertyIds } = req.body;
+  const { name, email, phone, propertyIds } = req.body;
   const normalizedEmail = cleanEmail(email);
-  if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(normalizedEmail) || !Array.isArray(propertyIds) || propertyIds.length === 0) {
-    return fail(res, 400, "Name, valid email, and at least one property are required.", "VALIDATION_ERROR");
+  if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(normalizedEmail) || !String(phone || "").trim() || !Array.isArray(propertyIds) || propertyIds.length === 0) {
+    return fail(res, 400, "Name, valid email, phone, and at least one property are required.", "VALIDATION_ERROR");
   }
   if (getStore().users.some((user) => user.email === normalizedEmail) || getStore().managerInvitations.some((invite) => invite.email === normalizedEmail && invite.status === "pending")) {
     return fail(res, 409, "An account or pending invite already uses this email.", "EMAIL_IN_USE");
@@ -1101,15 +1108,22 @@ app.post("/api/managers/invitations", authenticate, allowRoles("landlord"), asyn
   if (propertyIds.some((id) => !visible.has(id))) return fail(res, 403, "You can only assign properties you own.", "FORBIDDEN");
   const token = randomUUID();
   const invitation = {
-    id: makeId("invite"), name: String(name).trim(), email: normalizedEmail,
+    id: makeId("invite"), name: String(name).trim(), email: normalizedEmail, phone: String(phone || "").trim(),
     propertyIds: [...new Set(propertyIds)], tokenHash: createHash("sha256").update(token).digest("hex"),
     status: "pending", invitedBy: req.user.id, createdAt: new Date().toISOString(),
   };
   getStore().managerInvitations.push(invitation);
   addAuditEvent(req.user, "manager.invited", "manager_invitation", invitation.id);
   await saveStore();
+  const acceptanceUrl = `${getFrontendOrigin(req)}/manager-accept.html?token=${encodeURIComponent(token)}`;
+  const propertyNames = invitation.propertyIds.map((id) => getStore().properties.find((property) => property.id === id)?.name).filter(Boolean);
+  invitation.notifications = await sendOnboardingNotifications({
+    name: invitation.name, email: invitation.email, phone: invitation.phone, role: "manager",
+    details: `Assigned properties: ${propertyNames.join(", ") || "none"}.`, acceptanceUrl,
+  });
+  await saveStore();
   const { tokenHash: _tokenHash, ...publicInvitation } = invitation;
-  res.status(201).json({ item: publicInvitation, acceptanceUrl: `${getFrontendOrigin(req)}/manager-accept.html?token=${encodeURIComponent(token)}` });
+  res.status(201).json({ item: publicInvitation, acceptanceUrl, notifications: invitation.notifications });
 });
 
 app.get("/api/audit", authenticate, allowRoles("landlord"), (req, res) => {
