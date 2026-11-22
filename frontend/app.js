@@ -233,6 +233,70 @@ async function initLogin() {
   });
 }
 
+async function initForgotPassword() {
+  const form = document.querySelector("#forgotPasswordForm");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('[type="submit"]');
+    if (button) button.disabled = true;
+    try {
+      const result = await api("/api/auth/password-reset/request", {
+        method: "POST",
+        body: JSON.stringify({ email: document.querySelector("#resetEmail").value.trim() }),
+      });
+      showMessage(result.message, form, "success");
+      if (result.resetUrl) {
+        const message = form.querySelector(":scope > .app-message");
+        const link = document.createElement("a");
+        link.href = result.resetUrl;
+        link.textContent = "Open the password reset link";
+        link.className = "d-inline-block mt-2";
+        message.append(document.createElement("br"), link);
+      }
+    } catch (error) {
+      showMessage(error.message, form);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  });
+}
+
+async function initPasswordReset() {
+  const form = document.querySelector("#passwordResetForm");
+  if (!form) return;
+  const token = new URLSearchParams(location.search).get("token") || "";
+  if (!token) {
+    showMessage("This reset link is missing or invalid. Request a new password reset link.", form);
+    form.querySelector('[type="submit"]')?.setAttribute("disabled", "disabled");
+    return;
+  }
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = document.querySelector("#newPassword").value;
+    const confirmation = document.querySelector("#confirmPassword").value;
+    if (password !== confirmation) return showMessage("The passwords do not match.", form);
+    const button = form.querySelector('[type="submit"]');
+    if (button) button.disabled = true;
+    try {
+      const result = await api("/api/auth/password-reset/complete", {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+      });
+      showMessage(result.message, form, "success");
+      const link = document.createElement("a");
+      link.href = "authpage.html";
+      link.textContent = "Return to sign in";
+      link.className = "d-inline-block mt-2";
+      form.querySelector(":scope > .app-message").append(document.createElement("br"), link);
+      form.querySelectorAll("input, button").forEach((input) => { input.disabled = true; });
+    } catch (error) {
+      showMessage(error.message, form);
+      if (button) button.disabled = false;
+    }
+  });
+}
+
 async function initLandlordRegistration() {
   const form = page === "landlord-register" ? document.querySelector("#landlordRegisterForm") : null;
   if (!form) return;
@@ -1830,6 +1894,8 @@ async function boot() {
     });
   });
   await initLogin();
+  await initForgotPassword();
+  await initPasswordReset();
   await initLandlordRegistration();
   bindManagerAccountForm();
   await initAdminRegistration();

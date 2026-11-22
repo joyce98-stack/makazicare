@@ -50,3 +50,11 @@ export async function sendOnboardingNotifications({ name, email, phone, role, de
   });
   return { email: emailResult, sms: smsResult };
 }
+
+export async function sendPasswordResetEmail({ name, email, resetUrl }) {
+  return sendEmail({
+    to: email,
+    subject: "Reset your Makazi Care password",
+    text: `Hello ${name},\n\nUse this one-time link to reset your Makazi Care password. It expires in 1 hour.\n\n${resetUrl}\n\nIf you did not request this reset, you can ignore this email.`,
+  });
+}

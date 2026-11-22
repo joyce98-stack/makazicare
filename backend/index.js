@@ -8,7 +8,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { databaseHealth, getStore, initializeStore, saveStore } from "./store.js";
-import { sendOnboardingNotifications } from "./notifications.js";
+import { sendOnboardingNotifications, sendPasswordResetEmail } from "./notifications.js";
 
 const port = Number(process.env.PORT || 3001);
 const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../frontend");
@@ -63,7 +63,7 @@ const fail = (res, status, message, code) => res.status(status).json({ error: me
 const cleanEmail = (email) => String(email || "").trim().toLowerCase();
 const safeUser = (user) => {
   if (!user) return null;
-  const { passwordHash, collectionSettings, ...publicUser } = user;
+  const { passwordHash, collectionSettings, sessionVersion, ...publicUser } = user;
   return publicUser;
 };
 const makeId = (prefix) => `${prefix}-${randomUUID()}`;
@@ -74,6 +74,26 @@ const isDate = (value) => {
   return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
 };
 const positiveNumber = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
+const passwordResetAttempts = new Map();
+const passwordResetMessage = "If an account uses that email, password reset instructions will be sent.";
+
+function canRequestPasswordReset(req) {
+  const now = Date.now();
+  const key = req.ip || req.socket.remoteAddress || "unknown";
+  const recent = (passwordResetAttempts.get(key) || []).filter((timestamp) => now - timestamp < 15 * 60 * 1000);
+  if (recent.length >= 5) {
+    passwordResetAttempts.set(key, recent);
+    return false;
+  }
+  recent.push(now);
+  passwordResetAttempts.set(key, recent);
+  if (passwordResetAttempts.size > 5000) {
+    for (const [address, timestamps] of passwordResetAttempts) {
+      if (!timestamps.some((timestamp) => now - timestamp < 15 * 60 * 1000)) passwordResetAttempts.delete(address);
+    }
+  }
+  return true;
+}
 
 function getFrontendOrigin(req) {
   const configured = process.env.FRONTEND_ORIGIN?.trim();
@@ -126,6 +146,7 @@ function authenticate(req, res, next) {
     const payload = jwt.verify(token, jwtSecret);
     const user = getStore().users.find((entry) => entry.id === payload.sub);
     if (!user) return fail(res, 401, "This account is no longer available.", "UNAUTHENTICATED");
+    if ((payload.sessionVersion || 0) !== (user.sessionVersion || 0)) return fail(res, 401, "Your sign-in has expired. Please sign in again.", "UNAUTHENTICATED");
     req.user = user;
     return next();
   } catch {
@@ -554,6 +575,65 @@ app.post("/api/admin/users", authenticate, allowRoles("admin"), async (req, res)
   res.status(201).json({ user: safeUser(user) });
 });
 
+app.post("/api/auth/password-reset/request", async (req, res) => {
+  if (isProduction && (!process.env.RESEND_API_KEY?.trim() || !process.env.EMAIL_FROM?.trim())) {
+    return fail(res, 503, "Password recovery email is not configured. Contact the system administrator.", "PASSWORD_RESET_UNAVAILABLE");
+  }
+  if (!canRequestPasswordReset(req)) {
+    res.set("Retry-After", "900");
+    return fail(res, 429, "Too many reset requests. Please try again later.", "RATE_LIMITED");
+  }
+  const email = cleanEmail(req.body.email);
+  if (!/^\S+@\S+\.\S+$/.test(email)) return fail(res, 400, "Enter a valid email address.", "VALIDATION_ERROR");
+  const user = getStore().users.find((entry) => cleanEmail(entry.email) === email);
+  if (!user) return res.status(202).json({ message: passwordResetMessage });
+
+  const token = randomBytes(32).toString("base64url");
+  const now = new Date();
+  const reset = {
+    id: makeId("password_reset"),
+    userId: user.id,
+    tokenHash: createHash("sha256").update(token).digest("hex"),
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+    usedAt: null,
+  };
+  getStore().passwordResets = (getStore().passwordResets || []).filter((entry) => entry.userId !== user.id || entry.usedAt);
+  getStore().passwordResets.push(reset);
+  await saveStore();
+
+  const resetUrl = `${getFrontendOrigin(req)}/password-reset.html?token=${encodeURIComponent(token)}`;
+  const delivery = await sendPasswordResetEmail({ name: user.name, email: user.email, resetUrl });
+  if (delivery.status === "failed") console.error(`Password reset email failed: ${delivery.reason}`);
+  const response = { message: passwordResetMessage };
+  if (!isProduction) response.resetUrl = resetUrl;
+  return res.status(202).json(response);
+});
+
+app.post("/api/auth/password-reset/complete", async (req, res) => {
+  const token = String(req.body.token || "").trim();
+  const password = String(req.body.password || "");
+  if (password.length < 12 || password.length > 128) {
+    return fail(res, 400, "Your new password must be between 12 and 128 characters.", "VALIDATION_ERROR");
+  }
+  if (!token) return fail(res, 400, "This reset link is invalid or has expired. Request a new one.", "INVALID_RESET_TOKEN");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const now = new Date();
+  const reset = getStore().passwordResets.find((entry) => entry.tokenHash === tokenHash && !entry.usedAt && Date.parse(entry.expiresAt) > now.getTime());
+  const user = reset && getStore().users.find((entry) => entry.id === reset.userId);
+  if (!reset || !user) return fail(res, 400, "This reset link is invalid or has expired. Request a new one.", "INVALID_RESET_TOKEN");
+
+  user.passwordHash = await bcrypt.hash(password, 12);
+  user.sessionVersion = (user.sessionVersion || 0) + 1;
+  reset.usedAt = now.toISOString();
+  for (const entry of getStore().passwordResets) {
+    if (entry.userId === user.id && entry.id !== reset.id && !entry.usedAt) entry.usedAt = now.toISOString();
+  }
+  addAuditEvent(user, "auth.password_reset", "user", user.id);
+  await saveStore();
+  return res.json({ ok: true, message: "Your password has been reset. Sign in with your new password." });
+});
+
 app.post("/api/auth/login", async (req, res) => {
   const email = cleanEmail(req.body.email);
   const password = String(req.body.password || "");
@@ -563,7 +643,7 @@ app.post("/api/auth/login", async (req, res) => {
 
   if (!user || !passwordIsValid || user.role !== requestedRole) return loginError(req, res);
 
-  const token = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, { expiresIn: tokenLifetimeSeconds });
+  const token = jwt.sign({ sub: user.id, role: user.role, sessionVersion: user.sessionVersion || 0 }, jwtSecret, { expiresIn: tokenLifetimeSeconds });
   res.cookie(sessionCookie, token, {
     httpOnly: true,
     sameSite: "lax",

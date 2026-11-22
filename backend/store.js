@@ -12,7 +12,7 @@ const legacySqlitePath = path.resolve(process.env.MAKAZI_CARE_SQLITE_FILE || pat
 const legacyJsonPath = path.resolve(process.env.MAKAZI_CARE_LEGACY_DATA_FILE || path.join(here, "data.json"));
 const collectionNames = [
   "users", "properties", "tenants", "payments", "maintenanceRequests", "extensionRequests",
-  "relocationRequests", "managers", "managerInvitations", "tenantInvitations", "collectionTransactions", "auditEvents",
+  "relocationRequests", "managers", "managerInvitations", "tenantInvitations", "collectionTransactions", "auditEvents", "passwordResets",
 ];
 let mongoClient;
 let mongoDatabase;
@@ -55,7 +55,8 @@ function loadSqliteState() {
   try {
     const result = { version: Number(oldDatabase.prepare("SELECT value FROM app_metadata WHERE key = 'version'").get()?.value || 1) };
     for (const name of collectionNames) {
-      result[name] = oldDatabase.prepare(`SELECT data FROM ${name} ORDER BY rowid`).all().map((row) => JSON.parse(row.data));
+      const table = oldDatabase.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(name);
+      result[name] = table ? oldDatabase.prepare(`SELECT data FROM ${name} ORDER BY rowid`).all().map((row) => JSON.parse(row.data)) : [];
     }
     return result;
   } finally {
