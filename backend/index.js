@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getStore, initializeStore, saveStore } from "./store.js";
+import { databaseHealth, getStore, initializeStore, saveStore } from "./store.js";
 import { sendOnboardingNotifications } from "./notifications.js";
 
 const port = Number(process.env.PORT || 3001);
@@ -100,7 +100,7 @@ function loginError(req, res, status = 401) {
   if (wantsHtmlRedirect(req)) {
     return res.redirect(303, `${getFrontendOrigin(req)}/authpage.html#loginError`);
   }
-  return fail(res, status, "Email, password, or selected portal is incorrect.", "INVALID_CREDENTIALS");
+  return fail(res, status, "Email or password is incorrect.", "INVALID_CREDENTIALS");
 }
 
 function readCookie(req, cookieName) {
@@ -345,8 +345,9 @@ function applyCollectionTransaction(transaction, landlord) {
   }
 }
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "makazi-care-api", timestamp: new Date().toISOString() });
+app.get("/api/health", async (_req, res) => {
+  const database = await databaseHealth();
+  res.status(database.connected ? 200 : 503).json({ status: database.connected ? "ok" : "unavailable", service: "makazi-care-api", database, timestamp: new Date().toISOString() });
 });
 
 app.get("/api/integrations/collections", authenticate, allowRoles("landlord"), (req, res) => {
@@ -557,7 +558,7 @@ app.post("/api/auth/login", async (req, res) => {
   const email = cleanEmail(req.body.email);
   const password = String(req.body.password || "");
   const requestedRole = String(req.body.role || "");
-  const user = getStore().users.find((entry) => entry.email === email);
+  const user = getStore().users.find((entry) => cleanEmail(entry.email) === email);
   const passwordIsValid = user ? await bcrypt.compare(password, user.passwordHash) : false;
 
   if (!user || !passwordIsValid || user.role !== requestedRole) return loginError(req, res);

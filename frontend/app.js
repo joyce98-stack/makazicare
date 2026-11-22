@@ -106,11 +106,13 @@ function renderRoleNavigation(user) {
       ["Register admin", "adminhomepage.html#registerAdmin", ["adminhomepage"]],
     ],
   };
-  let list = collapse.querySelector("ul.navbar-nav");
+  const existingLists = [...collapse.querySelectorAll("ul.navbar-nav")];
+  let list = existingLists[0];
   if (!list) {
     list = document.createElement("ul");
     collapse.prepend(list);
   }
+  for (const duplicateList of existingLists.slice(1)) duplicateList.remove();
   list.className = "navbar-nav me-auto gap-lg-1";
   list.replaceChildren();
   for (const [label, href] of linksByRole[user.role] || []) {
@@ -194,6 +196,7 @@ function renderEmptyWorkspace(title, description, actionLabel = "Set up your fir
 async function initLogin() {
   const form = document.querySelector("#loginForm");
   if (!form) return;
+  if (location.hash === "#loginError") showMessage("We couldn’t sign you in. Check your email and password, then try again.", form);
   const requestedReturn = new URLSearchParams(location.search).get("return") || "";
   const returnMatch = requestedReturn.match(/^([\w-]+\.html)(#[\w-]+)?$/);
   const returnPage = returnMatch?.[1].replace(/\.html$/, "");
@@ -215,7 +218,7 @@ async function initLogin() {
       const result = await api("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({
-          email: document.querySelector("#email").value,
+          email: document.querySelector("#email").value.trim(),
           password: document.querySelector("#password").value,
           role: form.querySelector('[name="role"]:checked')?.value,
         }),
@@ -1249,11 +1252,12 @@ function renderManagerMarketplace(assignments, directory, properties) {
 function renderProperties(properties) {
   const list = document.querySelector(".apartments");
   if (!list) return;
+  list.setAttribute("aria-busy", "false");
   list.replaceChildren();
   if (!properties.length) {
     const empty = document.createElement("p");
     empty.className = "app-data-panel";
-    empty.textContent = "No properties yet. Add your first property and its home types, unit counts, and rents.";
+    empty.textContent = "No apartments are linked to this landlord account. If you expected existing details, sign in with the landlord account that owns them, or add a property for this account.";
     list.append(empty);
     return;
   }
@@ -1713,6 +1717,7 @@ function bindPropertyForm(properties = []) {
       const photoUrl = uploadedPhoto || document.querySelector("#aptPhotoUrl")?.value.trim();
       if (photoUrl) payload.photoUrl = photoUrl;
       if (editing && !photoUrl && document.querySelector("#removePropertyPhoto")?.checked) payload.removePhoto = true;
+      const wasEditing = Boolean(editing);
       const result = await api(editing ? `/api/properties/${encodeURIComponent(editing.id)}` : "/api/properties", {
         method: editing ? "PATCH" : "POST",
         body: JSON.stringify(payload),
@@ -1727,7 +1732,7 @@ function bindPropertyForm(properties = []) {
       if (removePhotoWrap) removePhotoWrap.hidden = true;
       history.replaceState(history.state, "", "apartments.html");
       window.bootstrap?.Modal.getOrCreateInstance(document.querySelector("#addModal"))?.hide();
-      showMessage(editing ? `${result.item.name} details updated.` : `${result.item.name} was added.`, document.querySelector("main"), "success");
+      showMessage(wasEditing ? `${result.item.name} details updated.` : `${result.item.name} was added.`, document.querySelector("main"), "success");
     } catch (error) { showMessage(error.message, form); }
     finally { if (submit) submit.disabled = false; }
   });
@@ -1854,6 +1859,11 @@ async function boot() {
   catch (error) {
     document.querySelector("#adminStats")?.setAttribute("aria-busy", "false");
     document.querySelector("#adminLandlordRecords")?.setAttribute("aria-busy", "false");
+    if (page === "apartments") {
+      const properties = document.querySelector(".apartments");
+      properties?.setAttribute("aria-busy", "false");
+      properties?.replaceChildren();
+    }
     const main = document.querySelector("main");
     if (["tenantslist", "tenanthomepage", "landlordhomepage"].includes(page)) main?.removeAttribute("hidden");
     showMessage(error.message, main);

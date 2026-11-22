@@ -72,66 +72,8 @@
       </div>
 
       <!-- List -->
-      <div class="apartments">
-
-        <!-- J.Crown Apartments -->
-        <article class="apt" aria-labelledby="apt1">
-          <div class="apt-photo">
-            <img src="https://images.pexels.com/photos/34270526/pexels-photo-34270526.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=700&w=900"
-                 alt="J.Crown Apartments building facade" />
-          </div>
-          <div class="apt-body">
-            <h2 class="apt-name" id="apt1">J.Crown <em>Apartments</em></h2>
-            <p class="apt-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i> Gachie, Kiambu</p>
-            <table class="types">
-              <thead>
-                <tr><th scope="col">House type</th><th scope="col" class="num">Houses</th><th scope="col" class="num">Price / month</th></tr>
-              </thead>
-              <tbody>
-                <tr><td class="type">Studio</td><td class="num">4</td><td class="num price">11,000 KES</td></tr>
-                <tr><td class="type">1 Bedroom</td><td class="num">6</td><td class="num price">12,000 KES</td></tr>
-                <tr><td class="type">2 Bedroom</td><td class="num">2</td><td class="num price">14,000 KES</td></tr>
-              </tbody>
-              <tfoot>
-                <tr><td>Total</td><td class="num">12</td><td></td></tr>
-              </tfoot>
-            </table>
-          </div>
-        </article>
-
-        <!-- Casa Verde Homes -->
-        <article class="apt" aria-labelledby="apt2">
-          <div class="apt-photo">
-            <img src="https://images.pexels.com/photos/19920830/pexels-photo-19920830.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=700&w=900"
-                 alt="Casa Verde Homes exterior among autumn trees" />
-          </div>
-          <div class="apt-body">
-            <h2 class="apt-name" id="apt2">Casa Verde <em>Homes</em></h2>
-            <p class="apt-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i> Gachie,Kiambu</p>
-            <table class="types">
-              <thead>
-                <tr><th scope="col">House type</th><th scope="col" class="num">Houses</th><th scope="col" class="num">Price / month</th></tr>
-              </thead>
-              <tbody>
-                <tr><td class="type">2-Bedroom House</td><td class="num">2</td><td class="num price">14,000 KES</td></tr>
-                <tr><td class="type">3-Bedroom House</td><td class="num">2</td><td class="num price">15,000 KES</td></tr>
-              </tbody>
-              <tfoot>
-                <tr><td>Total</td><td class="num">4</td><td></td></tr>
-              </tfoot>
-            </table>
-          </div>
-        </article>
-
-        <!-- Add another -->
-        <button class="add-card" type="button" data-bs-toggle="modal" data-bs-target="#addModal">
-          <span class="add-icon"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
-          <span>
-            <b>Add another apartment</b>
-            <small>Name it, then list its house types and prices</small>
-          </span>
-        </button>
-
+      <div class="apartments" aria-live="polite" aria-busy="true">
+        <p class="app-data-panel" role="status">Loading apartments…</p>
       </div>
     </div>
   </main>

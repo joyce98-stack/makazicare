@@ -3,3 +3,6 @@ dist/
 .env
 backend/data.json
 backend/data.json.tmp
+backend/makazi-care.sqlite
+backend/makazi-care.sqlite-shm
+backend/makazi-care.sqlite-wal
