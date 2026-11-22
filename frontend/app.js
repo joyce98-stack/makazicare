@@ -603,6 +603,24 @@ async function loadRelocations(canManage) {
 }
 
 async function loadPageData(user) {
+  if (user.role === "manager" && page !== "manager-profile") {
+    const { items: assignedProperties } = await api("/api/properties");
+    if (!assignedProperties.length) {
+      renderEmptyWorkspace("Your manager workspace is ready", "There is no property or tenant data to show yet. Your assigned properties and activity will appear here when they are added.", "Manage my listing", "manager-profile.html");
+      return;
+    }
+  }
+  if (user.role === "tenant" && page !== "tenanthomepage") {
+    const [payments, maintenance, extensions, relocations] = await Promise.all([
+      api("/api/payments"), api("/api/maintenance"), api("/api/extensions"), api("/api/relocations"),
+    ]);
+    const hasActivity = [payments, maintenance, extensions, relocations]
+      .some((result) => Array.isArray(result.items) && result.items.length > 0);
+    if (!hasActivity) {
+      renderEmptyWorkspace("Nothing here yet", "This page will show your records and activity when they are added to your account.", "Back to my home", "tenanthomepage.html");
+      return;
+    }
+  }
   if (page === "propertymanager" && user.role === "manager") {
     const [dashboard, properties] = await Promise.all([api("/api/dashboard"), api("/api/properties")]);
     renderManagerWorkspace(user, dashboard, properties.items);
@@ -635,6 +653,8 @@ async function loadPageData(user) {
       const tenantName = document.querySelector("#tenantFullName");
       const unit = document.querySelector("#tenantUnit");
       const rent = document.querySelector("#tenantRent");
+      const leaseDate = document.querySelector("#tenantLeaseDate");
+      const propertyManager = document.querySelector("#tenantPropertyManager");
       const unitTag = document.querySelector("#tenantUnitTag");
       const propertyPhoto = document.querySelector("#tenantPropertyPhoto");
       if (propertyName) propertyName.textContent = data.property?.name || "Your home";
@@ -647,6 +667,10 @@ async function loadPageData(user) {
       if (tenantName) tenantName.textContent = data.tenant.name;
       if (unit) unit.textContent = data.tenant.unit || "—";
       if (rent) rent.textContent = currency.format(data.tenant.rent);
+      if (leaseDate) leaseDate.textContent = data.tenant.occupiedSince
+        ? new Date(`${data.tenant.occupiedSince}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+        : "Not set";
+      if (propertyManager) propertyManager.textContent = data.propertyManager?.name || "Not assigned";
       if (unitTag) unitTag.lastChild.textContent = ` Unit: ${data.tenant.unit || "—"}`;
       if (propertyPhoto) {
         if (data.property?.photoUrl) propertyPhoto.src = data.property.photoUrl;
@@ -667,8 +691,8 @@ async function loadPageData(user) {
       const dueNote = document.querySelector("#tenantDueNote");
       if (dueDate) dueDate.textContent = data.nextPayment?.dueDate
         ? new Date(`${data.nextPayment.dueDate}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "long" })
-        : "Not set";
-      if (dueNote) dueNote.textContent = data.nextPayment ? `Payment status: ${data.nextPayment.status}` : "No rent charge yet";
+        : data.tenant.rentDueDay ? `${data.tenant.rentDueDay}${({1:"st",2:"nd",3:"rd"}[data.tenant.rentDueDay] || "th")} of each month` : "Not set";
+      if (dueNote) dueNote.textContent = data.nextPayment ? `Payment status: ${data.nextPayment.status}` : "Monthly rent due date";
       const mpesaText = document.querySelector("#tenantMpesaDetails");
       if (mpesaText && data.paymentDetails?.mpesaShortCode) mpesaText.textContent = `PayBill: ${data.paymentDetails.mpesaShortCode} · Account: ${data.paymentDetails.paymentReference}`;
       else if (mpesaText) mpesaText.textContent = "PayBill details are not set up yet.";
@@ -1508,7 +1532,7 @@ function bindTenantCreateForm() {
   const records = recordPanel("Add tenant");
   const form = document.createElement("form");
   form.className = "d-flex flex-wrap gap-2 align-items-end";
-  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel" required></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>House <select class="form-select" name="unitId" required disabled><option value="">Choose a property first</option></select></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required readonly></label><button class="btn btn-sage" type="submit">Add tenant</button>';
+  form.innerHTML = '<label>Name <input class="form-control" name="name" required></label><label>Email <input class="form-control" name="email" type="email" required></label><label>Phone <input class="form-control" name="phone" type="tel" required></label><label>Property <select class="form-select" name="propertyId" required></select></label><label>House number <select class="form-select" name="unitId" required disabled><option value="">Choose a property first</option></select></label><label>Monthly rent (KES) <input class="form-control" name="rent" type="number" min="1" step="1" required readonly></label><label>Lease start date <input class="form-control" name="occupiedSince" type="date" required></label><label>Rent due day <input class="form-control" name="rentDueDay" type="number" min="1" max="28" value="1" required></label><button class="btn btn-sage" type="submit">Add tenant</button>';
   records.append(form);
   let properties = [];
   api("/api/properties").then(({ items }) => {

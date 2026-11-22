@@ -598,6 +598,11 @@ app.get("/api/dashboard", authenticate, (req, res) => {
       user: safeUser(req.user),
       tenant,
       property: db.properties.find((property) => property.id === tenant.propertyId),
+      propertyManager: (() => {
+        const assignment = db.managers.find((entry) => entry.status === "active" && entry.propertyIds.includes(tenant.propertyId));
+        const manager = assignment && db.users.find((entry) => entry.id === assignment.userId);
+        return manager ? { id: manager.id, name: manager.name, email: manager.email } : null;
+      })(),
       paymentDetails: (() => {
         const property = db.properties.find((entry) => entry.id === tenant.propertyId);
         const owner = db.users.find((entry) => entry.id === property?.ownerId);
@@ -820,7 +825,7 @@ app.get("/api/tenants", authenticate, (req, res) => {
 });
 
 app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async (req, res) => {
-  const { name, email, phone, propertyId, unit, unitId, rent, occupiedSince } = req.body;
+  const { name, email, phone, propertyId, unit, unitId, rent, occupiedSince, rentDueDay } = req.body;
   if (!String(name || "").trim() || !/^\S+@\S+\.\S+$/.test(String(email || "")) || !String(phone || "").trim() || !String(unit || "").trim() || !positiveNumber(rent)) {
     return fail(res, 400, "Name, valid email, phone, unit, and positive rent are required.", "VALIDATION_ERROR");
   }
@@ -840,7 +845,7 @@ app.post("/api/tenants", authenticate, allowRoles("landlord", "manager"), async 
   const tenant = {
     id: makeId("tenant"), name: String(name).trim(), email: normalizedEmail, phone: String(phone || "").trim(),
     paymentReference: `MC${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`,
-    propertyId, unit: assignedUnitName, ...(selectedUnit ? { unitId: selectedUnit.id } : {}), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), status: "active",
+    propertyId, unit: assignedUnitName, ...(selectedUnit ? { unitId: selectedUnit.id } : {}), rent: Number(rent), occupiedSince: isDate(occupiedSince) ? occupiedSince : new Date().toISOString().slice(0, 10), rentDueDay: Number.isInteger(Number(rentDueDay)) && Number(rentDueDay) >= 1 && Number(rentDueDay) <= 28 ? Number(rentDueDay) : 1, status: "active",
   };
   const inviteToken = randomUUID();
   const invitation = {
