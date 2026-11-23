@@ -4186,6 +4186,98 @@
       .role-card { transition: none; }
     }
 
+/* ---------- Makazi Care landing page ---------- */
+body.landing-page {
+  --cream: #f7f5ed;
+  --paper: #fffefa;
+  --line: #e5e2d5;
+  --ink: #252d26;
+  --muted: #667168;
+  --sage-100: #e8eee6;
+  --sage-600: #5b715d;
+  --sage-800: #36513f;
+  --sage-900: #263a2d;
+  --brown-100: #f0e9dd;
+  --brown-600: #806444;
+  --brown-700: #604a35;
+  --brown-950: #202b23;
+  background: var(--cream);
+}
+body.landing-page .site-header { border-color: #e5e2d5; }
+body.landing-page .hero { padding: clamp(3.5rem, 7vw, 6.6rem) 0 0; }
+body.landing-page .landing-intro { align-items: center !important; }
+body.landing-page .hero h1 { max-width: 12ch; font-size: clamp(3rem, 6vw, 5.4rem); letter-spacing: -.045em; line-height: .99; }
+body.landing-page .hero h1 em { color: #75856c; }
+body.landing-page .hero-copy { max-width: 43ch; font-size: 1.08rem; }
+body.landing-page .hero-actions { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+body.landing-page .text-link { color: var(--sage-800); font-weight: 700; text-decoration: none; }
+body.landing-page .text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+body.landing-page .hero-media { position: relative; max-width: none; margin-top: 3.2rem; }
+body.landing-page .hero-media .carousel-inner { height: clamp(280px, 42vw, 510px); border: 0; border-radius: 28px; box-shadow: 0 28px 70px -40px rgba(32, 43, 35, .55); }
+body.landing-page .hero-media .carousel-item::after { position: absolute; inset: 35% 0 0; content: ""; background: linear-gradient(transparent, rgba(20, 29, 23, .62)); }
+body.landing-page .hero-media .carousel-caption { z-index: 1; right: auto; bottom: 2.2rem; left: 2.5rem; text-align: left; }
+body.landing-page .hero-media .carousel-caption p { margin: 0; font-family: "Fraunces", serif; font-size: clamp(1.4rem, 3vw, 2.2rem); }
+body.landing-page .proof-strip { margin-top: 3rem; background: #e9eee6; border-block: 1px solid #dce4d9; }
+body.landing-page .proof-grid { min-height: 92px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; gap: 1rem; }
+body.landing-page .proof-grid span { display: flex; align-items: center; justify-content: center; gap: .65rem; color: #3b5140; font-size: .9rem; font-weight: 700; }
+body.landing-page .proof-grid i { font-size: 1.2rem; }
+body.landing-page .roles-wrap { padding: clamp(4rem, 7vw, 6.4rem) 0; }
+body.landing-page .section-heading { max-width: 680px; margin: 0 auto 2.3rem; text-align: center; }
+body.landing-page .section-heading .eyebrow { justify-content: center; }
+body.landing-page .section-heading h2 { margin: .8rem 0 .75rem; color: var(--sage-900); font: 550 clamp(2rem, 4vw, 3.2rem)/1.08 "Fraunces", serif; letter-spacing: -.025em; }
+body.landing-page .section-heading > p:last-child { max-width: 55ch; margin: 0 auto; color: var(--muted); line-height: 1.7; }
+body.landing-page .roles { grid-template-columns: repeat(3, 1fr); border-radius: 20px; box-shadow: 0 20px 50px -45px rgba(36, 48, 38, .55); }
+body.landing-page .role { padding: 1.7rem; gap: 1rem; }
+body.landing-page .role-icon { flex: 0 0 auto; border-radius: 14px; }
+body.landing-page .role h2 { color: var(--sage-900); font: 600 1.2rem "Fraunces", serif; }
+body.landing-page .role p { line-height: 1.7; }
+body.landing-page .how-section { padding: clamp(4rem, 7vw, 6.5rem) 0; background: #ecefe8; }
+body.landing-page .how-grid { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: clamp(2.5rem, 7vw, 6rem); }
+body.landing-page .how-heading { margin: 0; text-align: left; }
+body.landing-page .how-heading .eyebrow { justify-content: flex-start; }
+body.landing-page .how-heading > p:last-of-type { margin: 0 0 1.5rem; }
+body.landing-page .steps { display: grid; gap: .9rem; }
+body.landing-page .step { display: flex; gap: 1.1rem; padding: 1.25rem 1.35rem; background: var(--paper); border: 1px solid #dfe5dc; border-radius: 16px; }
+body.landing-page .step > span { flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--sage-100); color: var(--sage-800); font-size: .78rem; font-weight: 800; }
+body.landing-page .step h3 { margin: .1rem 0 .35rem; color: var(--sage-900); font: 600 1.18rem "Fraunces", serif; }
+body.landing-page .step p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+body.landing-page .site-footer { padding: 3.5rem 0 1.4rem; }
+body.landing-page .footer-main { display: grid; grid-template-columns: 1.1fr .9fr 1fr; gap: 3rem; padding-bottom: 2.5rem; }
+body.landing-page .footer-brand { color: #f5f2e9; font: 600 1.25rem "Fraunces", serif; letter-spacing: .08em; text-decoration: none; }
+body.landing-page .footer-main p { max-width: 34ch; margin: .8rem 0 0; color: #c9d0c7; line-height: 1.7; }
+body.landing-page .footer-main h2 { margin: 0 0 .8rem; color: #fff; font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; }
+body.landing-page .footer-contact { display: grid; align-content: start; gap: .45rem; }
+body.landing-page .footer-contact a, body.landing-page .footer-contact span { width: fit-content; color: #d7ded5; text-decoration: none; }
+body.landing-page .footer-contact a:hover { color: #fff; }
+body.landing-page .footer-cta .btn { margin-top: 1rem; }
+body.landing-page .footer-bottom { padding-top: 1.1rem; border-top: 1px solid rgba(255,255,255,.16); color: #bfc9bf; font-size: .8rem; }
+body.landing-page .footer-bottom a { color: inherit; border: 0; text-decoration: none; }
+@media (max-width: 767.98px) {
+  body.landing-page .hero { padding-top: 3rem; }
+  body.landing-page .hero h1 { max-width: 11ch; }
+  body.landing-page .hero-media .carousel-inner { height: 300px; border-radius: 20px; }
+  body.landing-page .hero-media .carousel-caption { left: 1.4rem; bottom: 1.7rem; }
+  body.landing-page .proof-grid { grid-template-columns: repeat(2, 1fr); padding-block: 1rem; }
+  body.landing-page .proof-grid span { justify-content: flex-start; font-size: .8rem; }
+  body.landing-page .roles { grid-template-columns: 1fr; }
+  body.landing-page .role + .role { border-left: 0; border-top: 1px solid var(--line); }
+  body.landing-page .how-grid { grid-template-columns: 1fr; }
+  body.landing-page .how-heading { text-align: center; }
+  body.landing-page .how-heading .eyebrow { justify-content: center; }
+  body.landing-page .footer-main { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  body.landing-page .footer-cta { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  body.landing-page .proof-grid { grid-template-columns: 1fr 1fr; }
+  body.landing-page .footer-main { grid-template-columns: 1fr; gap: 1.8rem; }
+  body.landing-page .footer-cta { grid-column: auto; }
+  body.landing-page .hero-actions { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.landing-page html { scroll-behavior: auto; }
+  body.landing-page *, body.landing-page *::before, body.landing-page *::after { transition-duration: .01ms !important; }
+}
+
     /* ---------- Payment setup and live data panels ---------- */
     .collection-panel,
     .app-data-panel {
