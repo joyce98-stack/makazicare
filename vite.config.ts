@@ -1,20 +1,46 @@
-import  path from "path";
-import { fileURLToPath} from "url";
-import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { defineconfig} from "vite";
-import { viteSingleFile } from "vite-plugin-singlefile";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
-// https://vite.dev/config/
-export default defineconfig({
-   plugins: [react(),tailwindcss(),viteSingleFile()],
-   resolve: {
-    alias:{
-      "@": path.resolve(__dirname,"src"),    
+export default defineConfig({
+  root: projectRoot,
+  publicDir: path.resolve(projectRoot, "frontend"),
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(projectRoot, "src"),
     },
-   },
+  },
+  server: {
+    host: "127.0.0.1",
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on("proxyReq", (proxyRequest) => proxyRequest.removeHeader("origin"));
+        },
+      },
+      "/hooks": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on("proxyReq", (proxyRequest) => proxyRequest.removeHeader("origin"));
+        },
+      },
+    },
+  },
+  build: {
+    outDir: path.resolve(projectRoot, "dist"),
+    emptyOutDir: true,
+    rolldownOptions: {
+      input: {
+        landing: path.resolve(projectRoot, "index.html"),
+        signin: path.resolve(projectRoot, "signin.html"),
+      },
+    },
+  },
 });
-

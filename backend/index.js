@@ -5,13 +5,17 @@ import express from "express";
 import helmet from "helmet";
 import jwt from "jsonwebtoken";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { databaseHealth, getStore, initializeStore, saveStore } from "./store.js";
 import { sendOnboardingNotifications, sendPasswordResetEmail } from "./notifications.js";
 
 const port = Number(process.env.PORT || 3001);
-const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../frontend");
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const legacyFrontendRoot = path.join(projectRoot, "frontend");
+const buildRoot = path.join(projectRoot, "dist");
+const frontendRoot = existsSync(path.join(buildRoot, "index.html")) ? buildRoot : legacyFrontendRoot;
 const jwtSecret = process.env.JWT_SECRET || "development-only-change-this-secret";
 const sessionCookie = "makazi_care_session";
 const tokenLifetimeSeconds = 8 * 60 * 60;
@@ -1420,7 +1424,10 @@ app.get("/api/audit", authenticate, allowRoles("landlord"), (req, res) => {
   res.json({ items });
 });
 
-app.get("/", (_req, res) => res.sendFile(path.join(frontendRoot, "landingpage.html")));
+app.get("/", (_req, res) => {
+  const indexPage = path.join(buildRoot, "index.html");
+  return res.sendFile(existsSync(indexPage) ? indexPage : path.join(legacyFrontendRoot, "landingpage.html"));
+});
 app.use(express.static(frontendRoot, { extensions: ["html"] }));
 app.use("/api", (_req, res) => fail(res, 404, "API route not found.", "NOT_FOUND"));
 
